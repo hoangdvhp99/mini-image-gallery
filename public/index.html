@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini LAN Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hiệu ứng trượt cho Toast */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen font-sans">
+    <div class="container mx-auto p-4 max-w-6xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800">🖼️ Kho Lưu Trữ Ảnh LBEO Nội Bộ</h1>
+            <p class="text-gray-500 text-sm mt-1">Dành cho mạng LAN - Upload hàng loạt & Ghi đè khi trùng tên</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Khu Vực Upload (Đã chuyển thành Dropzone) -->
+            <div class="bg-white p-4 rounded-lg shadow-sm h-fit md:col-span-1">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">Tải ảnh lên</h2>
+                <form id="uploadForm" class="space-y-4">
+
+                    <!-- Vùng kéo thả file (Dropzone) -->
+                    <div id="dropzone"
+                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all relative">
+                        <!-- Input ẩn, xử lý thông qua click vào dropzone -->
+                        <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
+
+                        <div class="space-y-2 pointer-events-none">
+                            <div class="text-3xl">📁</div>
+                            <p class="text-sm font-medium text-gray-700">Kéo thả ảnh vào đây</p>
+                            <p class="text-xs text-gray-400">hoặc <span class="text-blue-600 underline">bấm để chọn
+                                    file</span></p>
+                        </div>
+                        <!-- Hiển thị số lượng file đã chọn -->
+                        <div id="fileCounter" class="mt-2 text-xs font-semibold text-emerald-600 hidden"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hashtags</label>
+                        <input type="text" id="tagsInput" placeholder="Ví dụ: meme, congviec"
+                            class="w-full p-2 border rounded text-sm focus:outline-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Mô tả</label>
+                        <textarea id="descInput" rows="2" placeholder="Nhập mô tả..."
+                            class="w-full p-2 border rounded text-sm focus:outline-blue-500"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white py-2 rounded font-medium text-sm hover:bg-blue-700 transition">Upload</button>
+                </form>
+            </div>
+
+            <!-- Khu Vực Gallery & Search -->
+            <div class="md:col-span-3 space-y-4">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm tên hoặc hashtag..."
+                    class="w-full p-3 rounded-lg shadow-sm border focus:outline-blue-500 text-sm">
+                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Ảnh sẽ render ở đây -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nơi chứa các Toast Message -->
+    <div id="toastContainer"
+        class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Modal Xem Ảnh Lớn -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-4"
+        onclick="closeModal()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
+            <span
+                class="absolute top-2 right-2 text-white text-3xl font-bold cursor-pointer bg-black bg-opacity-50 w-10 h-10 flex items-center justify-center rounded-full hover:bg-opacity-70">&times;</span>
+            <img id="modalImg" class="max-w-full max-h-[80vh] object-contain rounded shadow-lg"
+                onclick="event.stopPropagation()">
+            <p id="modalTitle"
+                class="text-white text-sm mt-3 bg-black bg-opacity-50 px-4 py-1 rounded max-w-full truncate"></p>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const searchInput = document.getElementById('searchInput');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const imageModal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalTitle = document.getElementById('modalTitle');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // DOM Drag & Drop
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const fileCounter = document.getElementById('fileCounter');
+
+        // Biến tạm để lưu danh sách File (vì FileList của input là read-only)
+        let selectedFiles = [];
+
+        // Hệ thống Toast Message
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-lg shadow-lg text-white font-medium text-sm flex items-center justify-between pointer-events-auto animate-slide-in ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
+                }`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-4 text-white opacity-70 hover:opacity-100 font-bold text-lg">&times;</button>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Xử lý Logic Drag & Drop ---
+
+        // Khi click vào vùng dropzone, kích hoạt mở cửa sổ chọn file của thẻ input ẩn
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        // Khi người dùng chọn file theo cách click truyền thống
+        fileInput.addEventListener('change', (e) => {
+            handleFilesSelection(e.target.files);
+        });
+
+        // Ngăn chặn hành vi mặc định của trình duyệt (tránh việc trình duyệt tự mở ảnh khi thả vào)
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => e.preventDefault(), false);
+        });
+
+        // Hiệu ứng đổi màu viền khi đang kéo file đè lên vùng Dropzone
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.classList.add('border-blue-500', 'bg-blue-50');
+            });
+        });
+
+        // Trả lại trạng thái cũ khi kéo file ra ngoài vùng Dropzone
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+        });
+
+        // Khi người dùng thả (Drop) file vào vùng chỉ định
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFilesSelection(files);
+        });
+
+        // Cập nhật danh sách file đã chọn và hiển thị số lượng lên giao diện
+        function handleFilesSelection(files) {
+            // Chỉ lọc lấy các file là hình ảnh
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+
+            if (imageFiles.length === 0) {
+                showToast('Vui lòng chỉ chọn các tệp tin hình ảnh!', 'error');
+                return;
+            }
+
+            selectedFiles = imageFiles;
+            fileCounter.textContent = `✓ Đã chọn ${selectedFiles.length} ảnh`;
+            fileCounter.classList.remove('hidden');
+        }
+
+        // --- Xử lý Gọi API ---
+
+        // Lấy danh sách ảnh
+        async function fetchImages(search = '') {
+            const res = await fetch(`/api/images?search=${encodeURIComponent(search)}`);
+            const images = await res.json();
+
+            if (images.length === 0) {
+                galleryGrid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">Không tìm thấy ảnh nào</div>`;
+                return;
+            }
+
+            galleryGrid.innerHTML = images.map(img => `
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex flex-col justify-between">
+                    <div onclick="openModal('${img.url}', '${img.name}')" class="aspect-video bg-gray-50 flex items-center justify-center overflow-hidden cursor-zoom-in group relative">
+                        <img src="${img.url}" alt="${img.name}" class="object-contain w-full h-full max-h-48 transition-transform duration-200 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+                            <span class="text-white opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 px-2 py-1 rounded text-xs">Click để xem lớn</span>
+                        </div>
+                    </div>
+                    <div class="p-3 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-medium text-sm text-gray-800 truncate" title="${img.name}">${img.name}</h3>
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">${img.description || '<i class="text-gray-300">Không có mô tả</i>'}</p>
+                            <div class="flex flex-wrap gap-1 my-2">
+                                ${img.hashtags.map(tag => `<span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">#${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 mt-2">
+                            <a href="${img.url}" download="${img.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition">
+                                📥 Tải về
+                            </a>
+                            <button onclick="deleteImage('${img.name}')" class="flex items-center justify-center gap-1 text-xs bg-red-50 text-red-600 py-2 rounded hover:bg-red-100 font-medium text-center transition">
+                                🗑️ Xóa ảnh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Xử lý nút bấm Submit để Upload
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (selectedFiles.length === 0) {
+                showToast('Vui lòng chọn hoặc kéo thả ít nhất 1 ảnh trước!', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            // Đưa toàn bộ file từ mảng tạm selectedFiles vào FormData
+            selectedFiles.forEach(file => {
+                formData.append('images', file);
+            });
+            formData.append('hashtags', document.getElementById('tagsInput').value);
+            formData.append('description', document.getElementById('descInput').value);
+
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const result = await res.json();
+                if (res.ok) {
+                    showToast(result.message || 'Tải lên thành công!', 'success');
+                    uploadForm.reset();
+                    selectedFiles = []; // Reset mảng file tạm
+                    fileCounter.classList.add('hidden'); // Ẩn bộ đếm số lượng file
+                    fetchImages();
+                } else {
+                    showToast(result.message || 'Lỗi khi tải lên!', 'error');
+                }
+            } catch (err) {
+                showToast('Không thể kết nối đến server!', 'error');
+            }
+        });
+
+        // Tìm kiếm realtime
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchImages(e.target.value);
+            }, 300);
+        });
+
+        // Xóa ảnh
+        async function deleteImage(fileName) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa ảnh "${fileName}" không?`)) return;
+            try {
+                const res = await fetch(`/api/images/${encodeURIComponent(fileName)}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    fetchImages(searchInput.value);
+                } else {
+                    showToast('Lỗi: ' + result.message, 'error');
+                }
+            } catch (err) {
+                showToast('Có lỗi xảy ra khi kết nối tới server.', 'error');
+            }
+        }
+
+        // Điều khiển Modal xem ảnh lớn
+        function openModal(url, name) {
+            modalImg.src = url;
+            modalTitle.textContent = name;
+            imageModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            imageModal.classList.add('hidden');
+            modalImg.src = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        fetchImages();
+    </script>
+</body>
+
+</html>
