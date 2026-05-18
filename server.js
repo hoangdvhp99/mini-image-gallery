@@ -89,9 +89,16 @@ app.get('/api/images', (req, res) => {
     res.json(filtered);
 });
 
-// 3. API Xóa ảnh
+// 3. API Xóa ảnh (Chỉ cho phép nếu có param isAdmin=1)
 app.delete('/api/images/:name', (req, res) => {
     try {
+        const isAdmin = req.query.isAdmin; // Lấy param từ URL (?isAdmin=1)
+
+        // Kiểm tra quyền Admin
+        if (isAdmin !== '1') {
+            return res.status(403).json({ success: false, message: 'Từ chối truy cập! Bạn không có quyền xóa ảnh.' });
+        }
+
         const fileName = req.params.name;
         let db = readDB();
 
@@ -104,7 +111,7 @@ app.delete('/api/images/:name', (req, res) => {
         // Đường dẫn tới file ảnh vật lý
         const filePath = path.join(UPLOAD_DIR, fileName);
 
-        // 1. Xóa file ảnh vật lý nếu file tồn tại
+        // 1. Xóa file ảnh vật lý nếu tồn tại
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
         }

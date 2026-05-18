@@ -191,38 +191,55 @@
             const res = await fetch(`/api/images?search=${encodeURIComponent(search)}`);
             const images = await res.json();
 
+            // Đọc param ?isAdmin=1 từ URL của trình duyệt hiện tại
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('isAdmin') === '1';
+
             if (images.length === 0) {
                 galleryGrid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">Không tìm thấy ảnh nào</div>`;
                 return;
             }
 
-            galleryGrid.innerHTML = images.map(img => `
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex flex-col justify-between">
-                    <div onclick="openModal('${img.url}', '${img.name}')" class="aspect-video bg-gray-50 flex items-center justify-center overflow-hidden cursor-zoom-in group relative">
-                        <img src="${img.url}" alt="${img.name}" class="object-contain w-full h-full max-h-48 transition-transform duration-200 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="text-white opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 px-2 py-1 rounded text-xs">Click để xem lớn</span>
-                        </div>
-                    </div>
-                    <div class="p-3 flex-grow flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-medium text-sm text-gray-800 truncate" title="${img.name}">${img.name}</h3>
-                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">${img.description || '<i class="text-gray-300">Không có mô tả</i>'}</p>
-                            <div class="flex flex-wrap gap-1 my-2">
-                                ${img.hashtags.map(tag => `<span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">#${tag}</span>`).join('')}
+            galleryGrid.innerHTML = images.map(img => {
+                // Khởi tạo cột nút bấm, mặc định luôn có nút tải về
+                let actionButtons = `
+                    <a href="${img.url}" download="${img.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition ${isAdmin ? '' : 'col-span-2'}">
+                        📥 Tải về
+                    </a>
+                `;
+
+                // Nếu là Admin thì nối thêm nút Xóa ảnh vào giao diện công khai
+                if (isAdmin) {
+                    actionButtons += `
+                        <button onclick="deleteImage('${img.name}')" class="flex items-center justify-center gap-1 text-xs bg-red-50 text-red-600 py-2 rounded hover:bg-red-100 font-medium text-center transition">
+                            🗑️ Xóa ảnh
+                        </button>
+                    `;
+                }
+
+                return `
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex flex-col justify-between">
+                        <div onclick="openModal('${img.url}', '${img.name}')" class="aspect-video bg-gray-50 flex items-center justify-center overflow-hidden cursor-zoom-in group relative">
+                            <img src="${img.url}" alt="${img.name}" class="object-contain w-full h-full max-h-48 transition-transform duration-200 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+                                <span class="text-white opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 px-2 py-1 rounded text-xs">Click để xem lớn</span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 mt-2">
-                            <a href="${img.url}" download="${img.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition">
-                                📥 Tải về
-                            </a>
-                            <button onclick="deleteImage('${img.name}')" class="flex items-center justify-center gap-1 text-xs bg-red-50 text-red-600 py-2 rounded hover:bg-red-100 font-medium text-center transition">
-                                🗑️ Xóa ảnh
-                            </button>
+                        <div class="p-3 flex-grow flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-medium text-sm text-gray-800 truncate" title="${img.name}">${img.name}</h3>
+                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">${img.description || '<i class="text-gray-300">Không có mô tả</i>'}</p>
+                                <div class="flex flex-wrap gap-1 my-2">
+                                    ${img.hashtags.map(tag => `<span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">#${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 mt-2">
+                                ${actionButtons}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Xử lý nút bấm Submit để Upload
@@ -268,12 +285,21 @@
             }, 300);
         });
 
-        // Xóa ảnh
+        // Hàm xử lý XÓA ẢNH (Có truyền kèm trạng thái quyền lên API)
         async function deleteImage(fileName) {
             if (!confirm(`Bạn có chắc chắn muốn xóa ảnh "${fileName}" không?`)) return;
+
+            // Lấy lại quyền isAdmin từ URL hiện tại để đính kèm vào API endpoint
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('isAdmin') || '0';
+
             try {
-                const res = await fetch(`/api/images/${encodeURIComponent(fileName)}`, { method: 'DELETE' });
+                // Truyền query param ?isAdmin=1 lên backend để xác thực
+                const res = await fetch(`/api/images/${encodeURIComponent(fileName)}?isAdmin=${isAdmin}`, {
+                    method: 'DELETE'
+                });
                 const result = await res.json();
+
                 if (result.success) {
                     showToast(result.message, 'success');
                     fetchImages(searchInput.value);
