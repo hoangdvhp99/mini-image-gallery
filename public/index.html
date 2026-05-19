@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini LAN Gallery</title>
+    <title>Mini LAN Gallery & Video</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Hiệu ứng trượt cho Toast */
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -29,35 +28,29 @@
 <body class="bg-gray-100 min-h-screen font-sans">
     <div class="container mx-auto p-4 max-w-6xl">
         <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-gray-800">🖼️ Kho Lưu Trữ Ảnh LBEO Nội Bộ</h1>
-            <p class="text-gray-500 text-sm mt-1">Dành cho mạng LAN - Upload hàng loạt & Ghi đè khi trùng tên</p>
+            <h1 class="text-3xl font-bold text-gray-800">🖼️ Kho Lưu Trữ Lbeo Nội Bộ</h1>
+            <p class="text-gray-500 text-sm mt-1">Dành cho mạng LAN - Hỗ trợ cả Ảnh & Video hàng loạt</p>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Khu Vực Upload (Đã chuyển thành Dropzone) -->
+            <!-- Khu Vực Upload -->
             <div class="bg-white p-4 rounded-lg shadow-sm h-fit md:col-span-1">
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Tải ảnh lên</h2>
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">Tải ảnh/video lên</h2>
                 <form id="uploadForm" class="space-y-4">
-
-                    <!-- Vùng kéo thả file (Dropzone) -->
                     <div id="dropzone"
                         class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all relative">
-                        <!-- Input ẩn, xử lý thông qua click vào dropzone -->
-                        <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
-
+                        <input type="file" id="fileInput" multiple accept="image/*,video/*" class="hidden">
                         <div class="space-y-2 pointer-events-none">
                             <div class="text-3xl">📁</div>
-                            <p class="text-sm font-medium text-gray-700">Kéo thả ảnh vào đây</p>
+                            <p class="text-sm font-medium text-gray-700">Kéo thả File vào đây</p>
                             <p class="text-xs text-gray-400">hoặc <span class="text-blue-600 underline">bấm để chọn
                                     file</span></p>
                         </div>
-                        <!-- Hiển thị số lượng file đã chọn -->
                         <div id="fileCounter" class="mt-2 text-xs font-semibold text-emerald-600 hidden"></div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hashtags</label>
-                        <input type="text" id="tagsInput" placeholder="Ví dụ: meme, congviec"
+                        <input type="text" id="tagsInput" placeholder="Ví dụ: meme, video"
                             class="w-full p-2 border rounded text-sm focus:outline-blue-500">
                     </div>
                     <div>
@@ -72,11 +65,9 @@
 
             <!-- Khu Vực Gallery & Search -->
             <div class="md:col-span-3 space-y-4">
-                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm tên hoặc hashtag..."
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm tên, định dạng hoặc hashtag..."
                     class="w-full p-3 rounded-lg shadow-sm border focus:outline-blue-500 text-sm">
-                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Ảnh sẽ render ở đây -->
-                </div>
+                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
         </div>
     </div>
@@ -85,16 +76,60 @@
     <div id="toastContainer"
         class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
-    <!-- Modal Xem Ảnh Lớn -->
-    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-4"
+    <!-- Modal Xem Media Lớn -->
+    <div id="mediaModal" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50 flex items-center justify-center p-4"
         onclick="closeModal()">
-        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
-            <span
-                class="absolute top-2 right-2 text-white text-3xl font-bold cursor-pointer bg-black bg-opacity-50 w-10 h-10 flex items-center justify-center rounded-full hover:bg-opacity-70">&times;</span>
-            <img id="modalImg" class="max-w-full max-h-[80vh] object-contain rounded shadow-lg"
-                onclick="event.stopPropagation()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center w-full">
+            <span class="absolute -top-10 right-0 text-white text-4xl font-bold cursor-pointer hover:text-gray-300"
+                onclick="closeModal()">&times;</span>
+            <div id="modalContent" class="w-full flex items-center justify-center" onclick="event.stopPropagation()">
+            </div>
             <p id="modalTitle"
                 class="text-white text-sm mt-3 bg-black bg-opacity-50 px-4 py-1 rounded max-w-full truncate"></p>
+        </div>
+    </div>
+
+    <!-- Modal Cập Nhật Thông Tin (Edit Modal) -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4 relative">
+            <span class="absolute top-2 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+                onclick="closeEditModal()">&times;</span>
+            <h3 class="text-lg font-bold text-gray-800">✏️ Cập nhật thông tin</h3>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editOldName">
+
+                <!-- Ô NHẬP TÊN FILE MỚI ĐƯỢC THÊM VÀO -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tên file (Có thể sửa
+                        đổi)</label>
+                    <input type="text" id="editNewNameInput" placeholder="Nhập tên file mới..."
+                        class="w-full p-2 border rounded text-sm focus:outline-blue-500 font-medium text-gray-800">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Thay thế file cũ (Tùy
+                        chọn)</label>
+                    <input type="file" id="editFileInput" accept="image/*,video/*"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hashtags</label>
+                    <input type="text" id="editTagsInput"
+                        class="w-full p-2 border rounded text-sm focus:outline-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Mô tả</label>
+                    <textarea id="editDescInput" rows="3"
+                        class="w-full p-2 border rounded text-sm focus:outline-blue-500"></textarea>
+                </div>
+                <div class="flex gap-2 justify-end pt-2">
+                    <button type="button" onclick="closeEditModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 bg-gray-100 rounded">Hủy</button>
+                    <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow">Lưu
+                        thay đổi</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -102,28 +137,31 @@
         const uploadForm = document.getElementById('uploadForm');
         const searchInput = document.getElementById('searchInput');
         const galleryGrid = document.getElementById('galleryGrid');
-        const imageModal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImg');
+        const mediaModal = document.getElementById('mediaModal');
+        const modalContent = document.getElementById('modalContent');
         const modalTitle = document.getElementById('modalTitle');
         const toastContainer = document.getElementById('toastContainer');
-
-        // DOM Drag & Drop
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
         const fileCounter = document.getElementById('fileCounter');
 
-        // Biến tạm để lưu danh sách File (vì FileList của input là read-only)
-        let selectedFiles = [];
+        // Các biến của Edit Modal
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
+        const editOldName = document.getElementById('editOldName');
+        const editFileInput = document.getElementById('editFileInput');
+        const editTagsInput = document.getElementById('editTagsInput');
+        const editDescInput = document.getElementById('editDescInput');
 
-        // Hệ thống Toast Message
+        let selectedFiles = [];
+        let globalMediaList = []; // Lưu trữ mảng gốc phục vụ việc lấy thông tin khi sửa
+
+        function isVideo(fileName) { return /\.(mp4|webm|mov|avi|mkv|3gp)$/i.test(fileName); }
+
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = `p-4 rounded-lg shadow-lg text-white font-medium text-sm flex items-center justify-between pointer-events-auto animate-slide-in ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
-                }`;
-            toast.innerHTML = `
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" class="ml-4 text-white opacity-70 hover:opacity-100 font-bold text-lg">&times;</button>
-            `;
+            toast.className = `p-4 rounded-lg shadow-lg text-white font-medium text-sm flex items-center justify-between pointer-events-auto animate-slide-in ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+            toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-4 text-white opacity-70 hover:opacity-100 font-bold text-lg">&times;</button>`;
             toastContainer.appendChild(toast);
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -133,104 +171,72 @@
             }, 3000);
         }
 
-        // --- Xử lý Logic Drag & Drop ---
-
-        // Khi click vào vùng dropzone, kích hoạt mở cửa sổ chọn file của thẻ input ẩn
+        // --- Drag & Drop ---
         dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFilesSelection(e.target.files));
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, (e) => e.preventDefault(), false));
+        ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.add('border-blue-500', 'bg-blue-50')));
+        ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.remove('border-blue-500', 'bg-blue-50')));
+        dropzone.addEventListener('drop', (e) => handleFilesSelection(e.dataTransfer.files));
 
-        // Khi người dùng chọn file theo cách click truyền thống
-        fileInput.addEventListener('change', (e) => {
-            handleFilesSelection(e.target.files);
-        });
-
-        // Ngăn chặn hành vi mặc định của trình duyệt (tránh việc trình duyệt tự mở ảnh khi thả vào)
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, (e) => e.preventDefault(), false);
-        });
-
-        // Hiệu ứng đổi màu viền khi đang kéo file đè lên vùng Dropzone
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropzone.addEventListener(eventName, () => {
-                dropzone.classList.add('border-blue-500', 'bg-blue-50');
-            });
-        });
-
-        // Trả lại trạng thái cũ khi kéo file ra ngoài vùng Dropzone
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, () => {
-                dropzone.classList.remove('border-blue-500', 'bg-blue-50');
-            });
-        });
-
-        // Khi người dùng thả (Drop) file vào vùng chỉ định
-        dropzone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFilesSelection(files);
-        });
-
-        // Cập nhật danh sách file đã chọn và hiển thị số lượng lên giao diện
         function handleFilesSelection(files) {
-            // Chỉ lọc lấy các file là hình ảnh
-            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-
-            if (imageFiles.length === 0) {
-                showToast('Vui lòng chỉ chọn các tệp tin hình ảnh!', 'error');
-                return;
-            }
-
-            selectedFiles = imageFiles;
-            fileCounter.textContent = `✓ Đã chọn ${selectedFiles.length} ảnh`;
+            const validFiles = Array.from(files).filter(file => file.type.startsWith('image/') || file.type.startsWith('video/'));
+            if (validFiles.length === 0) { showToast('Vui lòng chọn tệp hình ảnh hoặc video!', 'error'); return; }
+            selectedFiles = validFiles;
+            fileCounter.textContent = `✓ Đã chọn ${selectedFiles.length} tệp`;
             fileCounter.classList.remove('hidden');
         }
 
-        // --- Xử lý Gọi API ---
-
-        // Lấy danh sách ảnh
+        // --- Fetch & Render ---
         async function fetchImages(search = '') {
             const res = await fetch(`/api/images?search=${encodeURIComponent(search)}`);
-            const images = await res.json();
+            globalMediaList = await res.json();
 
-            // Đọc param ?isAdmin=1 từ URL của trình duyệt hiện tại
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('isAdmin') === '1';
 
-            if (images.length === 0) {
-                galleryGrid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">Không tìm thấy ảnh nào</div>`;
+            if (globalMediaList.length === 0) {
+                galleryGrid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">Không tìm thấy dữ liệu</div>`;
                 return;
             }
 
-            galleryGrid.innerHTML = images.map(img => {
-                // Khởi tạo cột nút bấm, mặc định luôn có nút tải về
+            galleryGrid.innerHTML = globalMediaList.map(item => {
+                const checkVideo = isVideo(item.name);
+                const mediaPreview = checkVideo
+                    ? `<video src="${item.url}" class="object-contain w-full h-full max-h-48" muted></video><div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center pointer-events-none"><span class="text-white text-3xl bg-black bg-opacity-50 w-12 h-12 flex items-center justify-center rounded-full">▶</span></div>`
+                    : `<img src="${item.url}" alt="${item.name}" class="object-contain w-full h-full max-h-48 transition-transform duration-200 group-hover:scale-105">`;
+
                 let actionButtons = `
-                    <a href="${img.url}" download="${img.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition ${isAdmin ? '' : 'col-span-2'}">
+                    <a href="${item.url}" download="${item.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition ${isAdmin ? '' : 'col-span-2'}">
                         📥 Tải về
                     </a>
                 `;
 
-                // Nếu là Admin thì nối thêm nút Xóa ảnh vào giao diện công khai
                 if (isAdmin) {
-                    actionButtons += `
-                        <button onclick="deleteImage('${img.name}')" class="flex items-center justify-center gap-1 text-xs bg-red-50 text-red-600 py-2 rounded hover:bg-red-100 font-medium text-center transition">
-                            🗑️ Xóa ảnh
+                    actionButtons = `
+                        <a href="${item.url}" download="${item.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition col-span-2">
+                            📥 Tải về máy
+                        </a>
+                        <button onclick="openEditModal('${item.name}')" class="flex items-center justify-center gap-1 text-xs bg-amber-50 text-amber-700 py-2 rounded hover:bg-amber-100 font-medium text-center transition">
+                            ✏️ Sửa
+                        </button>
+                        <button onclick="deleteImage('${item.name}')" class="flex items-center justify-center gap-1 text-xs bg-red-50 text-red-600 py-2 rounded hover:bg-red-100 font-medium text-center transition">
+                            🗑️ Xóa
                         </button>
                     `;
                 }
 
                 return `
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex flex-col justify-between">
-                        <div onclick="openModal('${img.url}', '${img.name}')" class="aspect-video bg-gray-50 flex items-center justify-center overflow-hidden cursor-zoom-in group relative">
-                            <img src="${img.url}" alt="${img.name}" class="object-contain w-full h-full max-h-48 transition-transform duration-200 group-hover:scale-105">
-                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-                                <span class="text-white opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 px-2 py-1 rounded text-xs">Click để xem lớn</span>
-                            </div>
+                        <div onclick="openModal('${item.url}', '${item.name}')" class="aspect-video bg-gray-900 flex items-center justify-center overflow-hidden cursor-zoom-in group relative">
+                            ${mediaPreview}
                         </div>
                         <div class="p-3 flex-grow flex flex-col justify-between">
                             <div>
-                                <h3 class="font-medium text-sm text-gray-800 truncate" title="${img.name}">${img.name}</h3>
-                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">${img.description || '<i class="text-gray-300">Không có mô tả</i>'}</p>
+                                <h3 class="font-medium text-sm text-gray-800 truncate" title="${item.name}">${item.name}</h3>
+                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || '<i class="text-gray-300">Không có mô tả</i>'}</p>
                                 <div class="flex flex-wrap gap-1 my-2">
-                                    ${img.hashtags.map(tag => `<span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">#${tag}</span>`).join('')}
+                                    ${item.hashtags.map(tag => `<span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">#${tag}</span>`).join('')}
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 mt-2">
@@ -242,20 +248,12 @@
             }).join('');
         }
 
-        // Xử lý nút bấm Submit để Upload
+        // --- Xử lý Thêm Mới ---
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            if (selectedFiles.length === 0) {
-                showToast('Vui lòng chọn hoặc kéo thả ít nhất 1 ảnh trước!', 'error');
-                return;
-            }
-
+            if (selectedFiles.length === 0) { showToast('Vui lòng chọn hoặc kéo thả tệp tin trước!', 'error'); return; }
             const formData = new FormData();
-            // Đưa toàn bộ file từ mảng tạm selectedFiles vào FormData
-            selectedFiles.forEach(file => {
-                formData.append('images', file);
-            });
+            selectedFiles.forEach(file => formData.append('images', file));
             formData.append('hashtags', document.getElementById('tagsInput').value);
             formData.append('description', document.getElementById('descInput').value);
 
@@ -264,68 +262,96 @@
                 const result = await res.json();
                 if (res.ok) {
                     showToast(result.message || 'Tải lên thành công!', 'success');
-                    uploadForm.reset();
-                    selectedFiles = []; // Reset mảng file tạm
-                    fileCounter.classList.add('hidden'); // Ẩn bộ đếm số lượng file
+                    uploadForm.reset(); selectedFiles = []; fileCounter.classList.add('hidden');
                     fetchImages();
-                } else {
-                    showToast(result.message || 'Lỗi khi tải lên!', 'error');
                 }
-            } catch (err) {
-                showToast('Không thể kết nối đến server!', 'error');
-            }
+            } catch (err) { showToast('Lỗi kết nối server!', 'error'); }
         });
 
-        // Tìm kiếm realtime
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                fetchImages(e.target.value);
-            }, 300);
-        });
+        // --- Xử lý Cập Nhật (Edit) ---
+        function openEditModal(name) {
+            const currentItem = globalMediaList.find(item => item.name === name);
+            if (!currentItem) return;
 
-        // Hàm xử lý XÓA ẢNH (Có truyền kèm trạng thái quyền lên API)
-        async function deleteImage(fileName) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa ảnh "${fileName}" không?`)) return;
+            // Đổ dữ liệu hiện tại vào các ô input trong form popup
+            editOldName.value = currentItem.name;
 
-            // Lấy lại quyền isAdmin từ URL hiện tại để đính kèm vào API endpoint
+            // Lấy input tên file mới đưa tên cũ vào cho người dùng sửa
+            document.getElementById('editNewNameInput').value = currentItem.name;
+
+            editTagsInput.value = currentItem.hashtags.join(', ');
+            editDescInput.value = currentItem.description || '';
+            editFileInput.value = '';
+
+            editModal.classList.remove('hidden');
+        }
+
+        function closeEditModal() { editModal.classList.add('hidden'); }
+
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('isAdmin') || '0';
+            const oldName = editOldName.value;
+            const newName = document.getElementById('editNewNameInput').value; // Đọc giá trị tên mới
+
+            const formData = new FormData();
+            formData.append('newName', newName); // Gửi tên mới lên server
+            formData.append('hashtags', editTagsInput.value);
+            formData.append('description', editDescInput.value);
+
+            if (editFileInput.files.length > 0) {
+                formData.append('newImage', editFileInput.files[0]);
+            }
 
             try {
-                // Truyền query param ?isAdmin=1 lên backend để xác thực
-                const res = await fetch(`/api/images/${encodeURIComponent(fileName)}?isAdmin=${isAdmin}`, {
-                    method: 'DELETE'
+                const res = await fetch(`/api/images/${encodeURIComponent(oldName)}?isAdmin=${isAdmin}`, {
+                    method: 'PUT',
+                    body: formData
                 });
                 const result = await res.json();
 
-                if (result.success) {
+                if (res.ok && result.success) {
                     showToast(result.message, 'success');
-                    fetchImages(searchInput.value);
+                    closeEditModal();
+                    fetchImages(searchInput.value); // Làm mới danh sách kèm bộ lọc hiện tại
                 } else {
-                    showToast('Lỗi: ' + result.message, 'error');
+                    showToast(result.message, 'error');
                 }
             } catch (err) {
-                showToast('Có lỗi xảy ra khi kết nối tới server.', 'error');
+                showToast('Có lỗi xảy ra khi cập nhật.', 'error');
             }
-        }
-
-        // Điều khiển Modal xem ảnh lớn
-        function openModal(url, name) {
-            modalImg.src = url;
-            modalTitle.textContent = name;
-            imageModal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            imageModal.classList.add('hidden');
-            modalImg.src = '';
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
         });
+
+        // Xóa ảnh
+        async function deleteImage(fileName) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa "${fileName}" không?`)) return;
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('isAdmin') || '0';
+            try {
+                const res = await fetch(`/api/images/${encodeURIComponent(fileName)}?isAdmin=${isAdmin}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) { showToast(result.message, 'success'); fetchImages(searchInput.value); }
+            } catch (err) { showToast('Lỗi hệ thống.', 'error'); }
+        }
+
+        // Tìm kiếm
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => fetchImages(e.target.value), 300);
+        });
+
+        // Điều khiển Preview Modal
+        function openModal(url, name) {
+            modalTitle.textContent = name;
+            modalContent.innerHTML = isVideo(name)
+                ? `<video src="${url}" class="max-w-full max-h-[80vh] rounded shadow-lg" controls autoplay></video>`
+                : `<img src="${url}" class="max-w-full max-h-[80vh] object-contain rounded shadow-lg">`;
+            mediaModal.classList.remove('hidden');
+        }
+        function closeModal() { mediaModal.classList.add('hidden'); modalContent.innerHTML = ''; }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeEditModal(); } });
 
         fetchImages();
     </script>
