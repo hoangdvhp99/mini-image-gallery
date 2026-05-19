@@ -72,20 +72,29 @@ app.post('/api/upload', upload.array('images'), (req, res) => {
 
 // 2. API Lấy danh sách ảnh & Tìm kiếm
 app.get('/api/images', (req, res) => {
-    const search = (req.query.search || '').toLowerCase().trim();
-    const db = readDB();
+    try {
+        const search = (req.query.search || '').toLowerCase().trim();
+        const db = readDB();
 
-    if (!search) {
-        return res.json(db);
+        // 1. Tiến hành lọc dữ liệu theo từ khóa trước (nếu có)
+        let filtered = db;
+        if (search) {
+            filtered = db.filter(img => {
+                const matchName = img.name.toLowerCase().includes(search);
+                const matchHashtag = img.hashtags.some(tag => tag.includes(search));
+                return matchName || matchHashtag;
+            });
+        }
+
+        // 2. Thực hiện sắp xếp: Bản ghi nào có ngày uploadedAt lớn hơn (mới hơn) sẽ được đưa lên đầu
+        filtered.sort((a, b) => {
+            return new Date(b.uploadedAt) - new Date(a.uploadedAt);
+        });
+
+        res.json(filtered);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-
-    const filtered = db.filter(img => {
-        const matchName = img.name.toLowerCase().includes(search);
-        const matchHashtag = img.hashtags.some(tag => tag.includes(search));
-        return matchName || matchHashtag;
-    });
-
-    res.json(filtered);
 });
 
 // 3. API Xóa ảnh (Chỉ cho phép nếu có param isAdmin=1)
