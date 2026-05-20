@@ -222,6 +222,67 @@ app.put('/api/images/:name', upload.single('newImage'), (req, res) => {
     }
 });
 
+// 5. API Thả tim (Like) - Không cần đăng nhập
+app.post('/api/images/:name/like', (req, res) => {
+    try {
+        const fileName = req.params.name;
+        let db = readDB();
+
+        const imageIndex = db.findIndex(img => img.name === fileName);
+        if (imageIndex === -1) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy dữ liệu.' });
+        }
+
+        // Nếu trường likes chưa tồn tại thì khởi tạo bằng 0, sau đó tăng lên 1
+        db[imageIndex].likes = (db[imageIndex].likes || 0) + 1;
+        writeDB(db);
+
+        res.json({ success: true, likes: db[imageIndex].likes });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 6. API Thêm bình luận (Comment) - Không cần đăng nhập
+app.post('/api/images/:name/comment', (req, res) => {
+    try {
+        const fileName = req.params.name;
+        const { text } = req.body; // Lấy nội dung comment từ client
+
+        if (!text || !text.trim()) {
+            return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống.' });
+        }
+
+        let db = readDB();
+        const imageIndex = db.findIndex(img => img.name === fileName);
+        if (imageIndex === -1) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy dữ liệu.' });
+        }
+
+        // Khởi tạo mảng comments nếu chưa có
+        if (!db[imageIndex].comments) {
+            db[imageIndex].comments = [];
+        }
+
+        // Tạo object comment mới với một cái tên ẩn danh ngẫu nhiên cho vui
+        const anonymousNames = ['Người dùng ẩn danh', 'Khách vãng lai', 'Fan BeoHub', 'Ẩn danh đại hiệp', 'Thành viên bí ẩn'];
+        const randomName = anonymousNames[Math.floor(Math.random() * anonymousNames.length)];
+
+        const newComment = {
+            id: Date.now(),
+            author: randomName,
+            text: text.trim(),
+            createdAt: new Date().toISOString()
+        };
+
+        db[imageIndex].comments.push(newComment);
+        writeDB(db);
+
+        res.json({ success: true, comment: newComment });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`=============================================`);

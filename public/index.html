@@ -4,9 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini LAN Gallery & Video</title>
+    <title>BeoHub - Share Tốc Độ Cao Mạng LAN</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        body {
+            background-color: #0c0c0c;
+        }
+
+        .bg-ph-dark {
+            background-color: #1b1b1b;
+        }
+
+        .bg-ph-card {
+            background-color: #242424;
+        }
+
+        .text-ph-orange {
+            color: #ff9900;
+        }
+
+        .bg-ph-orange {
+            background-color: #ff9900;
+        }
+
+        .border-ph-orange {
+            border-color: #ff9900;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -22,112 +47,198 @@
         .animate-slide-in {
             animation: slideIn 0.3s ease-out forwards;
         }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #ff9900;
+        }
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="min-h-screen font-sans text-gray-300">
     <div class="container mx-auto p-4 max-w-6xl">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-gray-800">🖼️ Kho Lưu Trữ Lbeo Nội Bộ</h1>
-            <p class="text-gray-500 text-sm mt-1">Dành cho mạng LAN - Hỗ trợ cả Ảnh & Video hàng loạt</p>
+
+        <!-- HEADER PHONG CÁCH BEOHUB -->
+        <header class="mb-8 flex flex-col items-center justify-center pt-4">
+            <div class="flex items-center font-black text-3xl tracking-tighter select-none">
+                <span class="text-white pr-1">Beo</span>
+                <span class="bg-ph-orange text-black px-2 py-1 rounded-md font-bold">Hub</span>
+            </div>
+            <p class="text-gray-500 text-xs mt-2 tracking-wide font-medium uppercase">Hệ thống lưu trữ & chia sẻ media
+                nội bộ siêu tốc</p>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Khu Vực Upload -->
-            <div class="bg-white p-4 rounded-lg shadow-sm h-fit md:col-span-1">
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Tải ảnh/video lên</h2>
+            <!-- Khu Vực Upload (Bên trái) -->
+            <div class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit md:col-span-1 shadow-2xl">
+                <h2
+                    class="text-base font-bold mb-4 text-white uppercase tracking-wide border-b border-neutral-800 pb-2 flex items-center gap-1">
+                    <span>📤</span> Tải nội dung lên
+                </h2>
                 <form id="uploadForm" class="space-y-4">
                     <div id="dropzone"
-                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all relative">
+                        class="border-2 border-dashed border-neutral-700 rounded-xl p-5 text-center cursor-pointer hover:border-ph-orange hover:bg-neutral-800 transition-all relative group bg-neutral-900">
                         <input type="file" id="fileInput" multiple accept="image/*,video/*" class="hidden">
                         <div class="space-y-2 pointer-events-none">
-                            <div class="text-3xl">📁</div>
-                            <p class="text-sm font-medium text-gray-700">Kéo thả File vào đây</p>
-                            <p class="text-xs text-gray-400">hoặc <span class="text-blue-600 underline">bấm để chọn
-                                    file</span></p>
+                            <div class="text-2xl transition-transform group-hover:scale-110">🎥</div>
+                            <p class="text-xs font-bold text-gray-400">Kéo thả Ảnh / Video vào đây</p>
+                            <p class="text-[11px] text-gray-600">hoặc <span class="text-ph-orange underline">duyệt file
+                                    máy tính</span></p>
                         </div>
-                        <div id="fileCounter" class="mt-2 text-xs font-semibold text-emerald-600 hidden"></div>
+                        <div id="fileCounter" class="mt-2 text-xs font-bold text-ph-orange hidden"></div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hashtags</label>
-                        <input type="text" id="tagsInput" placeholder="Ví dụ: meme, video"
-                            class="w-full p-2 border rounded text-sm focus:outline-blue-500">
+                        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Hashtags
+                            (Phân cách bằng dấu phẩy)</label>
+                        <input type="text" id="tagsInput" placeholder="Ví dụ: meme, hot, bi-mat"
+                            class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Mô tả</label>
-                        <textarea id="descInput" rows="2" placeholder="Nhập mô tả..."
-                            class="w-full p-2 border rounded text-sm focus:outline-blue-500"></textarea>
+                        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả chi
+                            tiết</label>
+                        <textarea id="descInput" rows="2" placeholder="Nhập một vài mô tả ngắn..."
+                            class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
                     </div>
                     <button type="submit"
-                        class="w-full bg-blue-600 text-white py-2 rounded font-medium text-sm hover:bg-blue-700 transition">Upload</button>
+                        class="w-full bg-ph-orange text-black py-2.5 rounded-lg font-bold text-sm hover:bg-amber-500 transition duration-150 shadow-md">BẮT
+                        ĐẦU UPLOAD</button>
                 </form>
             </div>
 
-            <!-- Khu Vực Gallery & Search -->
+            <!-- Khu Vực Thư Viện Media (Bên phải) -->
             <div class="md:col-span-3 space-y-4">
-                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm tên, định dạng hoặc hashtag..."
-                    class="w-full p-3 rounded-lg shadow-sm border focus:outline-blue-500 text-sm">
-                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div class="w-full relative">
+                    <input type="text" id="searchInput"
+                        placeholder="🔍 Nhập tên file, định dạng video hoặc hashtag cần tìm..."
+                        class="w-full p-3.5 bg-ph-dark rounded-xl border border-neutral-800 text-white focus:outline-none focus:border-ph-orange transition text-sm shadow-xl pl-5 placeholder-gray-600">
+                </div>
+                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
             </div>
         </div>
     </div>
 
-    <!-- Nơi chứa các Toast Message -->
+    <!-- Container chứa các thông báo Toast -->
     <div id="toastContainer"
         class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
-    <!-- Modal Xem Media Lớn -->
-    <div id="mediaModal" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50 flex items-center justify-center p-4"
+    <!-- MODAL CHI TIẾT SPLIT-SCREEN -->
+    <div id="mediaModal"
+        class="fixed inset-0 bg-black bg-opacity-95 hidden z-50 flex items-center justify-center p-0 md:p-6 transition-all duration-200"
         onclick="closeModal()">
-        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center w-full">
-            <span class="absolute -top-10 right-0 text-white text-4xl font-bold cursor-pointer hover:text-gray-300"
+        <div class="relative bg-ph-dark w-full max-w-5xl h-full md:h-[85vh] flex flex-col md:flex-row rounded-none md:rounded-xl overflow-hidden border border-neutral-800 shadow-2xl"
+            onclick="event.stopPropagation()">
+
+            <span
+                class="absolute top-3 right-4 text-white text-3xl font-light cursor-pointer hover:text-ph-orange transition z-50 md:hidden"
                 onclick="closeModal()">&times;</span>
-            <div id="modalContent" class="w-full flex items-center justify-center" onclick="event.stopPropagation()">
+
+            <!-- BÊN TRÁI: Khu vực hiển thị Ảnh/Video -->
+            <div
+                class="w-full md:w-3/5 h-1/2 md:h-full bg-black flex items-center justify-center relative border-b md:border-b-0 md:border-r border-neutral-800">
+                <div id="modalContent" class="w-full h-full flex items-center justify-center p-2"></div>
             </div>
-            <p id="modalTitle"
-                class="text-white text-sm mt-3 bg-black bg-opacity-50 px-4 py-1 rounded max-w-full truncate"></p>
+
+            <!-- BÊN PHẢI: Khu vực Tương tác (Like, Share Link, Bình luận) -->
+            <div class="w-full md:w-2/5 h-1/2 md:h-full flex flex-col justify-between bg-ph-dark p-4">
+
+                <div class="border-b border-neutral-800 pb-3 relative">
+                    <span
+                        class="absolute top-0 right-0 text-white text-4xl font-light cursor-pointer hover:text-ph-orange transition hidden md:block"
+                        onclick="closeModal()">&times;</span>
+                    <h3 id="modalTitle" class="font-bold text-white text-base truncate pr-8"></h3>
+                    <p id="modalDesc" class="text-xs text-neutral-400 mt-1 leading-relaxed line-clamp-2"></p>
+                    <div id="modalTags" class="flex flex-wrap gap-1 mt-2"></div>
+                </div>
+
+                <!-- KHU VỰC THẢ TIM & CHIA SẺ URL -->
+                <div class="flex items-center justify-between py-2 border-b border-neutral-800">
+                    <div class="flex items-center gap-2">
+                        <button id="likeBtn"
+                            class="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 hover:border-ph-orange px-3 py-2 rounded-lg group transition">
+                            <span class="text-sm group-hover:scale-125 transition duration-150">❤️</span>
+                            <span class="text-[11px] font-bold text-white tracking-wide">THẢ TIM</span>
+                        </button>
+                        <div class="text-[11px] font-bold text-neutral-400">
+                            <span id="likeCount" class="text-ph-orange text-sm font-mono">0</span> thích
+                        </div>
+                    </div>
+
+                    <!-- NÚT COPY LINK CHIA SẺ NHANH -->
+                    <button id="shareLinkBtn"
+                        class="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 hover:border-ph-orange px-3 py-2 rounded-lg text-white font-bold text-[11px] tracking-wide transition">
+                        <span>🔗</span> COPY LINK SHARE
+                    </button>
+                </div>
+
+                <!-- DANH SÁCH BÌNH LUẬN -->
+                <div class="flex-grow overflow-y-auto py-3 space-y-3 custom-scrollbar" id="commentsContainer"></div>
+
+                <!-- FORM GỬI BÌNH LUẬN -->
+                <form id="commentForm" class="border-t border-neutral-800 pt-3 flex gap-2">
+                    <input type="text" id="commentInput" placeholder="Viết bình luận công khai (ẩn danh)..."
+                        autocomplete="off"
+                        class="flex-grow p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-xs text-white focus:outline-none focus:border-ph-orange transition placeholder-neutral-600">
+                    <button type="submit"
+                        class="bg-ph-orange text-black px-4 rounded-lg text-xs font-black hover:bg-amber-500 transition tracking-wider whitespace-nowrap">GỬI</button>
+                </form>
+            </div>
+
         </div>
     </div>
 
-    <!-- Modal Cập Nhật Thông Tin (Edit Modal) -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4 relative">
-            <span class="absolute top-2 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+    <!-- Modal Sửa Thông Tư -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-70 hidden z-40 flex items-center justify-center p-4">
+        <div class="bg-ph-dark rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4 relative border border-neutral-800">
+            <span
+                class="absolute top-2 right-4 text-gray-500 hover:text-white text-2xl font-bold cursor-pointer transition"
                 onclick="closeEditModal()">&times;</span>
-            <h3 class="text-lg font-bold text-gray-800">✏️ Cập nhật thông tin</h3>
+            <h3 class="text-base font-bold text-white border-b border-neutral-800 pb-2 uppercase tracking-wider">✏️
+                Chỉnh sửa nội dung</h3>
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="editOldName">
-
-                <!-- Ô NHẬP TÊN FILE MỚI ĐƯỢC THÊM VÀO -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tên file (Có thể sửa
-                        đổi)</label>
-                    <input type="text" id="editNewNameInput" placeholder="Nhập tên file mới..."
-                        class="w-full p-2 border rounded text-sm focus:outline-blue-500 font-medium text-gray-800">
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tên tệp
+                        tin</label>
+                    <input type="text" id="editNewNameInput"
+                        class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white font-medium focus:outline-none focus:border-ph-orange transition">
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Thay thế file cũ (Tùy
-                        chọn)</label>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Thay thế file
+                        gốc (Không bắt buộc)</label>
                     <input type="file" id="editFileInput" accept="image/*,video/*"
-                        class="w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        class="w-full text-xs text-gray-400 file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-neutral-800 file:text-ph-orange hover:file:bg-neutral-700 cursor-pointer">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hashtags</label>
+                    <label
+                        class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Hashtags</label>
                     <input type="text" id="editTagsInput"
-                        class="w-full p-2 border rounded text-sm focus:outline-blue-500">
+                        class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Mô tả</label>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả nội
+                        dung</label>
                     <textarea id="editDescInput" rows="3"
-                        class="w-full p-2 border rounded text-sm focus:outline-blue-500"></textarea>
+                        class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
                 </div>
-                <div class="flex gap-2 justify-end pt-2">
+                <div class="flex gap-2 justify-end pt-2 border-t border-neutral-800">
                     <button type="button" onclick="closeEditModal()"
-                        class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 bg-gray-100 rounded">Hủy</button>
+                        class="px-4 py-2 text-xs font-bold text-gray-400 hover:text-white bg-neutral-900 border border-neutral-800 rounded-lg transition">HỦY
+                        BỎ</button>
                     <button type="submit"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded shadow">Lưu
-                        thay đổi</button>
+                        class="px-4 py-2 text-xs font-bold text-black bg-ph-orange hover:bg-amber-500 rounded-lg transition shadow-md">LƯU
+                        THAY ĐỔI</button>
                 </div>
             </form>
         </div>
@@ -137,15 +248,24 @@
         const uploadForm = document.getElementById('uploadForm');
         const searchInput = document.getElementById('searchInput');
         const galleryGrid = document.getElementById('galleryGrid');
+
         const mediaModal = document.getElementById('mediaModal');
         const modalContent = document.getElementById('modalContent');
         const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
+        const modalTags = document.getElementById('modalTags');
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const shareLinkBtn = document.getElementById('shareLinkBtn');
+        const commentsContainer = document.getElementById('commentsContainer');
+        const commentForm = document.getElementById('commentForm');
+        const commentInput = document.getElementById('commentInput');
+
         const toastContainer = document.getElementById('toastContainer');
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
         const fileCounter = document.getElementById('fileCounter');
 
-        // Các biến của Edit Modal
         const editModal = document.getElementById('editModal');
         const editForm = document.getElementById('editForm');
         const editOldName = document.getElementById('editOldName');
@@ -154,19 +274,20 @@
         const editDescInput = document.getElementById('editDescInput');
 
         let selectedFiles = [];
-        let globalMediaList = []; // Lưu trữ mảng gốc phục vụ việc lấy thông tin khi sửa
+        let globalMediaList = [];
+        let activeMediaName = "";
+        let isInitialLoad = true; // Cờ đánh dấu lần đầu tiên tải trang
 
         function isVideo(fileName) { return /\.(mp4|webm|mov|avi|mkv|3gp)$/i.test(fileName); }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = `p-4 rounded-lg shadow-lg text-white font-medium text-sm flex items-center justify-between pointer-events-auto animate-slide-in ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
-            toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-4 text-white opacity-70 hover:opacity-100 font-bold text-lg">&times;</button>`;
+            toast.className = `p-4 rounded-xl shadow-2xl text-white font-bold text-xs flex items-center justify-between pointer-events-auto animate-slide-in border ${type === 'success' ? 'bg-neutral-900 border-emerald-500 text-emerald-400' : 'bg-neutral-900 border-rose-500 text-rose-400'
+                }`;
+            toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-4 text-gray-500 hover:text-white font-bold text-base transition">&times;</button>`;
             toastContainer.appendChild(toast);
             setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                toast.style.transition = 'all 0.3s ease-in';
+                toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = 'all 0.3s ease-in';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
@@ -175,83 +296,116 @@
         dropzone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => handleFilesSelection(e.target.files));
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, (e) => e.preventDefault(), false));
-        ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.add('border-blue-500', 'bg-blue-50')));
-        ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.remove('border-blue-500', 'bg-blue-50')));
+        ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.add('border-ph-orange', 'bg-neutral-800')));
+        ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, () => dropzone.classList.remove('border-ph-orange', 'bg-neutral-800')));
         dropzone.addEventListener('drop', (e) => handleFilesSelection(e.dataTransfer.files));
 
         function handleFilesSelection(files) {
             const validFiles = Array.from(files).filter(file => file.type.startsWith('image/') || file.type.startsWith('video/'));
-            if (validFiles.length === 0) { showToast('Vui lòng chọn tệp hình ảnh hoặc video!', 'error'); return; }
+            if (validFiles.length === 0) { showToast('Vui lòng chọn file hình ảnh hoặc video thích hợp!', 'error'); return; }
             selectedFiles = validFiles;
-            fileCounter.textContent = `✓ Đã chọn ${selectedFiles.length} tệp`;
+            fileCounter.textContent = `✓ Khớp ${selectedFiles.length} nội dung`;
             fileCounter.classList.remove('hidden');
         }
 
-        // --- Fetch & Render ---
+        // --- Fetch & Render Thư Viện Media ---
         async function fetchImages(search = '') {
             const res = await fetch(`/api/images?search=${encodeURIComponent(search)}`);
             globalMediaList = await res.json();
 
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('isAdmin') === '1';
+            const targetId = urlParams.get('id'); // Tìm kiếm tham số ?id=... trên URL
 
             if (globalMediaList.length === 0) {
-                galleryGrid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8">Không tìm thấy dữ liệu</div>`;
+                galleryGrid.innerHTML = `<div class="col-span-full text-center text-neutral-600 py-12 font-bold text-sm tracking-wide bg-ph-dark rounded-xl border border-neutral-800">DANH SÁCH TRỐNG - CHƯA CÓ NỘI DUNG NÀO ĐƯỢC ĐĂNG</div>`;
                 return;
             }
 
             galleryGrid.innerHTML = globalMediaList.map(item => {
                 const checkVideo = isVideo(item.name);
+                const currentLikes = item.likes || 0;
+                const currentCommentsCount = item.comments ? item.comments.length : 0;
+
                 const mediaPreview = checkVideo
-                    ? `<video src="${item.url}" class="object-contain w-full h-full max-h-48" muted></video><div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center pointer-events-none"><span class="text-white text-3xl bg-black bg-opacity-50 w-12 h-12 flex items-center justify-center rounded-full">▶</span></div>`
-                    : `<img src="${item.url}" alt="${item.name}" class="object-contain w-full h-full max-h-48 transition-transform duration-200 group-hover:scale-105">`;
+                    ? `<video src="${item.url}" class="object-contain w-full h-full max-h-44" muted></video>
+                       <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center pointer-events-none">
+                           <span class="text-black text-xs bg-ph-orange font-black px-2 py-1 rounded shadow-lg tracking-tighter">PLAY VIDEO</span>
+                       </div>`
+                    : `<img src="${item.url}" alt="${item.name}" class="object-contain w-full h-full max-h-44 transition-transform duration-300 group-hover:scale-105">`;
 
                 let actionButtons = `
-                    <a href="${item.url}" download="${item.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition ${isAdmin ? '' : 'col-span-2'}">
-                        📥 Tải về
+                    <a href="${item.url}" download="${item.name}" class="flex items-center justify-center gap-1 text-xs bg-neutral-800 text-gray-300 py-2 rounded-lg hover:bg-neutral-700 font-bold text-center transition col-span-2 tracking-wide border border-neutral-700">
+                        📥 TẢI XUỐNG
                     </a>
                 `;
 
                 if (isAdmin) {
                     actionButtons = `
-                        <a href="${item.url}" download="${item.name}" class="flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-600 py-2 rounded hover:bg-blue-100 font-medium text-center transition col-span-2">
-                            📥 Tải về máy
+                        <a href="${item.url}" download="${item.name}" class="flex items-center justify-center gap-1 text-xs bg-neutral-800 text-gray-300 py-2 rounded-lg hover:bg-neutral-700 font-bold text-center transition col-span-2 tracking-wide border border-neutral-700">
+                            📥 TẢI XUỐNG
                         </a>
-                        <button onclick="openEditModal('${item.name}')" class="flex items-center justify-center gap-1 text-xs bg-amber-50 text-amber-700 py-2 rounded hover:bg-amber-100 font-medium text-center transition">
-                            ✏️ Sửa
+                        <button onclick="event.stopPropagation(); openEditModal('${item.name}')" class="flex items-center justify-center gap-1 text-xs bg-amber-950 text-amber-400 py-2 rounded-lg hover:bg-amber-900 font-bold text-center transition border border-amber-900/50">
+                            ✏️ SỬA
                         </button>
-                        <button onclick="deleteImage('${item.name}')" class="flex items-center justify-center gap-1 text-xs bg-red-50 text-red-600 py-2 rounded hover:bg-red-100 font-medium text-center transition">
-                            🗑️ Xóa
+                        <button onclick="event.stopPropagation(); deleteImage('${item.name}')" class="flex items-center justify-center gap-1 text-xs bg-rose-950 text-rose-400 py-2 rounded-lg hover:bg-rose-900 font-bold text-center transition border border-rose-900/50">
+                            🗑️ XÓA
                         </button>
                     `;
                 }
 
+                const dateStr = new Date(item.updatedAt || item.uploadedAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+
                 return `
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex flex-col justify-between">
-                        <div onclick="openModal('${item.url}', '${item.name}')" class="aspect-video bg-gray-900 flex items-center justify-center overflow-hidden cursor-zoom-in group relative">
+                    <div onclick="openModal('${item.url}', '${item.name}')" class="bg-ph-dark rounded-xl overflow-hidden border border-neutral-800 flex flex-col justify-between shadow-lg group cursor-pointer">
+                        <div class="aspect-video bg-neutral-950 flex items-center justify-center overflow-hidden relative">
                             ${mediaPreview}
                         </div>
-                        <div class="p-3 flex-grow flex flex-col justify-between">
+                        <div class="p-3.5 flex-grow flex flex-col justify-between space-y-2">
                             <div>
-                                <h3 class="font-medium text-sm text-gray-800 truncate" title="${item.name}">${item.name}</h3>
-                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || '<i class="text-gray-300">Không có mô tả</i>'}</p>
-                                <div class="flex flex-wrap gap-1 my-2">
-                                    ${item.hashtags.map(tag => `<span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">#${tag}</span>`).join('')}
+                                <h3 class="font-bold text-sm text-white group-hover:text-ph-orange transition truncate" title="${item.name}">${item.name}</h3>
+                                <p class="text-xs text-neutral-500 mt-1 line-clamp-1 leading-relaxed">${item.description || '<i class="text-neutral-700">Không có mô tả sản phẩm</i>'}</p>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-[10px] text-neutral-600 font-mono">📅 ${dateStr}</span>
+                                    <span class="text-[10px] text-ph-orange font-bold flex items-center gap-2 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800">
+                                        <span>❤️ ${currentLikes}</span>
+                                        <span>💬 ${currentCommentsCount}</span>
+                                    </span>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 mt-2">
-                                ${actionButtons}
+                            <div>
+                                <div class="flex flex-wrap gap-1 my-1">
+                                    ${item.hashtags.map(tag => `<span class="bg-neutral-900 text-neutral-400 text-[10px] font-bold px-2 py-0.5 rounded border border-neutral-800">#${tag}</span>`).join('')}
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-neutral-800">
+                                    ${actionButtons}
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
+
+            // TỰ ĐỘNG BẬT CHI TIẾT FILE NẾU URL CÓ PARAM ?id=
+            if (isInitialLoad && targetId) {
+                isInitialLoad = false;
+                const matchedItem = globalMediaList.find(img => img.name === targetId);
+                if (matchedItem) {
+                    openModal(matchedItem.url, matchedItem.name);
+                } else {
+                    showToast('Đường dẫn bài đăng không tồn tại hoặc đã bị xóa!', 'error');
+                }
+            }
+
+            if (!mediaModal.classList.contains('hidden') && activeMediaName) {
+                renderModalInteractions(activeMediaName);
+            }
         }
 
-        // --- Xử lý Thêm Mới ---
+        // --- Gửi dữ liệu Tải lên ---
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (selectedFiles.length === 0) { showToast('Vui lòng chọn hoặc kéo thả tệp tin trước!', 'error'); return; }
+            if (selectedFiles.length === 0) { showToast('Vui lòng chọn hoặc kéo thả tệp tin!', 'error'); return; }
             const formData = new FormData();
             selectedFiles.forEach(file => formData.append('images', file));
             formData.append('hashtags', document.getElementById('tagsInput').value);
@@ -261,24 +415,20 @@
                 const res = await fetch('/api/upload', { method: 'POST', body: formData });
                 const result = await res.json();
                 if (res.ok) {
-                    showToast(result.message || 'Tải lên thành công!', 'success');
+                    showToast(result.message || 'Tải dữ liệu lên BeoHub thành công!', 'success');
                     uploadForm.reset(); selectedFiles = []; fileCounter.classList.add('hidden');
                     fetchImages();
                 }
-            } catch (err) { showToast('Lỗi kết nối server!', 'error'); }
+            } catch (err) { showToast('Lỗi kết nối tới máy chủ BeoHub!', 'error'); }
         });
 
-        // --- Xử lý Cập Nhật (Edit) ---
+        // --- Cập nhật Thông tin form Sửa ---
         function openEditModal(name) {
             const currentItem = globalMediaList.find(item => item.name === name);
             if (!currentItem) return;
 
-            // Đổ dữ liệu hiện tại vào các ô input trong form popup
             editOldName.value = currentItem.name;
-
-            // Lấy input tên file mới đưa tên cũ vào cho người dùng sửa
             document.getElementById('editNewNameInput').value = currentItem.name;
-
             editTagsInput.value = currentItem.hashtags.join(', ');
             editDescInput.value = currentItem.description || '';
             editFileInput.value = '';
@@ -293,64 +443,190 @@
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('isAdmin') || '0';
             const oldName = editOldName.value;
-            const newName = document.getElementById('editNewNameInput').value; // Đọc giá trị tên mới
+            const newName = document.getElementById('editNewNameInput').value;
 
             const formData = new FormData();
-            formData.append('newName', newName); // Gửi tên mới lên server
+            formData.append('newName', newName);
             formData.append('hashtags', editTagsInput.value);
             formData.append('description', editDescInput.value);
 
-            if (editFileInput.files.length > 0) {
-                formData.append('newImage', editFileInput.files[0]);
-            }
+            if (editFileInput.files.length > 0) formData.append('newImage', editFileInput.files[0]);
 
             try {
-                const res = await fetch(`/api/images/${encodeURIComponent(oldName)}?isAdmin=${isAdmin}`, {
-                    method: 'PUT',
-                    body: formData
-                });
+                const res = await fetch(`/api/images/${encodeURIComponent(oldName)}?isAdmin=${isAdmin}`, { method: 'PUT', body: formData });
                 const result = await res.json();
 
                 if (res.ok && result.success) {
                     showToast(result.message, 'success');
                     closeEditModal();
-                    fetchImages(searchInput.value); // Làm mới danh sách kèm bộ lọc hiện tại
-                } else {
-                    showToast(result.message, 'error');
-                }
-            } catch (err) {
-                showToast('Có lỗi xảy ra khi cập nhật.', 'error');
-            }
+                    fetchImages(searchInput.value);
+                } else { showToast(result.message, 'error'); }
+            } catch (err) { showToast('Có lỗi xảy ra khi cập nhật tệp tin.', 'error'); }
         });
 
-        // Xóa ảnh
+        // --- API Xóa Bỏ ---
         async function deleteImage(fileName) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa "${fileName}" không?`)) return;
+            if (!confirm(`Hành động này sẽ xóa vĩnh viễn tệp tin "${fileName}" khỏi hệ thống BeoHub. Bạn có chắc chắn?`)) return;
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('isAdmin') || '0';
             try {
                 const res = await fetch(`/api/images/${encodeURIComponent(fileName)}?isAdmin=${isAdmin}`, { method: 'DELETE' });
                 const result = await res.json();
                 if (result.success) { showToast(result.message, 'success'); fetchImages(searchInput.value); }
-            } catch (err) { showToast('Lỗi hệ thống.', 'error'); }
+            } catch (err) { showToast('Gặp lỗi khi xóa dữ liệu.', 'error'); }
         }
 
-        // Tìm kiếm
+        // Tìm kiếm gõ chữ realtime
         let searchTimeout;
         searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => fetchImages(e.target.value), 300);
         });
 
-        // Điều khiển Preview Modal
+        // --- TRÌNH XEM PREVIEW CHI TIẾT & TƯƠNG TÁC ---
         function openModal(url, name) {
-            modalTitle.textContent = name;
+            activeMediaName = name;
+
+            // 1. ĐẨY PARAM ?id= CHỮA TÊN FILE LÊN URL TRÌNH DUYỆT KHÔNG LÀM TẢI LẠI TRANG
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('id', name);
+            const newUrl = window.location.pathname + '?' + urlParams.toString();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            // Render nội dung media sang khung bên trái
             modalContent.innerHTML = isVideo(name)
-                ? `<video src="${url}" class="max-w-full max-h-[80vh] rounded shadow-lg" controls autoplay></video>`
-                : `<img src="${url}" class="max-w-full max-h-[80vh] object-contain rounded shadow-lg">`;
+                ? `<video src="${url}" class="max-w-full max-h-full rounded shadow-lg" controls autoplay></video>`
+                : `<img src="${url}" class="max-w-full max-h-full object-contain">`;
+
+            renderModalInteractions(name);
             mediaModal.classList.remove('hidden');
         }
-        function closeModal() { mediaModal.classList.add('hidden'); modalContent.innerHTML = ''; }
+
+        function renderModalInteractions(name) {
+            const currentItem = globalMediaList.find(item => item.name === name);
+            if (!currentItem) return;
+
+            modalTitle.textContent = currentItem.name;
+            modalDesc.innerHTML = currentItem.description || '<i class="text-neutral-700">Không có mô tả sản phẩm</i>';
+            likeCount.textContent = currentItem.likes || 0;
+
+            modalTags.innerHTML = currentItem.hashtags.map(tag => `
+                <span class="bg-neutral-900 text-neutral-400 text-[10px] font-bold px-2 py-0.5 rounded border border-neutral-800">#${tag}</span>
+            `).join('');
+
+            const comments = currentItem.comments || [];
+            if (comments.length === 0) {
+                commentsContainer.innerHTML = `<div class="text-center text-neutral-600 text-xs py-8 italic">Chưa có bình luận nào. Hãy là người đầu tiên để lại ý kiến!</div>`;
+            } else {
+                commentsContainer.innerHTML = comments.map(cmt => {
+                    const cmtDate = new Date(cmt.createdAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+                    return `
+                        <div class="bg-neutral-900 border border-neutral-800 p-2.5 rounded-lg text-xs space-y-1">
+                            <div class="flex items-center justify-between font-bold">
+                                <span class="text-ph-orange">🧡 ${cmt.author}</span>
+                                <span class="text-[10px] text-neutral-600 font-mono">${cmtDate}</span>
+                            </div>
+                            <p class="text-gray-300 leading-relaxed font-medium break-all">${cmt.text}</p>
+                        </div>
+                    `;
+                }).join('');
+                commentsContainer.scrollTop = commentsContainer.scrollHeight;
+            }
+        }
+
+        // XỬ LÝ SỰ KIỆN BẤM COPY LINK SHARE QUY HOẠCH DIRECT LINK
+        shareLinkBtn.onclick = async () => {
+            if (!activeMediaName) return;
+
+            // Lấy ra URL hoàn chỉnh trên thanh địa chỉ (bao gồm cả IP LAN và ?id=...)
+            const shareUrl = window.location.href;
+
+            // Cách 1: Thử dùng API hiện đại của trình duyệt
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    showToast('Đã copy đường dẫn bài đăng vào bộ nhớ tạm!', 'success');
+                    return; // Thành công thì thoát hàm luôn
+                } catch (err) {
+                    console.log("API Clipboard bị chặn, chuyển sang phương thức dự phòng...");
+                }
+            }
+
+            // Cách 2: Phương thức dự phòng (Fallback) - Chạy tốt trên HTTP mạng LAN
+            try {
+                // Tạo một thẻ textarea ẩn trong bộ nhớ
+                const textArea = document.createElement("textarea");
+                textArea.value = shareUrl;
+
+                // Đẩy nó ra ngoài màn hình nhưng ẩn đi để người dùng không thấy
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+
+                // Kích hoạt bôi đen và copy truyền thống
+                textArea.focus();
+                textArea.select();
+                const successful = document.execCommand('copy');
+
+                // Xóa thẻ textarea tạm sau khi dùng xong
+                document.body.removeChild(textArea);
+
+                if (successful) {
+                    showToast('Đã copy đường dẫn bài đăng (LAN Fallback)!', 'success');
+                } else {
+                    showToast('Trình duyệt từ chối lệnh copy, vui lòng tự copy trên thanh địa chỉ.', 'error');
+                }
+            } catch (err) {
+                console.error('Lỗi Fallback:', err);
+                showToast('Không thể tự động sao chép link!', 'error');
+            }
+        };
+
+        likeBtn.onclick = async () => {
+            if (!activeMediaName) return;
+            try {
+                const res = await fetch(`/api/images/${encodeURIComponent(activeMediaName)}/like`, { method: 'POST' });
+                const result = await res.json();
+                if (result.success) {
+                    likeCount.textContent = result.likes;
+                    fetchImages(searchInput.value);
+                }
+            } catch (err) { console.error('Lỗi thả tim:', err); }
+        };
+
+        commentForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const text = commentInput.value.trim();
+            if (!text || !activeMediaName) return;
+
+            try {
+                const res = await fetch(`/api/images/${encodeURIComponent(activeMediaName)}/comment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    commentInput.value = '';
+                    fetchImages(searchInput.value);
+                } else { showToast(result.message, 'error'); }
+            } catch (err) { console.error('Lỗi gửi bình luận:', err); }
+        };
+
+        function closeModal() {
+            mediaModal.classList.add('hidden');
+            modalContent.innerHTML = '';
+            activeMediaName = "";
+
+            // XÓA THAM SỐ ?id= KHỎI THANH ĐỊA CHỈ KHI ĐÓNG MODAL
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('id');
+            const cleanUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+            window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+        }
+
+        function closeEditModal() { editModal.classList.add('hidden'); }
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeEditModal(); } });
 
         fetchImages();
