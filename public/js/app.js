@@ -576,3 +576,142 @@ window.addEventListener('scroll', () => {
 
 // Khởi tạo chạy lần đầu
 fetchImages();
+
+// --- TÍNH NĂNG DONATE REAL-TIME (HIỆU ỨNG PHÁO HOA & NỔ TIN NHẮN) ---
+
+// Hiển thị Form Donate của Admin nếu có quyền ?isLbeo=0
+if (isAdmin) {
+    const adminDonateFormContainer = document.getElementById('adminDonateFormContainer');
+    if (adminDonateFormContainer) adminDonateFormContainer.classList.remove('hidden');
+}
+
+// Xử lý gửi Form Donate của Admin
+const adminDonateForm = document.getElementById('adminDonateForm');
+if (adminDonateForm) {
+    adminDonateForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('donateNameInput').value.trim();
+        const amount = document.getElementById('donateAmountInput').value.trim();
+        const message = document.getElementById('donateMessageInput').value.trim();
+
+        try {
+            const res = await fetch(`/api/donate/alert?isLbeo=0`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, amount, message })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('Đã phát sóng quyên góp toàn dân thành công!', 'success');
+                adminDonateForm.reset();
+                window.closeDonateModal();
+            } else {
+                showToast('Lỗi khi phát sóng quyên góp!', 'error');
+            }
+        } catch (err) {
+            showToast('Lỗi kết nối máy chủ!', 'error');
+        }
+    });
+}
+
+// Khởi tạo vòng lặp Polling kiểm tra tin nhắn Donate mới (2 giây mỗi lần)
+let lastSeenDonationId = null;
+
+function startDonationPolling() {
+    setInterval(async () => {
+        try {
+            const res = await fetch('/api/donate/latest');
+            const data = await res.json();
+            if (data.success && data.latest) {
+                const latest = data.latest;
+                // Nếu là tin nhắn mới và thời gian tạo trong vòng 15 giây qua
+                if (latest.id !== lastSeenDonationId && (Date.now() - latest.timestamp) < 15000) {
+                    lastSeenDonationId = latest.id;
+                    triggerDonationAnimation(latest.name, latest.amount, latest.message);
+                } else if (latest.id !== lastSeenDonationId) {
+                    // Cập nhật id mà không nổ pháo hoa nếu tin nhắn quá cũ
+                    lastSeenDonationId = latest.id;
+                }
+            }
+        } catch (err) {
+            // Bỏ qua lỗi kết nối để tránh ô nhiễm log console
+        }
+    }, 2000);
+}
+
+// Khởi chạy Polling kiểm tra tin nhắn
+startDonationPolling();
+
+// Tạo hiệu ứng nổi tin nhắn và nổ pháo hoa hạt nhiều màu sắc
+function triggerDonationAnimation(name, amount, message) {
+    const container = document.getElementById('donationAlertContainer');
+    if (!container) return;
+
+    // Tạo hộp thoại thông báo nổi
+    const alertCard = document.createElement('div');
+    alertCard.className = 'donation-alert-card bg-neutral-950/95 border border-amber-500/50 p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center space-y-3 pointer-events-none transform transition-all duration-500 scale-50 opacity-0 max-w-sm text-center backdrop-blur-md relative z-[100]';
+    alertCard.innerHTML = `
+        <div class="absolute -top-6 text-3xl animate-bounce">👑</div>
+        <h3 class="text-xs font-black text-amber-400 tracking-widest uppercase">🎉 ĐẠI GIA DONATE MỚI 🎉</h3>
+        <div class="text-lg font-black text-white">${name}</div>
+        <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 font-mono tracking-wide scale-110 transform transition">${amount}</div>
+        <div class="text-xs italic text-gray-300">"${message || 'cho zui'}"</div>
+    `;
+    
+    container.appendChild(alertCard);
+
+    // Kích hoạt nổi và hiển thị
+    setTimeout(() => {
+        alertCard.style.transform = 'scale(1.15) translateY(-20px)';
+        alertCard.style.opacity = '1';
+    }, 50);
+
+    // Tạo 35 hạt pháo hoa xung quanh màn hình
+    for (let i = 0; i < 35; i++) {
+        createFireworkParticle(container);
+    }
+
+    // Mờ dần sau 4.2 giây, biến mất hoàn toàn sau 5 giây
+    setTimeout(() => {
+        alertCard.style.transform = 'scale(0.8) translateY(-60px)';
+        alertCard.style.opacity = '0';
+    }, 4200);
+
+    setTimeout(() => {
+        alertCard.remove();
+    }, 5000);
+}
+
+// Tạo hạt pháo hoa đơn lẻ bay chuyển động ngẫu nhiên với hiệu ứng trọng lực nhẹ
+function createFireworkParticle(container) {
+    const particle = document.createElement('div');
+    particle.className = 'absolute w-2 h-2 rounded-full pointer-events-none z-[99]';
+    
+    const colors = ['#f59e0b', '#fbbf24', '#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#ec4899'];
+    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    // Tọa độ trung tâm màn hình làm điểm phát nổ
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    
+    // Tạo quỹ đạo phân tán ngẫu nhiên 360 độ
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 80 + Math.random() * 250;
+    const dx = Math.cos(angle) * velocity;
+    const dy = Math.sin(angle) * velocity;
+    
+    container.appendChild(particle);
+    
+    particle.animate([
+        { transform: 'translate(0, 0) scale(1.2)', opacity: 1 },
+        { transform: `translate(${dx}px, ${dy + 120}px) scale(0.1)`, opacity: 0 }
+    ], {
+        duration: 1000 + Math.random() * 1000,
+        easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
+        fill: 'forwards'
+    });
+    
+    setTimeout(() => particle.remove(), 2500);
+}

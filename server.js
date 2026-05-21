@@ -18,6 +18,27 @@ app.use(express.static('public'));
 app.use('/api', mediaRouter);
 app.use('/api/ideas', ideaRouter);
 
+let latestDonation = null;
+
+app.post('/api/donate/alert', (req, res) => {
+    if (req.query.isLbeo !== '0') {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const { name, amount, message } = req.body;
+    latestDonation = {
+        id: Date.now(),
+        name: name || 'Ẩn danh',
+        amount: amount || '0 VND',
+        message: message || '',
+        timestamp: Date.now()
+    };
+    res.json({ success: true });
+});
+
+app.get('/api/donate/latest', (req, res) => {
+    res.json({ success: true, latest: latestDonation });
+});
+
 // Khởi chạy server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`=====================================================`);

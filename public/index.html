@@ -8,6 +8,21 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .donation-alert-card {
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+            }
+            to {
+                box-shadow: 0 0 50px rgba(245, 158, 11, 0.6);
+            }
+        }
+    </style>
 </head>
 
 <body class="min-h-screen font-sans text-gray-300">
@@ -329,11 +344,38 @@
                 </div>
             </div>
 
-            <button onclick="closeDonateModal()" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-black text-xs transition duration-150 tracking-wider shadow-md">
-                HOÀN THÀNH
+            <!-- Form Donate dành cho Admin -->
+            <div id="adminDonateFormContainer" class="hidden border-t border-neutral-800 pt-4 text-left space-y-2">
+                <h4 class="text-[10px] font-black text-amber-400 uppercase tracking-wider">📢 Nhập thông tin Donate (Quyền Admin)</h4>
+                <form id="adminDonateForm" class="space-y-2">
+                    <div>
+                        <label class="text-[9px] font-bold text-gray-500 block mb-0.5">TÊN NGƯỜI DONATE</label>
+                        <input type="text" id="donateNameInput" required placeholder="Ví dụ: Chủ tịch Jun" class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] font-bold text-gray-500 block mb-0.5">SỐ TIỀN</label>
+                            <input type="text" id="donateAmountInput" required placeholder="Ví dụ: 500.000 VND" class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500 transition">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-gray-500 block mb-0.5">LỜI NHẮN</label>
+                            <input type="text" id="donateMessageInput" placeholder="Ví dụ: cho zui" class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500 transition">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2 rounded-lg font-black text-[9px] tracking-wider transition duration-150">
+                        PHÁT SÓNG TOÀN DÂN 🚀
+                    </button>
+                </form>
+            </div>
+
+            <button onclick="closeDonateModal()" class="w-full bg-neutral-800 hover:bg-neutral-700 text-white py-2.5 rounded-xl font-bold text-xs transition duration-150 tracking-wider shadow-md border border-neutral-700">
+                ĐÓNG
             </button>
         </div>
     </div>
+
+    <!-- Container hiệu ứng pháo hoa & nổi tin nhắn Donate -->
+    <div id="donationAlertContainer" class="fixed inset-0 pointer-events-none z-[100] flex flex-col items-center justify-center"></div>
 
     <script type="module" src="/js/app.js"></script>
 </body>
