@@ -49,6 +49,17 @@ export async function likeMedia(name) {
     return result;
 }
 
+export async function hahaMedia(name) {
+    const res = await fetch(`/api/images/${encodeURIComponent(name)}/haha`, {
+        method: 'POST'
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) {
+        throw new Error('Lỗi khi Haha!');
+    }
+    return result;
+}
+
 export async function commentMedia(name, text) {
     const res = await fetch(`/api/images/${encodeURIComponent(name)}/comment`, {
         method: 'POST',
