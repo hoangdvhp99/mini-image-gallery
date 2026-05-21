@@ -78,7 +78,7 @@ const itemsPerPage = 15;
 
 // Lấy thông tin từ URL
 const urlParams = new URLSearchParams(window.location.search);
-const isAdmin = urlParams.get('isAdmin') === '1';
+const isAdmin = urlParams.get('isLbeo') === '0';
 
 // Đăng ký các hàm đóng mở modal lên window để HTML onclick (từ các nút đóng modal tĩnh trong HTML) có thể gọi được
 window.closeModal = () => {
@@ -123,7 +123,7 @@ async function fetchImages(search = '') {
             onDeleteImage: async (fileName) => {
                 if (!confirm(`Xóa vĩnh viễn tệp tin "${fileName}" khỏi BeoHub?`)) return;
                 try {
-                    const result = await deleteMedia(fileName, urlParams.get('isAdmin') || '0');
+                    const result = await deleteMedia(fileName, urlParams.get('isLbeo') || '1');
                     if (result.success) {
                         showToast('Đã xóa dữ liệu thành công.', 'success');
                         fetchImages(elements.searchInput.value);
@@ -228,7 +228,7 @@ elements.editForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        const result = await updateMedia(oldName, urlParams.get('isAdmin') || '0', formData);
+        const result = await updateMedia(oldName, urlParams.get('isLbeo') || '1', formData);
         showToast(result.message, 'success');
         closeEditModal(elements);
         fetchImages(elements.searchInput.value);
@@ -428,10 +428,15 @@ if (elements.faceSwapForm) {
                 method: 'POST',
                 body: formData
             });
-            const result = await res.json();
+            let result;
+            try {
+                result = await res.json();
+            } catch (jsonErr) {
+                throw new Error('Không nhận được phản hồi hợp lệ từ máy chủ BeoHub.');
+            }
 
-            if (!res.ok || !result.success) {
-                throw new Error(result.message || 'Lỗi hệ thống hoán đổi khuôn mặt AI.');
+            if (!res.ok || !result || !result.success) {
+                throw new Error((result && result.message) || 'Lỗi hệ thống hoán đổi khuôn mặt AI.');
             }
 
             showToast(result.message, 'success');
@@ -517,7 +522,7 @@ function loadMoreImages() {
         onDeleteImage: async (fileName) => {
             if (!confirm(`Xóa vĩnh viễn tệp tin "${fileName}" khỏi BeoHub?`)) return;
             try {
-                const result = await deleteMedia(fileName, urlParams.get('isAdmin') || '0');
+                const result = await deleteMedia(fileName, urlParams.get('isLbeo') || '1');
                 if (result.success) {
                     showToast('Đã xóa dữ liệu thành công.', 'success');
                     fetchImages(elements.searchInput.value);

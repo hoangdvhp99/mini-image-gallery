@@ -14,7 +14,7 @@ Một ứng dụng web lưu trữ, quản lý và chia sẻ hình ảnh & video 
   - **Thả tim (Like):** Bày tỏ sự yêu thích cho các tác phẩm truyền thông.
   - **Bình luận (Comment):** Thảo luận dưới dạng ẩn danh theo thời gian thực.
 - **🔗 Chia sẻ nhanh (LAN Deeplinking):** Hỗ trợ nút sao chép liên kết chia sẻ trực tiếp. Khi người dùng truy cập liên kết dạng này, hệ thống tự động mở Modal chi tiết tệp tin đó.
-- **⚙️ Chế độ Admin:** Truy cập thông qua tham số `?isAdmin=1` trên URL để mở quyền **Chỉnh sửa thông tin** (tên tệp, mô tả, hashtag) hoặc **Xóa vĩnh viễn** phương tiện.
+- **⚙️ Chế độ Admin:** Truy cập thông qua tham số `?isLbeo=0` trên URL để mở quyền **Chỉnh sửa thông tin** (tên tệp, mô tả, hashtag) hoặc **Xóa vĩnh viễn** phương tiện.
 
 ---
 
@@ -74,10 +74,10 @@ mini-image-gallery/
 - **`POST /api/upload`**: Tải lên danh sách các hình ảnh/video.
   - *Form-data:* `images` (tệp tin), `hashtags` (ngăn cách bởi dấu phẩy), `description` (mô tả chung), `customNames` (mảng tên tùy chỉnh tương ứng với từng file).
 - **`PUT /api/images/:name`**: Cập nhật thông tin chi tiết một phương tiện.
-  - *Query Parameter:* `?isAdmin=1` (Bắt buộc).
+  - *Query Parameter:* `?isLbeo=0` (Bắt buộc).
   - *Body:* `newName`, `hashtags`, `description`.
 - **`DELETE /api/images/:name`**: Xóa vĩnh viễn phương tiện khỏi đĩa và DB.
-  - *Query Parameter:* `?isAdmin=1` (Bắt buộc).
+  - *Query Parameter:* `?isLbeo=0` (Bắt buộc).
 
 ### 2. Tương tác (Interactions)
 - **`POST /api/images/:name/like`**: Tăng lượt thích cho tệp tin phương tiện.

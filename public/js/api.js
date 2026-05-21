@@ -16,8 +16,8 @@ export async function uploadMedia(formData) {
     return result;
 }
 
-export async function updateMedia(oldName, isAdmin, formData) {
-    const res = await fetch(`/api/images/${encodeURIComponent(oldName)}?isAdmin=${isAdmin}`, {
+export async function updateMedia(oldName, isLbeo, formData) {
+    const res = await fetch(`/api/images/${encodeURIComponent(oldName)}?isLbeo=${isLbeo}`, {
         method: 'PUT',
         body: formData
     });
@@ -28,8 +28,8 @@ export async function updateMedia(oldName, isAdmin, formData) {
     return result;
 }
 
-export async function deleteMedia(name, isAdmin) {
-    const res = await fetch(`/api/images/${encodeURIComponent(name)}?isAdmin=${isAdmin}`, {
+export async function deleteMedia(name, isLbeo) {
+    const res = await fetch(`/api/images/${encodeURIComponent(name)}?isLbeo=${isLbeo}`, {
         method: 'DELETE'
     });
     if (!res.ok) {

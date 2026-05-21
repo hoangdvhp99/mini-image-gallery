@@ -112,7 +112,7 @@ exports.getMediaList = (req, res) => {
 
 exports.deleteMedia = (req, res) => {
     try {
-        if (req.query.isAdmin !== '1') return res.status(403).json({ success: false, message: 'Từ chối!' });
+        if (req.query.isLbeo !== '0') return res.status(403).json({ success: false, message: 'Từ chối!' });
         const name = req.params.name;
         let db = readDB();
         const idx = db.findIndex(i => i.name === name);
@@ -129,7 +129,7 @@ exports.deleteMedia = (req, res) => {
 
 exports.updateMedia = (req, res) => {
     try {
-        if (req.query.isAdmin !== '1') return res.status(403).json({ success: false });
+        if (req.query.isLbeo !== '0') return res.status(403).json({ success: false });
         const oldName = req.params.name;
         let db = readDB();
         const idx = db.findIndex(i => i.name === oldName);

@@ -132,6 +132,14 @@ exports.swapFace = async (req, res) => {
             try { fs.unlinkSync(req.file.path); } catch (e) {}
         }
         console.error("Lỗi khi hoán đổi khuôn mặt:", error);
-        res.status(500).json({ success: false, message: 'Lỗi hệ thống khi hoán đổi khuôn mặt AI: ' + error.message });
+        
+        let clientMsg = error.message || 'Lỗi hệ thống không xác định.';
+        if (clientMsg.includes('includes only 0 faces') || clientMsg.includes('0 faces')) {
+            clientMsg = 'Không tìm thấy khuôn mặt nào trong ảnh của bạn! Vui lòng chụp chính diện và rõ mặt hơn.';
+        } else if (clientMsg.includes('fetch') || clientMsg.includes('connect')) {
+            clientMsg = 'Không thể kết nối đến máy chủ AI Hugging Face. Vui lòng kiểm tra đường truyền Internet/mạng LAN!';
+        }
+
+        res.status(500).json({ success: false, message: 'Lỗi hoán đổi khuôn mặt AI: ' + clientMsg });
     }
 };
