@@ -188,3 +188,43 @@ export function closeEditModal(elements) {
     const { editModal } = elements;
     editModal.classList.add('hidden');
 }
+
+// Render Ideas Grid
+export function renderIdeas(ideas, elements, onLikeIdea) {
+    const { ideasGrid } = elements;
+    if (!ideasGrid) return;
+    
+    if (ideas.length === 0) {
+        ideasGrid.innerHTML = `<div class="col-span-full text-center text-neutral-600 py-12 font-bold text-sm tracking-wide bg-ph-dark rounded-xl border border-neutral-800">DANH SÁCH TRỐNG - HÃY LÀ NGƯỜI ĐẦU TIÊN ĐÓNG GÓP Ý TƯỞNG!</div>`;
+        return;
+    }
+
+    // Đăng ký callback trên window để gọi từ inline onclick
+    window.uiLikeIdea = onLikeIdea;
+
+    ideasGrid.innerHTML = ideas.map(idea => {
+        const dateStr = new Date(idea.createdAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+        const hashtags = idea.hashtags || [];
+        return `
+            <div class="bg-ph-dark rounded-xl border border-neutral-800 p-4 flex flex-col justify-between shadow-lg hover:border-ph-orange transition duration-200">
+                <div class="space-y-2 flex-grow">
+                    <div class="flex items-center justify-between border-b border-neutral-800/60 pb-2">
+                        <span class="text-xs font-bold text-ph-orange bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-full">👤 ${idea.author}</span>
+                        <span class="text-[10px] text-neutral-600 font-mono">📅 ${dateStr}</span>
+                    </div>
+                    <h3 class="font-bold text-sm text-white pt-1">${idea.title}</h3>
+                    <p class="text-xs text-neutral-400 leading-relaxed break-words">${idea.description}</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-neutral-800/60 flex items-center justify-between">
+                    <div class="flex flex-wrap gap-1">
+                        ${hashtags.map(t => `<span class="text-[9px] font-bold bg-neutral-900 text-neutral-500 px-1.5 py-0.5 rounded">#${t}</span>`).join('')}
+                    </div>
+                    <button onclick="window.uiLikeIdea('${idea.id}')" class="flex items-center gap-1 bg-neutral-900 border border-neutral-800 hover:border-ph-orange hover:text-ph-orange px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-white transition">
+                        <span>❤️</span>
+                        <span class="font-mono">${idea.likes || 0}</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}

@@ -8,6 +8,7 @@ require('./src/config/db');
 
 // Import router
 const mediaRouter = require('./src/routes/mediaRoutes');
+const ideaRouter = require('./src/routes/ideaRoutes');
 
 // Middlewares
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use(express.static('public'));
 
 // Cấu hình các route API
 app.use('/api', mediaRouter);
+app.use('/api/ideas', ideaRouter);
 
 // Khởi chạy server
 app.listen(PORT, '0.0.0.0', () => {

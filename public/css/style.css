@@ -54,3 +54,19 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #ff9900;
 }
+
+/* Navigation Tabs */
+.nav-tab {
+    color: #a3a3a3;
+    background-color: transparent;
+}
+
+.nav-tab:hover {
+    color: #ffffff;
+    background-color: #262626;
+}
+
+.nav-tab.active {
+    color: #000000;
+    background-color: #ff9900;
+}

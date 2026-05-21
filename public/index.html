@@ -23,66 +23,165 @@
                 Tên Xem Trước</p>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Khu Vực Upload (Bên trái) -->
-            <div class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit md:col-span-1 shadow-2xl">
-                <h2
-                    class="text-base font-bold mb-4 text-white uppercase tracking-wide border-b border-neutral-800 pb-2 flex items-center gap-1">
-                    <span>📤</span> Tải nội dung lên
-                </h2>
-                <form id="uploadForm" class="space-y-4">
+        <!-- NAVIGATION BAR -->
+        <nav class="mb-8 bg-neutral-900 border border-neutral-800 rounded-xl p-1.5 flex justify-center items-center gap-2 max-w-md mx-auto shadow-lg">
+            <button id="tabHome" class="nav-tab active flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                <span>🏠</span> Trang chủ
+            </button>
+            <button id="tabLbeo" class="nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                <span>🖤</span> Sản phẩm của Lbeo
+            </button>
+            <button id="tabIdeas" class="nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                <span>💡</span> Đóng góp ý tưởng
+            </button>
+        </nav>
 
-                    <div id="dropzone"
-                        class="border-2 border-dashed border-neutral-700 rounded-xl p-5 text-center cursor-pointer hover:border-ph-orange hover:bg-neutral-800 transition-all relative group bg-neutral-900">
-                        <input type="file" id="fileInput" multiple accept="image/*,video/*" class="hidden">
-                        <div class="space-y-2 pointer-events-none">
-                            <div class="text-2xl transition-transform group-hover:scale-110">🎥</div>
-                            <p class="text-xs font-bold text-gray-400">Kéo thả Ảnh / Video vào đây</p>
-                            <p class="text-[11px] text-gray-600">hoặc <span class="text-ph-orange underline">duyệt file
-                                    máy tính</span></p>
+        <!-- HOME / MAIN SECTION -->
+        <section id="homeSection" class="transition-all duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Khu Vực Upload (Bên trái) -->
+                <div id="uploadContainer" class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit md:col-span-1 shadow-2xl">
+                    <h2
+                        class="text-base font-bold mb-4 text-white uppercase tracking-wide border-b border-neutral-800 pb-2 flex items-center gap-1">
+                        <span>📤</span> Tải nội dung lên
+                    </h2>
+                    <form id="uploadForm" class="space-y-4">
+
+                        <div id="dropzone"
+                            class="border-2 border-dashed border-neutral-700 rounded-xl p-5 text-center cursor-pointer hover:border-ph-orange hover:bg-neutral-800 transition-all relative group bg-neutral-900">
+                            <input type="file" id="fileInput" multiple accept="image/*,video/*" class="hidden">
+                            <div class="space-y-2 pointer-events-none">
+                                <div class="text-2xl transition-transform group-hover:scale-110">🎥</div>
+                                <p class="text-xs font-bold text-gray-400">Kéo thả Ảnh / Video vào đây</p>
+                                <p class="text-[11px] text-gray-600">hoặc <span class="text-ph-orange underline">duyệt file
+                                        máy tính</span></p>
+                            </div>
+                            <div id="fileCounter" class="mt-2 text-xs font-bold text-ph-orange hidden"></div>
                         </div>
-                        <div id="fileCounter" class="mt-2 text-xs font-bold text-ph-orange hidden"></div>
-                    </div>
 
-                    <!-- DANH SÁCH LOOP XEM TRƯỚC VÀ ĐẶT TÊN RIÊNG BIỆT TỪNG FILE -->
-                    <div id="previewContainer" class="hidden space-y-2">
-                        <label class="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Cấu hình
-                            tên tệp tin chọn</label>
-                        <!-- Thùng chứa dạng list cuộn dọc, giao diện tối sẫm -->
-                        <div id="previewGrid"
-                            class="space-y-3 p-2 bg-neutral-900 border border-neutral-800 rounded-lg max-h-64 overflow-y-auto custom-scrollbar">
-                            <!-- JS loop chèn các row vào đây -->
+                        <!-- DANH SÁCH LOOP XEM TRƯỚC VÀ ĐẶT TÊN RIÊNG BIỆT TỪNG FILE -->
+                        <div id="previewContainer" class="hidden space-y-2">
+                            <label class="block text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Cấu hình
+                                tên tệp tin chọn</label>
+                            <!-- Thùng chứa dạng list cuộn dọc, giao diện tối sẫm -->
+                            <div id="previewGrid"
+                                class="space-y-3 p-2 bg-neutral-900 border border-neutral-800 rounded-lg max-h-64 overflow-y-auto custom-scrollbar">
+                                <!-- JS loop chèn các row vào đây -->
+                            </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Hashtags
-                            chung (Dấu phẩy phân cách)</label>
-                        <input type="text" id="tagsInput" placeholder="Ví dụ: meme, hot"
-                            class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả
-                            chung chi tiết</label>
-                        <textarea id="descInput" rows="2" placeholder="Nhập mô tả ngắn..."
-                            class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
-                    </div>
-                    <button type="submit"
-                        class="w-full bg-ph-orange text-black py-2.5 rounded-lg font-bold text-sm hover:bg-amber-500 transition duration-150 shadow-md">BẮT
-                        ĐẦU UPLOAD</button>
-                </form>
-            </div>
-
-            <!-- Khu Vực Thư Viện Media (Bên phải) -->
-            <div class="md:col-span-3 space-y-4">
-                <div class="w-full relative">
-                    <input type="text" id="searchInput"
-                        placeholder="🔍 Nhập tên file, định dạng hoặc hashtag cần tìm..."
-                        class="w-full p-3.5 bg-ph-dark rounded-xl border border-neutral-800 text-white focus:outline-none focus:border-ph-orange transition text-sm shadow-xl pl-5 placeholder-gray-600">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Hashtags
+                                chung (Dấu phẩy phân cách)</label>
+                            <input type="text" id="tagsInput" placeholder="Ví dụ: meme, hot"
+                                class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả
+                                chung chi tiết</label>
+                            <textarea id="descInput" rows="2" placeholder="Nhập mô tả ngắn..."
+                                class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-ph-orange text-black py-2.5 rounded-lg font-bold text-sm hover:bg-amber-500 transition duration-150 shadow-md">BẮT
+                            ĐẦU UPLOAD</button>
+                    </form>
                 </div>
-                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+                <!-- Khu Vực Thư Viện Media (Bên phải) -->
+                <div id="galleryContainer" class="md:col-span-3 space-y-4">
+                    <div id="lbeoBanner" class="hidden bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex items-center gap-4 shadow-xl">
+                        <div class="text-3xl">🖤</div>
+                        <div>
+                            <h2 class="text-base font-bold text-white uppercase tracking-wider">Sản Phẩm Độc Quyền Từ Lbeo</h2>
+                            <p class="text-[11px] text-gray-400">Nơi tổng hợp những tác phẩm truyền thông độc quyền của thần tượng Lbeo.</p>
+                        </div>
+                    </div>
+                    <div class="w-full relative">
+                        <input type="text" id="searchInput"
+                            placeholder="🔍 Nhập tên file, định dạng hoặc hashtag cần tìm..."
+                            class="w-full p-3.5 bg-ph-dark rounded-xl border border-neutral-800 text-white focus:outline-none focus:border-ph-orange transition text-sm shadow-xl pl-5 placeholder-gray-600">
+                    </div>
+                    <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- IDEAS CONTRIBUTION SECTION -->
+        <section id="ideasSection" class="hidden transition-all duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Khu Vực Gửi Ý Tưởng (Bên trái) -->
+                <div class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit md:col-span-1 shadow-2xl">
+                    <h2 class="text-base font-bold mb-4 text-white uppercase tracking-wide border-b border-neutral-800 pb-2 flex items-center gap-1">
+                        <span>💡</span> Gửi đóng góp ý kiến
+                    </h2>
+                    <form id="ideaForm" class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tên của bạn (Ẩn danh nếu bỏ trống)</label>
+                            <input type="text" id="ideaAuthorInput" placeholder="Ẩn danh..."
+                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Chủ đề ý tưởng *</label>
+                            <input type="text" id="ideaTitleInput" placeholder="Ví dụ: Tính năng phát nhạc LAN" required
+                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Chi tiết ý tưởng *</label>
+                            <textarea id="ideaDescInput" rows="4" placeholder="Mô tả ý tưởng của bạn một cách chi tiết..." required
+                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tags phân cách bởi dấu phẩy</label>
+                            <input type="text" id="ideaTagsInput" placeholder="Ví dụ: feature, ui, speed"
+                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-ph-orange text-black py-2.5 rounded-lg font-bold text-sm hover:bg-amber-500 transition duration-150 shadow-md">GỬI Ý TƯỞNG</button>
+                    </form>
+                    
+                    <!-- Tích hợp Face Swap AI -->
+                    <div class="mt-6 pt-6 border-t border-neutral-800/80 space-y-4">
+                        <h3 class="font-bold text-xs text-ph-orange flex items-center gap-1.5 uppercase tracking-wide">
+                            <span>🎭</span> Ghép mặt Lbeo AI
+                        </h3>
+                        <p class="text-[10px] text-neutral-400 leading-relaxed">
+                            Tải ảnh khuôn mặt của bạn lên, AI sẽ tự động hoán đổi khuôn mặt của bạn vào bức ảnh bí mật của Lbeopro!
+                        </p>
+                        <form id="faceSwapForm" class="space-y-3">
+                            <div class="border border-dashed border-neutral-800 hover:border-ph-orange rounded-lg p-3 text-center cursor-pointer transition relative" onclick="document.getElementById('faceSwapInput').click()">
+                                <span id="faceSwapLabel" class="text-neutral-500 text-[10px] block font-medium">Chọn ảnh mặt của bạn (JPG/PNG)</span>
+                                <input type="file" id="faceSwapInput" accept="image/*" class="hidden">
+                                <span id="faceSwapCounter" class="text-[10px] text-emerald-400 font-bold hidden">✓ Đã chọn ảnh</span>
+                            </div>
+                            <button type="submit" id="faceSwapBtn" class="w-full bg-ph-orange hover:bg-amber-500 text-black font-black text-[11px] py-2 rounded-lg transition tracking-wide flex items-center justify-center gap-2">
+                                <span>🚀 BẮT ĐẦU HOÁN ĐỔI</span>
+                            </button>
+                        </form>
+                        
+                        <!-- Hiển thị kết quả -->
+                        <div id="faceSwapResultContainer" class="hidden space-y-3 pt-4 border-t border-neutral-800/60 animate-slide-in">
+                            <h4 class="text-[11px] font-bold text-white text-center uppercase tracking-wider">✨ Kết quả ghép mặt AI ✨</h4>
+                            <div class="aspect-square w-full bg-neutral-950 rounded-lg overflow-hidden border border-neutral-800 relative flex items-center justify-center">
+                                <img id="faceSwapResultImg" src="" class="w-full h-full object-cover">
+                            </div>
+                            <a id="downloadSwappedBtn" href="#" download="lbeo_swapped.webp" class="block w-full text-center bg-neutral-800 hover:bg-neutral-700 text-gray-300 font-bold text-[10px] py-2 rounded-lg transition tracking-wide border border-neutral-700">📥 TẢI KẾT QUẢ XUỐNG</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh Sách Ý Tưởng Đã Đóng Góp (Bên phải) -->
+                <div class="md:col-span-3 space-y-4">
+                    <div class="bg-ph-dark p-4 rounded-xl border border-neutral-800 shadow-xl">
+                        <h2 class="text-base font-bold text-white uppercase tracking-wider mb-1">💡 Các ý tưởng từ cộng đồng</h2>
+                        <p class="text-xs text-gray-500">Bình chọn cho những ý tưởng hữu ích nhất để phát triển hệ thống BeoHub nhé!</p>
+                    </div>
+                    <div id="ideasGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-slide-in">
+                        <!-- JS chèn danh sách ý tưởng vào đây -->
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Container Toast -->

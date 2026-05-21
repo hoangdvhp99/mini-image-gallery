@@ -62,3 +62,35 @@ export async function commentMedia(name, text) {
     }
     return await res.json();
 }
+
+export async function fetchIdeas() {
+    const res = await fetch('/api/ideas');
+    if (!res.ok) throw new Error('Không thể lấy danh sách đóng góp ý kiến');
+    return await res.json();
+}
+
+export async function submitIdea(data) {
+    const res = await fetch('/api/ideas', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) {
+        throw new Error(result.message || 'Lỗi hệ thống khi gửi ý tưởng!');
+    }
+    return result;
+}
+
+export async function likeIdea(id) {
+    const res = await fetch(`/api/ideas/${encodeURIComponent(id)}/like`, {
+        method: 'POST'
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) {
+        throw new Error('Lỗi khi vote ý tưởng!');
+    }
+    return result;
+}
