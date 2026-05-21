@@ -82,6 +82,7 @@ export function renderGalleryGrid(mediaList, isAdmin, elements, callbacks) {
     galleryGrid.innerHTML = mediaList.map(item => {
         const checkVideo = isVideo(item.name);
         const currentLikes = item.likes || 0;
+        const currentHahas = item.hahas || 0;
         const currentCommentsCount = item.comments ? item.comments.length : 0;
 
         const mediaPreview = checkVideo
@@ -109,7 +110,7 @@ export function renderGalleryGrid(mediaList, isAdmin, elements, callbacks) {
                         <p class="text-xs text-neutral-500 mt-1 line-clamp-1 leading-relaxed">${item.description || '<i class="text-neutral-700">Không có mô tả sản phẩm</i>'}</p>
                         <div class="flex items-center justify-between mt-2">
                             <span class="text-[10px] text-neutral-600 font-mono">📅 ${dateStr}</span>
-                            <span class="text-[10px] text-ph-orange font-bold flex items-center gap-2 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800"><span>❤️ ${currentLikes}</span><span>💬 ${currentCommentsCount}</span></span>
+                            <span class="text-[10px] text-ph-orange font-bold flex items-center gap-2 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800"><span>❤️ ${currentLikes}</span><span>😆 ${currentHahas}</span><span>💬 ${currentCommentsCount}</span></span>
                         </div>
                     </div>
                     <div>
@@ -124,13 +125,14 @@ export function renderGalleryGrid(mediaList, isAdmin, elements, callbacks) {
 
 // Render dữ liệu Modal
 export function renderModalInteractions(name, mediaList, elements) {
-    const { modalTitle, modalDesc, modalTags, likeCount, commentsContainer } = elements;
+    const { modalTitle, modalDesc, modalTags, likeCount, hahaCount, commentsContainer } = elements;
     const currentItem = mediaList.find(item => item.name === name);
     if (!currentItem) return;
 
     modalTitle.textContent = currentItem.name;
     modalDesc.innerHTML = currentItem.description || '<i class="text-neutral-700">Không có mô tả sản phẩm</i>';
     likeCount.textContent = currentItem.likes || 0;
+    if (hahaCount) hahaCount.textContent = currentItem.hahas || 0;
     modalTags.innerHTML = currentItem.hashtags.map(tag => `<span class="bg-neutral-900 text-neutral-400 text-[10px] font-bold px-2 py-0.5 rounded border border-neutral-800">#${tag}</span>`).join('');
     
     const comments = currentItem.comments || [];

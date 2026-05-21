@@ -221,6 +221,18 @@ exports.likeMedia = (req, res) => {
     }
 };
 
+exports.hahaMedia = (req, res) => {
+    try {
+        let db = readDB();
+        const idx = db.findIndex(i => i.name === req.params.name);
+        db[idx].hahas = (db[idx].hahas || 0) + 1;
+        writeDB(db);
+        res.json({ success: true, hahas: db[idx].hahas });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
+};
+
 exports.commentMedia = (req, res) => {
     try {
         const { text } = req.body;

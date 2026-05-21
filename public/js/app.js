@@ -1,4 +1,4 @@
-import { fetchMediaList, uploadMedia, updateMedia, deleteMedia, likeMedia, commentMedia, fetchIdeas, submitIdea, likeIdea } from './api.js';
+import { fetchMediaList, uploadMedia, updateMedia, deleteMedia, likeMedia, hahaMedia, commentMedia, fetchIdeas, submitIdea, likeIdea } from './api.js';
 import { showToast, renderPreviewGrid, renderGalleryGrid, renderModalInteractions, openModal, closeModal, openEditModal, closeEditModal, renderIdeas } from './ui.js';
 
 // DOM Elements
@@ -13,6 +13,8 @@ const elements = {
     modalTags: document.getElementById('modalTags'),
     likeBtn: document.getElementById('likeBtn'),
     likeCount: document.getElementById('likeCount'),
+    hahaBtn: document.getElementById('hahaBtn'),
+    hahaCount: document.getElementById('hahaCount'),
     shareLinkBtn: document.getElementById('shareLinkBtn'),
     commentsContainer: document.getElementById('commentsContainer'),
     commentForm: document.getElementById('commentForm'),
@@ -267,6 +269,18 @@ elements.likeBtn.onclick = async () => {
         fetchImages(elements.searchInput.value);
     } catch (err) {
         showToast('Không thể thả tim!', 'error');
+    }
+};
+
+// --- Haha ---
+elements.hahaBtn.onclick = async () => {
+    if (!activeMediaName) return;
+    try {
+        const r = await hahaMedia(activeMediaName);
+        elements.hahaCount.textContent = r.hahas;
+        fetchImages(elements.searchInput.value);
+    } catch (err) {
+        showToast('Không thể Haha!', 'error');
     }
 };
 
