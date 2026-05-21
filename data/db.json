@@ -25,7 +25,8 @@
     "url": "/uploads/beomela.png",
     "hashtags": [],
     "description": "",
-    "uploadedAt": "2026-05-15T08:56:44.350Z"
+    "uploadedAt": "2026-05-15T08:56:44.350Z",
+    "likes": 7
   },
   {
     "name": "hehe beo.jpg",
@@ -144,7 +145,8 @@
     "url": "/uploads/tapcanbeo.png",
     "hashtags": [],
     "description": "",
-    "uploadedAt": "2026-05-15T09:14:04.179Z"
+    "uploadedAt": "2026-05-15T09:14:04.179Z",
+    "likes": 1
   },
   {
     "name": "thi-chu-tha-mang.jpg",
@@ -194,7 +196,7 @@
     "hashtags": [],
     "description": "",
     "uploadedAt": "2026-05-18T04:33:18.265Z",
-    "likes": 2
+    "likes": 4
   },
   {
     "name": "nig.png",
@@ -226,7 +228,7 @@
     "description": "",
     "uploadedAt": "2026-05-19T02:30:18.551Z",
     "updatedAt": "2026-05-19T02:31:15.069Z",
-    "likes": 1
+    "likes": 2
   },
   {
     "name": "homelander-lbeo.webp",
@@ -285,7 +287,8 @@
     "url": "/uploads/xbeo.jpg",
     "hashtags": [],
     "description": "",
-    "uploadedAt": "2026-05-19T07:29:41.029Z"
+    "uploadedAt": "2026-05-19T07:29:41.029Z",
+    "likes": 4
   },
   {
     "name": "leeminbeo.png",
@@ -293,7 +296,7 @@
     "hashtags": [],
     "description": "",
     "uploadedAt": "2026-05-19T07:47:03.424Z",
-    "likes": 2
+    "likes": 7
   },
   {
     "name": "lbeoyèhe.mp4",
@@ -301,7 +304,15 @@
     "hashtags": [],
     "description": "",
     "uploadedAt": "2026-05-19T07:52:24.995Z",
-    "likes": 2
+    "likes": 22,
+    "comments": [
+      {
+        "id": 1779269773325,
+        "author": "Người dùng ẩn danh",
+        "text": "my idol",
+        "createdAt": "2026-05-20T09:36:13.325Z"
+      }
+    ]
   },
   {
     "name": "lopbeo.png",
@@ -329,7 +340,8 @@
     "url": "/uploads/lbeo-da-den.png",
     "hashtags": [],
     "description": "",
-    "uploadedAt": "2026-05-20T08:07:41.549Z"
+    "uploadedAt": "2026-05-20T08:07:41.549Z",
+    "likes": 1
   },
   {
     "name": "lbeo_debut.jpg",
@@ -337,7 +349,21 @@
     "hashtags": [],
     "description": "Màn debug 1 cân 5 của em gái mình dây Lbeo",
     "uploadedAt": "2026-05-20T08:22:21.233Z",
-    "likes": 2
+    "likes": 3,
+    "comments": [
+      {
+        "id": 1779271267923,
+        "author": "Người dùng ẩn danh",
+        "text": "hư thế",
+        "createdAt": "2026-05-20T10:01:07.923Z"
+      },
+      {
+        "id": 1779328624030,
+        "author": "Fan BeoHub",
+        "text": "xin link",
+        "createdAt": "2026-05-21T01:57:04.030Z"
+      }
+    ]
   },
   {
     "name": "doctorBeo.png",
@@ -346,7 +372,7 @@
     "description": "",
     "uploadedAt": "2026-05-20T09:13:29.997Z",
     "updatedAt": "2026-05-20T09:15:22.098Z",
-    "likes": 6,
+    "likes": 30,
     "comments": [
       {
         "id": 1779269330980,
@@ -359,6 +385,30 @@
         "author": "Thành viên bí ẩn",
         "text": "á đù dzai vl",
         "createdAt": "2026-05-20T09:30:18.627Z"
+      },
+      {
+        "id": 1779269482061,
+        "author": "Ẩn danh đại hiệp",
+        "text": "daam qua",
+        "createdAt": "2026-05-20T09:31:22.061Z"
+      },
+      {
+        "id": 1779269814184,
+        "author": "Khách vãng lai",
+        "text": "bệnh hoạn quá",
+        "createdAt": "2026-05-20T09:36:54.184Z"
+      },
+      {
+        "id": 1779271311844,
+        "author": "Thành viên bí ẩn",
+        "text": "bỉ ổi",
+        "createdAt": "2026-05-20T10:01:51.844Z"
+      },
+      {
+        "id": 1779271818811,
+        "author": "Fan BeoHub",
+        "text": "súc vật quá",
+        "createdAt": "2026-05-20T10:10:18.812Z"
       }
     ]
   },
@@ -368,6 +418,73 @@
     "hashtags": [],
     "description": "",
     "uploadedAt": "2026-05-20T09:14:24.120Z",
-    "likes": 4
+    "likes": 7,
+    "comments": [
+      {
+        "id": 1779269476297,
+        "author": "Ẩn danh đại hiệp",
+        "text": "quá dã man",
+        "createdAt": "2026-05-20T09:31:16.297Z"
+      },
+      {
+        "id": 1779269651003,
+        "author": "Thành viên bí ẩn",
+        "text": "mlem",
+        "createdAt": "2026-05-20T09:34:11.003Z"
+      }
+    ]
+  },
+  {
+    "name": "avabeo.png",
+    "url": "/uploads/avabeo.png",
+    "hashtags": [],
+    "description": "",
+    "uploadedAt": "2026-05-20T10:00:20.281Z",
+    "likes": 1
+  },
+  {
+    "name": "Lbeo52card.png",
+    "url": "/uploads/Lbeo52card.png",
+    "hashtags": [],
+    "description": "",
+    "uploadedAt": "2026-05-20T10:03:12.641Z",
+    "updatedAt": "2026-05-20T10:03:37.106Z",
+    "likes": 1,
+    "comments": [
+      {
+        "id": 1779272105654,
+        "author": "Thành viên bí ẩn",
+        "text": "cháy quá",
+        "createdAt": "2026-05-20T10:15:05.654Z"
+      },
+      {
+        "id": 1779272114958,
+        "author": "Thành viên bí ẩn",
+        "text": "tôi hứng thú",
+        "createdAt": "2026-05-20T10:15:14.958Z"
+      },
+      {
+        "id": 1779272165383,
+        "author": "Ẩn danh đại hiệp",
+        "text": "cho xin link mua bộ bài này",
+        "createdAt": "2026-05-20T10:16:05.383Z"
+      }
+    ]
+  },
+  {
+    "name": "JQBeo.png",
+    "url": "/uploads/JQBeo.png",
+    "hashtags": [],
+    "description": "",
+    "uploadedAt": "2026-05-20T10:07:32.281Z",
+    "updatedAt": "2026-05-20T10:08:09.427Z"
+  },
+  {
+    "name": "lbeo-giang-hoa.jpg",
+    "url": "/uploads/lbeo-giang-hoa.jpg",
+    "hashtags": [],
+    "description": "",
+    "uploadedAt": "2026-05-21T02:11:53.816Z",
+    "likes": 1
   }
 ]
