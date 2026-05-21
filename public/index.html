@@ -24,7 +24,7 @@
         </header>
 
         <!-- NAVIGATION BAR -->
-        <nav class="mb-8 bg-neutral-900 border border-neutral-800 rounded-xl p-1.5 flex justify-center items-center gap-2 max-w-md mx-auto shadow-lg">
+        <nav class="mb-8 bg-neutral-900 border border-neutral-800 rounded-xl p-1.5 flex justify-center items-center gap-2 max-w-lg mx-auto shadow-lg">
             <button id="tabHome" class="nav-tab active flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition">
                 <span>🏠</span> Trang chủ
             </button>
@@ -33,6 +33,9 @@
             </button>
             <button id="tabIdeas" class="nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition">
                 <span>💡</span> Đóng góp ý tưởng
+            </button>
+            <button id="btnDonate" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition text-amber-400 border border-amber-500/20 hover:bg-amber-500/10">
+                <span>💸</span> Donate mua domain
             </button>
         </nav>
 
@@ -276,6 +279,48 @@
                         THAY ĐỔI</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Donate mua domain -->
+    <div id="donateModal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-all duration-200" onclick="closeDonateModal()">
+        <div class="bg-ph-dark rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-5 relative border border-neutral-800 text-center transform scale-95 transition-all" onclick="event.stopPropagation()">
+            <span class="absolute top-3 right-4 text-gray-500 hover:text-white text-2xl font-light cursor-pointer transition" onclick="closeDonateModal()">&times;</span>
+            <div class="space-y-2">
+                <h3 class="text-lg font-black text-amber-400 uppercase tracking-wider flex items-center justify-center gap-1.5">
+                    <span>💸</span> Donate mua domain
+                </h3>
+                <p class="text-[11px] text-neutral-400 leading-relaxed">
+                    Ủng hộ kinh phí duy trì và mua tên miền cho BeoHub! Cảm ơn sự đóng góp của bạn.
+                </p>
+            </div>
+            
+            <div class="aspect-[2/3] w-64 mx-auto bg-neutral-950 rounded-xl overflow-hidden border border-neutral-850 p-2 shadow-inner flex flex-col items-center justify-center">
+                <img src="/uploads/donate_qr.png" class="w-full h-full object-contain rounded-lg" alt="Vietcombank QR Donate BUI XUAN SON">
+            </div>
+
+            <div class="space-y-2 bg-neutral-900/60 p-3.5 rounded-xl border border-neutral-850/80 text-left text-xs">
+                <div class="flex justify-between border-b border-neutral-800/80 pb-1.5">
+                    <span class="text-neutral-500 font-medium">Ngân hàng:</span>
+                    <span class="text-white font-bold">Vietcombank</span>
+                </div>
+                <div class="flex justify-between border-b border-neutral-800/80 py-1.5">
+                    <span class="text-neutral-500 font-medium">Chủ tài khoản:</span>
+                    <span class="text-white font-bold">BUI XUAN SON</span>
+                </div>
+                <div class="flex justify-between border-b border-neutral-800/80 py-1.5">
+                    <span class="text-neutral-500 font-medium">Số tài khoản:</span>
+                    <span class="text-amber-400 font-mono font-bold tracking-wider">0021000480031</span>
+                </div>
+                <div class="flex justify-between pt-1.5">
+                    <span class="text-neutral-500 font-medium">Chi nhánh:</span>
+                    <span class="text-white font-bold">Vietcombank Hoàng Cầu</span>
+                </div>
+            </div>
+
+            <button onclick="closeDonateModal()" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-black text-xs transition duration-150 tracking-wider shadow-md">
+                HOÀN THÀNH
+            </button>
         </div>
     </div>
 

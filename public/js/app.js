@@ -63,7 +63,9 @@ const elements = {
     faceSwapResultCategorySelect: document.getElementById('faceSwapResultCategorySelect'),
     faceSwapPreviewContainer: document.getElementById('faceSwapPreviewContainer'),
     faceSwapPreviewImg: document.getElementById('faceSwapPreviewImg'),
-    faceSwapIcon: document.getElementById('faceSwapIcon')
+    faceSwapIcon: document.getElementById('faceSwapIcon'),
+    btnDonate: document.getElementById('btnDonate'),
+    donateModal: document.getElementById('donateModal')
 };
 
 // Global States
@@ -88,6 +90,18 @@ window.closeModal = () => {
 
 window.closeEditModal = () => {
     closeEditModal(elements);
+};
+
+window.closeDonateModal = () => {
+    if (elements.donateModal) {
+        elements.donateModal.classList.add('hidden');
+    }
+};
+
+window.openDonateModal = () => {
+    if (elements.donateModal) {
+        elements.donateModal.classList.remove('hidden');
+    }
 };
 
 // --- Fetch & Render Thư Viện ---
@@ -354,6 +368,7 @@ async function switchTab(tabName) {
 if (elements.tabHome) elements.tabHome.addEventListener('click', () => switchTab('home'));
 if (elements.tabLbeo) elements.tabLbeo.addEventListener('click', () => switchTab('lbeo'));
 if (elements.tabIdeas) elements.tabIdeas.addEventListener('click', () => switchTab('ideas'));
+if (elements.btnDonate) elements.btnDonate.addEventListener('click', () => window.openDonateModal());
 
 // Đăng ký gửi form đóng góp ý kiến
 if (elements.ideaForm) {
