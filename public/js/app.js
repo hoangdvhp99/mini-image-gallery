@@ -29,6 +29,7 @@ const elements = {
     editNewNameInput: document.getElementById('editNewNameInput'),
     editTagsInput: document.getElementById('editTagsInput'),
     editDescInput: document.getElementById('editDescInput'),
+    editCategorySelect: document.getElementById('editCategorySelect'),
     
     // Navigation & Ideas Elements
     tabHome: document.getElementById('tabHome'),
@@ -54,7 +55,15 @@ const elements = {
     faceSwapBtn: document.getElementById('faceSwapBtn'),
     faceSwapResultContainer: document.getElementById('faceSwapResultContainer'),
     faceSwapResultImg: document.getElementById('faceSwapResultImg'),
-    downloadSwappedBtn: document.getElementById('downloadSwappedBtn')
+    downloadSwappedBtn: document.getElementById('downloadSwappedBtn'),
+    uploadSwappedBtn: document.getElementById('uploadSwappedBtn'),
+    faceSwapResultNameInput: document.getElementById('faceSwapResultNameInput'),
+    faceSwapResultDescInput: document.getElementById('faceSwapResultDescInput'),
+    uploadCategorySelect: document.getElementById('uploadCategorySelect'),
+    faceSwapResultCategorySelect: document.getElementById('faceSwapResultCategorySelect'),
+    faceSwapPreviewContainer: document.getElementById('faceSwapPreviewContainer'),
+    faceSwapPreviewImg: document.getElementById('faceSwapPreviewImg'),
+    faceSwapIcon: document.getElementById('faceSwapIcon')
 };
 
 // Global States
@@ -63,6 +72,9 @@ let globalMediaList = [];
 let activeMediaName = "";
 let isInitialLoad = true;
 let currentTab = "home";
+let fullDisplayList = [];
+let currentPage = 1;
+const itemsPerPage = 15;
 
 // Lấy thông tin từ URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -85,16 +97,22 @@ async function fetchImages(search = '') {
         globalMediaList = media;
         
         let displayList = media;
-        if (currentTab === 'lbeo') {
-            displayList = media.filter(item => 
-                item.name.toLowerCase().includes('lbeo') || 
-                item.hashtags.some(tag => tag.includes('lbeo'))
-            );
+        if (currentTab === 'home') {
+            displayList = media.filter(item => !item.category || item.category === 'home');
+        } else if (currentTab === 'lbeo') {
+            displayList = media.filter(item => item.category === 'lbeo');
         }
+        
+        // Lưu trữ danh sách đầy đủ và khởi tạo phân trang
+        fullDisplayList = displayList;
+        currentPage = 1;
+
+        // Chỉ hiển thị 15 ảnh đầu tiên
+        const slicedList = displayList.slice(0, currentPage * itemsPerPage);
         
         const targetId = urlParams.get('id');
 
-        renderGalleryGrid(displayList, isAdmin, elements, {
+        renderGalleryGrid(slicedList, isAdmin, elements, {
             onOpenModal: (url, name) => {
                 activeMediaName = name;
                 openModal(url, name, globalMediaList, elements);
@@ -173,6 +191,7 @@ elements.uploadForm.addEventListener('submit', async (e) => {
     selectedFiles.forEach(file => formData.append('images', file));
     formData.append('hashtags', document.getElementById('tagsInput').value);
     formData.append('description', document.getElementById('descInput').value);
+    formData.append('category', elements.uploadCategorySelect.value);
 
     // Thu thập tất cả tên tùy chỉnh từ danh sách xem trước
     const nameInputs = document.querySelectorAll('input[name="customNameInputs"]');
@@ -204,6 +223,9 @@ elements.editForm.addEventListener('submit', async (e) => {
     formData.append('newName', newName);
     formData.append('hashtags', elements.editTagsInput.value);
     formData.append('description', elements.editDescInput.value);
+    if (elements.editCategorySelect) {
+        formData.append('category', elements.editCategorySelect.value);
+    }
 
     try {
         const result = await updateMedia(oldName, urlParams.get('isAdmin') || '0', formData);
@@ -325,7 +347,6 @@ async function switchTab(tabName) {
         elements.tabIdeas.classList.add('active');
         elements.homeSection.classList.add('hidden');
         elements.ideasSection.classList.remove('hidden');
-        loadIdeas();
     }
 }
 
@@ -358,13 +379,25 @@ if (elements.ideaForm) {
 if (elements.faceSwapInput) {
     elements.faceSwapInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
             elements.faceSwapCounter.classList.remove('hidden');
-            elements.faceSwapLabel.textContent = `✓ Đã chọn: ${e.target.files[0].name}`;
+            elements.faceSwapLabel.textContent = `✓ Đã chọn: ${file.name}`;
             elements.faceSwapLabel.classList.add('text-emerald-400');
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                elements.faceSwapPreviewImg.src = event.target.result;
+                elements.faceSwapPreviewContainer.classList.remove('hidden');
+                if (elements.faceSwapIcon) elements.faceSwapIcon.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
         } else {
             elements.faceSwapCounter.classList.add('hidden');
-            elements.faceSwapLabel.textContent = 'Chọn ảnh mặt của bạn (JPG/PNG)';
+            elements.faceSwapLabel.textContent = 'Chọn bức ảnh bạn muốn bị ghép mặt (JPG/PNG)';
             elements.faceSwapLabel.classList.remove('text-emerald-400');
+            elements.faceSwapPreviewImg.src = '';
+            elements.faceSwapPreviewContainer.classList.add('hidden');
+            if (elements.faceSwapIcon) elements.faceSwapIcon.classList.remove('hidden');
         }
     });
 }
@@ -415,6 +448,97 @@ if (elements.faceSwapForm) {
         }
     });
 }
+
+// Đăng ký sự kiện upload trực tiếp kết quả lên BeoHub
+if (elements.uploadSwappedBtn) {
+    elements.uploadSwappedBtn.addEventListener('click', async () => {
+        const imageUrl = elements.faceSwapResultImg.src;
+        if (!imageUrl) {
+            showToast('Không có ảnh kết quả nào để upload!', 'error');
+            return;
+        }
+
+        const origBtnText = elements.uploadSwappedBtn.innerHTML;
+        elements.uploadSwappedBtn.disabled = true;
+        elements.uploadSwappedBtn.innerHTML = `<span>⏳ ĐANG UPLOAD...</span>`;
+        elements.uploadSwappedBtn.classList.remove('bg-ph-orange', 'hover:bg-amber-500');
+        elements.uploadSwappedBtn.classList.add('bg-neutral-800', 'text-gray-400', 'cursor-not-allowed');
+
+        try {
+            // Lấy tên tệp tin và mô tả từ giao diện
+            let customName = elements.faceSwapResultNameInput.value.trim() || 'lbeo_swapped';
+            if (!customName.endsWith('.webp')) {
+                customName += '.webp';
+            }
+            const customDesc = elements.faceSwapResultDescInput.value.trim() || 'Ảnh ghép mặt Lbeo AI độc quyền!';
+
+            // Tải ảnh dưới dạng Blob từ URL nội bộ
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], customName, { type: 'image/webp' });
+
+            const formData = new FormData();
+            formData.append('images', file);
+            formData.append('hashtags', 'faceswap, lbeo');
+            formData.append('description', customDesc);
+            formData.append('customNames', customName);
+            formData.append('category', elements.faceSwapResultCategorySelect.value);
+
+            await uploadMedia(formData);
+            showToast('Đăng ảnh ghép mặt AI trực tiếp lên BeoHub thành công! 🎉', 'success');
+        } catch (err) {
+            showToast(err.message || 'Lỗi khi upload trực tiếp ảnh ghép mặt lên BeoHub!', 'error');
+        } finally {
+            elements.uploadSwappedBtn.disabled = false;
+            elements.uploadSwappedBtn.innerHTML = origBtnText;
+            elements.uploadSwappedBtn.classList.add('bg-ph-orange', 'hover:bg-amber-500');
+            elements.uploadSwappedBtn.classList.remove('bg-neutral-800', 'text-gray-400', 'cursor-not-allowed');
+        }
+    });
+}
+
+// Tải thêm ảnh khi cuộn (Lazy Load / Phân trang)
+function loadMoreImages() {
+    const totalItems = fullDisplayList.length;
+    const maxPage = Math.ceil(totalItems / itemsPerPage);
+    if (currentPage >= maxPage) return; // Đã hiển thị hết tất cả các ảnh
+
+    currentPage++;
+    const slicedList = fullDisplayList.slice(0, currentPage * itemsPerPage);
+
+    renderGalleryGrid(slicedList, isAdmin, elements, {
+        onOpenModal: (url, name) => {
+            activeMediaName = name;
+            openModal(url, name, globalMediaList, elements);
+        },
+        onOpenEditModal: (name) => {
+            openEditModal(name, globalMediaList, elements);
+        },
+        onDeleteImage: async (fileName) => {
+            if (!confirm(`Xóa vĩnh viễn tệp tin "${fileName}" khỏi BeoHub?`)) return;
+            try {
+                const result = await deleteMedia(fileName, urlParams.get('isAdmin') || '0');
+                if (result.success) {
+                    showToast('Đã xóa dữ liệu thành công.', 'success');
+                    fetchImages(elements.searchInput.value);
+                }
+            } catch (err) {
+                showToast('Gặp lỗi khi xóa dữ liệu.', 'error');
+            }
+        }
+    });
+}
+
+// Đăng ký sự kiện cuộn chuột để kích hoạt Lazy Load
+window.addEventListener('scroll', () => {
+    if (currentTab === 'ideas') return; // Không lazy load ở tab Ideas
+
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    // Tự động tải thêm khi cuộn gần tới đáy trang (cách đáy 150px)
+    if (scrollTop + clientHeight >= scrollHeight - 150) {
+        loadMoreImages();
+    }
+});
 
 // Khởi tạo chạy lần đầu
 fetchImages();

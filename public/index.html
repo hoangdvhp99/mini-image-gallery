@@ -77,10 +77,16 @@
                                 class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả
-                                chung chi tiết</label>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả chung chi tiết</label>
                             <textarea id="descInput" rows="2" placeholder="Nhập mô tả ngắn..."
                                 class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nơi hiển thị hình ảnh</label>
+                            <select id="uploadCategorySelect" class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
+                                <option value="home">🏠 Trang chủ</option>
+                                <option value="lbeo">🖤 Sản phẩm của Lbeo</option>
+                            </select>
                         </div>
                         <button type="submit"
                             class="w-full bg-ph-orange text-black py-2.5 rounded-lg font-bold text-sm hover:bg-amber-500 transition duration-150 shadow-md">BẮT
@@ -109,75 +115,66 @@
 
         <!-- IDEAS CONTRIBUTION SECTION -->
         <section id="ideasSection" class="hidden transition-all duration-300">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Khu Vực Gửi Ý Tưởng (Bên trái) -->
-                <div class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit md:col-span-1 shadow-2xl">
-                    <h2 class="text-base font-bold mb-4 text-white uppercase tracking-wide border-b border-neutral-800 pb-2 flex items-center gap-1">
-                        <span>💡</span> Gửi đóng góp ý kiến
+            <div class="max-w-2xl mx-auto bg-ph-dark p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl space-y-6">
+                <div class="text-center space-y-2">
+                    <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center justify-center gap-2">
+                        <span>🎭</span> Ghép mặt Lbeo AI
                     </h2>
-                    <form id="ideaForm" class="space-y-4">
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tên của bạn (Ẩn danh nếu bỏ trống)</label>
-                            <input type="text" id="ideaAuthorInput" placeholder="Ẩn danh..."
-                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Chủ đề ý tưởng *</label>
-                            <input type="text" id="ideaTitleInput" placeholder="Ví dụ: Tính năng phát nhạc LAN" required
-                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Chi tiết ý tưởng *</label>
-                            <textarea id="ideaDescInput" rows="4" placeholder="Mô tả ý tưởng của bạn một cách chi tiết..." required
-                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tags phân cách bởi dấu phẩy</label>
-                            <input type="text" id="ideaTagsInput" placeholder="Ví dụ: feature, ui, speed"
-                                class="w-full p-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
-                        </div>
-                        <button type="submit"
-                            class="w-full bg-ph-orange text-black py-2.5 rounded-lg font-bold text-sm hover:bg-amber-500 transition duration-150 shadow-md">GỬI Ý TƯỞNG</button>
-                    </form>
-                    
-                    <!-- Tích hợp Face Swap AI -->
-                    <div class="mt-6 pt-6 border-t border-neutral-800/80 space-y-4">
-                        <h3 class="font-bold text-xs text-ph-orange flex items-center gap-1.5 uppercase tracking-wide">
-                            <span>🎭</span> Ghép mặt Lbeo AI
-                        </h3>
-                        <p class="text-[10px] text-neutral-400 leading-relaxed">
-                            Tải ảnh khuôn mặt của bạn lên, AI sẽ tự động hoán đổi khuôn mặt của bạn vào bức ảnh bí mật của Lbeopro!
-                        </p>
-                        <form id="faceSwapForm" class="space-y-3">
-                            <div class="border border-dashed border-neutral-800 hover:border-ph-orange rounded-lg p-3 text-center cursor-pointer transition relative" onclick="document.getElementById('faceSwapInput').click()">
-                                <span id="faceSwapLabel" class="text-neutral-500 text-[10px] block font-medium">Chọn ảnh mặt của bạn (JPG/PNG)</span>
-                                <input type="file" id="faceSwapInput" accept="image/*" class="hidden">
-                                <span id="faceSwapCounter" class="text-[10px] text-emerald-400 font-bold hidden">✓ Đã chọn ảnh</span>
-                            </div>
-                            <button type="submit" id="faceSwapBtn" class="w-full bg-ph-orange hover:bg-amber-500 text-black font-black text-[11px] py-2 rounded-lg transition tracking-wide flex items-center justify-center gap-2">
-                                <span>🚀 BẮT ĐẦU HOÁN ĐỔI</span>
-                            </button>
-                        </form>
-                        
-                        <!-- Hiển thị kết quả -->
-                        <div id="faceSwapResultContainer" class="hidden space-y-3 pt-4 border-t border-neutral-800/60 animate-slide-in">
-                            <h4 class="text-[11px] font-bold text-white text-center uppercase tracking-wider">✨ Kết quả ghép mặt AI ✨</h4>
-                            <div class="aspect-square w-full bg-neutral-950 rounded-lg overflow-hidden border border-neutral-800 relative flex items-center justify-center">
-                                <img id="faceSwapResultImg" src="" class="w-full h-full object-cover">
-                            </div>
-                            <a id="downloadSwappedBtn" href="#" download="lbeo_swapped.webp" class="block w-full text-center bg-neutral-800 hover:bg-neutral-700 text-gray-300 font-bold text-[10px] py-2 rounded-lg transition tracking-wide border border-neutral-700">📥 TẢI KẾT QUẢ XUỐNG</a>
-                        </div>
-                    </div>
+                    <p class="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
+                        Tải một bức ảnh lên, AI sẽ tự động ghép khuôn mặt độc quyền!
+                    </p>
                 </div>
 
-                <!-- Danh Sách Ý Tưởng Đã Đóng Góp (Bên phải) -->
-                <div class="md:col-span-3 space-y-4">
-                    <div class="bg-ph-dark p-4 rounded-xl border border-neutral-800 shadow-xl">
-                        <h2 class="text-base font-bold text-white uppercase tracking-wider mb-1">💡 Các ý tưởng từ cộng đồng</h2>
-                        <p class="text-xs text-gray-500">Bình chọn cho những ý tưởng hữu ích nhất để phát triển hệ thống BeoHub nhé!</p>
+                <form id="faceSwapForm" class="space-y-4">
+                    <div class="border-2 border-dashed border-neutral-850 hover:border-ph-orange rounded-xl p-6 text-center cursor-pointer transition-all relative bg-neutral-900/50 group" onclick="document.getElementById('faceSwapInput').click()">
+                        <input type="file" id="faceSwapInput" accept="image/*" class="hidden">
+                        <div class="space-y-2 pointer-events-none">
+                            <div id="faceSwapPreviewContainer" class="hidden aspect-square w-32 mx-auto bg-neutral-950 rounded-lg overflow-hidden border border-neutral-800 relative flex items-center justify-center shadow-inner mb-2 animate-slide-in">
+                                <img id="faceSwapPreviewImg" src="" class="w-full h-full object-cover">
+                            </div>
+                            <div id="faceSwapIcon" class="text-3xl transition-transform group-hover:scale-110">📸</div>
+                            <span id="faceSwapLabel" class="text-neutral-400 text-xs block font-bold">Chọn bức ảnh bạn muốn bị ghép mặt (JPG/PNG)</span>
+                            <span id="faceSwapCounter" class="text-xs text-emerald-400 font-extrabold hidden">✓ Đã chọn ảnh thành công!</span>
+                        </div>
                     </div>
-                    <div id="ideasGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-slide-in">
-                        <!-- JS chèn danh sách ý tưởng vào đây -->
+                    <button type="submit" id="faceSwapBtn" class="w-full bg-ph-orange hover:bg-amber-500 text-black font-black text-xs py-3 rounded-xl transition duration-250 tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-ph-orange/10">
+                        <span>🚀 BẮT ĐẦU HOÁN ĐỔI</span>
+                    </button>
+                </form>
+                
+                <!-- Hiển thị kết quả -->
+                <div id="faceSwapResultContainer" class="hidden space-y-4 pt-6 border-t border-neutral-800/80 animate-slide-in">
+                    <h4 class="text-xs font-black text-ph-orange text-center uppercase tracking-widest">✨ Kết quả ghép mặt AI ✨</h4>
+                    <div class="aspect-square w-full max-w-md mx-auto bg-neutral-950 rounded-xl overflow-hidden border border-neutral-800 relative flex items-center justify-center shadow-inner">
+                        <img id="faceSwapResultImg" src="" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <!-- Nhập Metadata trước khi upload -->
+                    <div class="max-w-md mx-auto space-y-3 bg-neutral-900/60 p-4 rounded-xl border border-neutral-800/80">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tên tệp tin tùy chỉnh (không cần đuôi .webp)</label>
+                            <input type="text" id="faceSwapResultNameInput" value="lbeo_swapped" placeholder="Nhập tên tệp..."
+                                class="w-full p-2 bg-neutral-950 border border-neutral-850 rounded-lg text-xs text-white focus:outline-none focus:border-ph-orange transition">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả bức ảnh</label>
+                            <textarea id="faceSwapResultDescInput" rows="2" placeholder="Nhập mô tả cho bức ảnh ghép mặt..."
+                                class="w-full p-2 bg-neutral-950 border border-neutral-850 rounded-lg text-xs text-white focus:outline-none focus:border-ph-orange transition">Ảnh ghép mặt Lbeo AI cực độc!</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nơi hiển thị hình ảnh</label>
+                            <select id="faceSwapResultCategorySelect" class="w-full p-2 bg-neutral-950 border border-neutral-850 rounded-lg text-xs text-white focus:outline-none focus:border-ph-orange transition">
+                                <option value="home">🏠 Trang chủ</option>
+                                <option value="lbeo">🖤 Sản phẩm của Lbeo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 max-w-md mx-auto">
+                        <a id="downloadSwappedBtn" href="#" download="lbeo_swapped.webp" class="flex-1 text-center bg-neutral-800 hover:bg-neutral-700 text-gray-300 font-extrabold text-[11px] py-2.5 rounded-xl transition tracking-wide border border-neutral-700">📥 TẢI KẾT QUẢ</a>
+                        <button id="uploadSwappedBtn" class="flex-1 bg-ph-orange hover:bg-amber-500 text-black font-black text-[11px] py-2.5 rounded-xl transition tracking-wide flex items-center justify-center gap-1.5 shadow-lg shadow-ph-orange/10">
+                            <span>📤 ĐĂNG LÊN BEOHUB</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -259,10 +256,16 @@
                         class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả nội
-                        dung</label>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Mô tả nội dung</label>
                     <textarea id="editDescInput" rows="3"
                         class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nơi hiển thị hình ảnh</label>
+                    <select id="editCategorySelect" class="w-full p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-ph-orange transition">
+                        <option value="home">🏠 Trang chủ</option>
+                        <option value="lbeo">🖤 Sản phẩm của Lbeo</option>
+                    </select>
                 </div>
                 <div class="flex gap-2 justify-end pt-2 border-t border-neutral-800">
                     <button type="button" onclick="closeEditModal()"

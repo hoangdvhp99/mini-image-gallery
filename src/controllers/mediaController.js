@@ -68,6 +68,7 @@ exports.uploadMedia = (req, res) => {
                 url: `/uploads/${finalFileName}`,
                 hashtags: hashtags,
                 description: description,
+                category: req.body.category || 'home',
                 likes: 0,
                 comments: [],
                 uploadedAt: new Date().toISOString()
@@ -147,16 +148,62 @@ exports.updateMedia = (req, res) => {
                 if (fs.existsSync(path.join(UPLOAD_DIR, oldName))) fs.renameSync(path.join(UPLOAD_DIR, oldName), path.join(UPLOAD_DIR, finalFileName));
             }
         }
-        db[idx] = {
-            ...db[idx],
-            name: finalFileName,
-            url: `/uploads/${finalFileName}`,
-            hashtags: req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [],
-            description: req.body.description || '',
-            uploadedAt: new Date().toISOString()
-        };
-        writeDB(db);
-        res.json({ success: true, message: 'Cập nhật thành công.' });
+        const oldCategory = db[idx].category || 'home';
+        const newCategory = req.body.category || 'home';
+
+        if (newCategory !== oldCategory) {
+            const oldExt = path.extname(finalFileName);
+            const baseName = path.basename(finalFileName, oldExt);
+            let copyFileName = `${baseName}_copy${oldExt}`;
+            
+            let counter = 1;
+            while (
+                db.some(img => img.name.toLowerCase() === copyFileName.toLowerCase()) || 
+                fs.existsSync(path.join(UPLOAD_DIR, copyFileName))
+            ) {
+                copyFileName = `${baseName}_copy${counter}${oldExt}`;
+                counter++;
+            }
+            
+            const sourcePath = path.join(UPLOAD_DIR, finalFileName);
+            const destPath = path.join(UPLOAD_DIR, copyFileName);
+            if (fs.existsSync(sourcePath)) {
+                fs.copyFileSync(sourcePath, destPath);
+            }
+            
+            db[idx] = {
+                ...db[idx],
+                name: finalFileName,
+                url: `/uploads/${finalFileName}`,
+                hashtags: req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [],
+                description: req.body.description || '',
+                category: oldCategory,
+                uploadedAt: new Date().toISOString()
+            };
+
+            const duplicatedRecord = {
+                ...db[idx],
+                name: copyFileName,
+                url: `/uploads/${copyFileName}`,
+                category: newCategory,
+                uploadedAt: new Date().toISOString()
+            };
+            db.push(duplicatedRecord);
+            writeDB(db);
+            res.json({ success: true, message: 'Đã nhân bản và copy thêm 1 bản sang nơi hiển thị mới thành công!' });
+        } else {
+            db[idx] = {
+                ...db[idx],
+                name: finalFileName,
+                url: `/uploads/${finalFileName}`,
+                hashtags: req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [],
+                description: req.body.description || '',
+                category: newCategory,
+                uploadedAt: new Date().toISOString()
+            };
+            writeDB(db);
+            res.json({ success: true, message: 'Cập nhật thành công.' });
+        }
     } catch (e) {
         res.status(500).json({ success: false });
     }

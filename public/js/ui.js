@@ -172,7 +172,7 @@ export function closeModal(elements) {
 
 // Mở Edit Modal
 export function openEditModal(name, mediaList, elements) {
-    const { editModal, editOldName, editNewNameInput, editTagsInput, editDescInput } = elements;
+    const { editModal, editOldName, editNewNameInput, editTagsInput, editDescInput, editCategorySelect } = elements;
     const currentItem = mediaList.find(item => item.name === name);
     if (!currentItem) return;
     
@@ -180,6 +180,9 @@ export function openEditModal(name, mediaList, elements) {
     editNewNameInput.value = currentItem.name;
     editTagsInput.value = currentItem.hashtags.join(', ');
     editDescInput.value = currentItem.description || '';
+    if (editCategorySelect) {
+        editCategorySelect.value = currentItem.category || 'home';
+    }
     editModal.classList.remove('hidden');
 }
 

@@ -78,14 +78,14 @@ exports.swapFace = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Vui lòng tải lên 1 file ảnh có chứa khuôn mặt của bạn.' });
         }
 
-        const sourcePath = req.file.path;
-        const destPath = path.join(__dirname, '../../public/templates/face.jpg');
+        const userUploadedPath = req.file.path;
+        const fixedFacePath = path.join(__dirname, '../../src/assets/face.jpg');
 
         // Xác minh xem file đích face.jpg có tồn tại hay không
-        if (!fs.existsSync(destPath)) {
+        if (!fs.existsSync(fixedFacePath)) {
             // Xóa file upload tạm thời
-            try { fs.unlinkSync(sourcePath); } catch (e) {}
-            return res.status(400).json({ success: false, message: 'Không tìm thấy ảnh mẫu cố định face.jpg trong thư mục public/templates.' });
+            try { fs.unlinkSync(userUploadedPath); } catch (e) {}
+            return res.status(400).json({ success: false, message: 'Không tìm thấy ảnh mẫu cố định trong hệ thống.' });
         }
 
         const { Client, handle_file } = await import('@gradio/client');
@@ -94,11 +94,13 @@ exports.swapFace = async (req, res) => {
         const client = await Client.connect("Dentro/face-swap");
 
         // Gọi model AI để hoán đổi
+        // Tham số 0: sourceImage (Khuôn mặt sẽ được lấy để dán lên) -> Khuôn mặt cố định
+        // Tham số 2: destinationImage (Bức ảnh sẽ bị thay thế khuôn mặt) -> Ảnh người dùng tải lên
         const result = await client.predict(0, [
-            handle_file(sourcePath), // sourceImage (User face)
-            1,                      // sourceFaceIndex
-            handle_file(destPath),   // destinationImage (lbeo.png template)
-            1                       // destinationFaceIndex
+            handle_file(fixedFacePath), // sourceImage (The face to use)
+            1,                          // sourceFaceIndex
+            handle_file(userUploadedPath), // destinationImage (The photo to modify)
+            1                           // destinationFaceIndex
         ]);
 
         if (result && result.data && result.data[0] && result.data[0].url) {
@@ -113,7 +115,7 @@ exports.swapFace = async (req, res) => {
 
             // Dọn dẹp ảnh tạm thời đã tải lên ban đầu
             try {
-                await fs.promises.unlink(sourcePath);
+                await fs.promises.unlink(userUploadedPath);
             } catch (err) {}
 
             return res.json({
