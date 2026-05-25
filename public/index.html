@@ -214,7 +214,21 @@
                 onclick="closeModal()">&times;</span>
             <div
                 class="w-full md:w-3/5 h-1/2 md:h-full bg-black flex items-center justify-center relative border-b md:border-b-0 md:border-r border-neutral-800">
+                <!-- Nút chuyển sang trái -->
+                <button id="prevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white/60 hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition border border-white/10 z-50 shadow-lg cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
                 <div id="modalContent" class="w-full h-full flex items-center justify-center p-2"></div>
+
+                <!-- Nút chuyển sang phải -->
+                <button id="nextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white/60 hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition border border-white/10 z-50 shadow-lg cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
             </div>
             <div class="w-full md:w-2/5 h-1/2 md:h-full flex flex-col justify-between bg-ph-dark p-4">
                 <div class="border-b border-neutral-800 pb-3 relative">

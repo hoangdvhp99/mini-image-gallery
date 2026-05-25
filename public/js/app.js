@@ -15,6 +15,8 @@ const elements = {
     likeCount: document.getElementById('likeCount'),
     hahaBtn: document.getElementById('hahaBtn'),
     hahaCount: document.getElementById('hahaCount'),
+    prevBtn: document.getElementById('prevBtn'),
+    nextBtn: document.getElementById('nextBtn'),
     shareLinkBtn: document.getElementById('shareLinkBtn'),
     commentsContainer: document.getElementById('commentsContainer'),
     commentForm: document.getElementById('commentForm'),
@@ -258,6 +260,60 @@ let searchTimeout;
 elements.searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => fetchImages(e.target.value), 300);
+});
+
+// --- Điều hướng chuyển ảnh (Prev/Next Modal) ---
+function navigateMedia(direction) {
+    if (!activeMediaName || globalMediaList.length === 0) return;
+    
+    const currentIndex = globalMediaList.findIndex(item => item.name === activeMediaName);
+    if (currentIndex === -1) return;
+    
+    let newIndex = currentIndex + direction;
+    
+    // Tự động xoay vòng danh sách (Loop)
+    if (newIndex < 0) {
+        newIndex = globalMediaList.length - 1;
+    } else if (newIndex >= globalMediaList.length) {
+        newIndex = 0;
+    }
+    
+    const nextMedia = globalMediaList[newIndex];
+    activeMediaName = nextMedia.name;
+    
+    // Mở ảnh/video mới liền mạch
+    openModal(nextMedia.url, nextMedia.name, globalMediaList, elements);
+}
+
+// Bắt sự kiện click chuột nút chuyển ảnh
+elements.prevBtn.onclick = (e) => {
+    e.stopPropagation();
+    navigateMedia(-1);
+};
+elements.nextBtn.onclick = (e) => {
+    e.stopPropagation();
+    navigateMedia(1);
+};
+
+// Đăng ký phím mũi tên Trái/Phải để chuyển ảnh từ bàn phím
+window.addEventListener('keydown', (e) => {
+    if (elements.mediaModal.classList.contains('hidden')) return;
+    
+    // Tránh cướp phím khi người dùng đang gõ bình luận
+    if (document.activeElement === elements.commentInput || 
+        document.activeElement === document.getElementById('donateNameInput') ||
+        document.activeElement === document.getElementById('donateAmountInput') ||
+        document.activeElement === document.getElementById('donateMessageInput')) {
+        return;
+    }
+    
+    if (e.key === 'ArrowLeft') {
+        navigateMedia(-1);
+    } else if (e.key === 'ArrowRight') {
+        navigateMedia(1);
+    } else if (e.key === 'Escape') {
+        window.closeModal();
+    }
 });
 
 // --- Thả tim ---
