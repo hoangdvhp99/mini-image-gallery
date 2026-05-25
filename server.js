@@ -2,8 +2,28 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+// Đọc file .env nếu có để tải các biến môi trường (như PORT) khi chạy trực tiếp
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+    try {
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        envContent.split('\n').forEach(line => {
+            const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+            if (match) {
+                const key = match[1];
+                let value = match[2] ? match[2].trim() : '';
+                if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+                else if (value.startsWith("'") && value.endsWith("'")) value = value.slice(1, -1);
+                if (!process.env[key]) process.env[key] = value;
+            }
+        });
+    } catch (e) {
+        console.error('Không thể đọc file .env:', e);
+    }
+}
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Khởi chạy việc tạo database và thư mục nếu cần thông qua việc import db config
 require('./src/config/db');
