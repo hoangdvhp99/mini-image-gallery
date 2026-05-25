@@ -642,10 +642,54 @@ function startDonationPolling() {
 // Khởi chạy Polling kiểm tra tin nhắn
 startDonationPolling();
 
+// Tạo âm thanh ting-ting thông báo nhận tiền sử dụng Web Audio API (100% offline-friendly, không cần file tĩnh)
+function playTingTingSound() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+
+        // Tiếng Ting thứ nhất (High Pitch C6)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(1046.50, ctx.currentTime);
+        gain1.gain.setValueAtTime(0, ctx.currentTime);
+        gain1.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.01);
+        gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(ctx.currentTime);
+        osc1.stop(ctx.currentTime + 0.25);
+
+        // Tiếng Ting thứ hai (Độ trễ nhẹ 120ms, nốt E6 cao hơn)
+        setTimeout(() => {
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(1318.51, ctx.currentTime);
+            gain2.gain.setValueAtTime(0, ctx.currentTime);
+            gain2.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.01);
+            gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(ctx.currentTime);
+            osc2.stop(ctx.currentTime + 0.4);
+        }, 120);
+    } catch (e) {
+        console.warn('Lỗi kích hoạt âm thanh ting-ting:', e);
+    }
+}
+
 // Tạo hiệu ứng nổi tin nhắn và nổ pháo hoa hạt nhiều màu sắc
 function triggerDonationAnimation(name, amount, message) {
     const container = document.getElementById('donationAlertContainer');
     if (!container) return;
+
+    // Phát âm thanh ting-ting cực vui tai
+    playTingTingSound();
 
     // Tạo hộp thoại thông báo nổi
     const alertCard = document.createElement('div');
