@@ -1,6 +1,39 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+
+// Cấu hình đường dẫn cho Ảnh Bí Mật Pikabeo
+const secretsPath = path.join(__dirname, 'data', 'secrets.json');
+if (!fs.existsSync(secretsPath)) {
+    fs.writeFileSync(secretsPath, JSON.stringify([]));
+}
+
+const secretsDir = path.join(__dirname, 'public', 'uploads', 'secrets');
+if (!fs.existsSync(secretsDir)) {
+    fs.mkdirSync(secretsDir, { recursive: true });
+}
+
+// Cấu hình Multer để lưu trữ Ảnh Bí Mật
+const secretsStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, secretsDir),
+    filename: (req, file, cb) => {
+        const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        const cleanName = originalName.replace(/[^a-zA-Z0-9.\-_]/g, '');
+        cb(null, Date.now() + '-' + cleanName);
+    }
+});
+
+const uploadSecret = multer({
+    storage: secretsStorage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Chỉ chấp nhận định dạng Ảnh làm phần thưởng bí mật!'));
+        }
+    }
+});
 
 // Đọc file .env nếu có để tải các biến môi trường (như PORT) khi chạy trực tiếp
 const envPath = path.join(__dirname, '.env');
@@ -147,6 +180,105 @@ app.get('/api/visits/leaderboard', (req, res) => {
         })).sort((a, b) => b.count - a.count);
 
         res.json({ success: true, leaderboard });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// ================= pikabeo secret reward images apis =================
+
+// Lấy danh sách Ảnh Bí Mật (Quyền Admin)
+app.get('/api/pikabeo/secrets', (req, res) => {
+    if (req.query.isLbeo !== '0') {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    try {
+        let secrets = [];
+        if (fs.existsSync(secretsPath)) {
+            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
+        }
+        res.json({ success: true, secrets });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Admin upload Ảnh Bí Mật mới
+app.post('/api/pikabeo/secrets', uploadSecret.single('secretImage'), (req, res) => {
+    if (req.query.isLbeo !== '0') {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    if (!req.file) {
+        return res.status(400).json({ success: false, message: 'Không có tệp tải lên!' });
+    }
+    try {
+        let secrets = [];
+        if (fs.existsSync(secretsPath)) {
+            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
+        }
+        
+        const newSecret = {
+            name: req.file.filename,
+            url: `/uploads/secrets/${req.file.filename}`,
+            timestamp: Date.now()
+        };
+        secrets.push(newSecret);
+        fs.writeFileSync(secretsPath, JSON.stringify(secrets, null, 2));
+        
+        res.json({ success: true, secret: newSecret });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Admin xóa Ảnh Bí Mật
+app.delete('/api/pikabeo/secrets/:name', (req, res) => {
+    if (req.query.isLbeo !== '0') {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const filename = req.params.name;
+    try {
+        const filePath = path.join(secretsDir, filename);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        
+        let secrets = [];
+        if (fs.existsSync(secretsPath)) {
+            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
+        }
+        secrets = secrets.filter(item => item.name !== filename);
+        fs.writeFileSync(secretsPath, JSON.stringify(secrets, null, 2));
+        
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Lấy ngẫu nhiên 1 Ảnh Bí Mật (Mọi người dùng)
+app.get('/api/pikabeo/secrets/random', (req, res) => {
+    try {
+        let secrets = [];
+        if (fs.existsSync(secretsPath)) {
+            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
+        }
+        
+        if (secrets.length > 0) {
+            const randomIndex = Math.floor(Math.random() * secrets.length);
+            return res.json({ success: true, url: secrets[randomIndex].url });
+        }
+        
+        // Trả về ảnh mặc định ngẫu nhiên trong hệ thống
+        const defaults = [
+            '/img/default_secrets/secret_1.svg',
+            '/img/default_secrets/secret_2.svg',
+            '/img/default_secrets/secret_3.svg',
+            '/img/default_secrets/secret_4.svg',
+            '/img/default_secrets/secret_5.svg'
+        ];
+        const randomDefault = defaults[Math.floor(Math.random() * defaults.length)];
+        res.json({ success: true, url: randomDefault });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }

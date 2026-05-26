@@ -39,8 +39,10 @@ const elements = {
     tabHome: document.getElementById('tabHome'),
     tabLbeo: document.getElementById('tabLbeo'),
     tabIdeas: document.getElementById('tabIdeas'),
+    tabMinigame: document.getElementById('tabMinigame'),
     homeSection: document.getElementById('homeSection'),
     ideasSection: document.getElementById('ideasSection'),
+    minigameSection: document.getElementById('minigameSection'),
     uploadContainer: document.getElementById('uploadContainer'),
     galleryContainer: document.getElementById('galleryContainer'),
     lbeoBanner: document.getElementById('lbeoBanner'),
@@ -445,7 +447,7 @@ async function switchTab(tabName) {
     currentTab = tabName;
 
     // Reset active button classes
-    [elements.tabHome, elements.tabLbeo, elements.tabIdeas].forEach(btn => {
+    [elements.tabHome, elements.tabLbeo, elements.tabIdeas, elements.tabMinigame].forEach(btn => {
         if (btn) btn.classList.remove('active');
     });
 
@@ -455,6 +457,12 @@ async function switchTab(tabName) {
     elements.lbeoBanner.classList.add('hidden');
     elements.homeSection.classList.remove('hidden');
     elements.ideasSection.classList.add('hidden');
+    elements.minigameSection.classList.add('hidden');
+
+    // Quit active game session if switching away
+    if (tabName !== 'minigame' && window.pikaGame && window.pikaGame.gameActive) {
+        window.pikaGame.quitGame();
+    }
 
     if (tabName === 'home') {
         elements.tabHome.classList.add('active');
@@ -469,6 +477,22 @@ async function switchTab(tabName) {
         elements.tabIdeas.classList.add('active');
         elements.homeSection.classList.add('hidden');
         elements.ideasSection.classList.remove('hidden');
+    } else if (tabName === 'minigame') {
+        elements.tabMinigame.classList.add('active');
+        elements.homeSection.classList.add('hidden');
+        elements.minigameSection.classList.remove('hidden');
+        
+        // Show/hide admin secrets uploader and load its list
+        const isAdmin = new URLSearchParams(window.location.search).get('isLbeo') === '0';
+        const adminSecretsContainer = document.getElementById('adminSecretsContainer');
+        if (adminSecretsContainer) {
+            if (isAdmin) {
+                adminSecretsContainer.classList.remove('hidden');
+                if (window.pikaGame) window.pikaGame.loadAdminSecretsList();
+            } else {
+                adminSecretsContainer.classList.add('hidden');
+            }
+        }
     }
 }
 
@@ -476,6 +500,7 @@ async function switchTab(tabName) {
 if (elements.tabHome) elements.tabHome.addEventListener('click', () => switchTab('home'));
 if (elements.tabLbeo) elements.tabLbeo.addEventListener('click', () => switchTab('lbeo'));
 if (elements.tabIdeas) elements.tabIdeas.addEventListener('click', () => switchTab('ideas'));
+if (elements.tabMinigame) elements.tabMinigame.addEventListener('click', () => switchTab('minigame'));
 if (elements.btnDonate) elements.btnDonate.addEventListener('click', () => window.openDonateModal());
 
 // Đăng ký gửi form đóng góp ý kiến

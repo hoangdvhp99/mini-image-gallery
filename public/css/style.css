@@ -70,3 +70,94 @@ body {
     color: #000000;
     background-color: #ff9900;
 }
+
+/* ================= pikabeo game stylesheet ================= */
+
+.pikabeo-tile-wrapper {
+    position: relative;
+    cursor: pointer;
+    perspective: 800px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.pikabeo-tile {
+    width: 100%;
+    height: 100%;
+    background: #1b1b1b;
+    border: 2px solid #262626;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.pikabeo-tile:hover {
+    transform: scale(1.05) translateY(-2px);
+    border-color: #ff9900;
+    box-shadow: 0 0 12px rgba(255, 153, 0, 0.4);
+    z-index: 15;
+}
+
+.pikabeo-tile.selected {
+    border-color: #ff9900;
+    background: #2b1f0d;
+    box-shadow: 0 0 15px #ff9900, inset 0 0 8px rgba(255, 153, 0, 0.5);
+    animation: pikaPulse 1.2s infinite alternate;
+    z-index: 15;
+    transform: scale(1.06);
+}
+
+.pikabeo-tile.matched {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.8) rotate(5deg);
+    transition: all 0.35s ease-out;
+}
+
+.pikabeo-tile-img {
+    width: 86%;
+    height: 86%;
+    object-fit: cover;
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.pikabeo-tile-svg {
+    width: 76%;
+    height: 76%;
+    pointer-events: none;
+}
+
+@keyframes pikaPulse {
+    0% {
+        box-shadow: 0 0 8px #ff9900, inset 0 0 4px rgba(255, 153, 0, 0.3);
+    }
+    100% {
+        box-shadow: 0 0 18px #ff9900, inset 0 0 10px rgba(255, 153, 0, 0.6);
+    }
+}
+
+/* Thư viện Scrollbar thu nhỏ cho danh sách bí ẩn của admin */
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: #090909;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #ff9900;
+}
