@@ -247,11 +247,20 @@ class PikabeoGame {
     // Fetch BeoHub media to populate tile icons
     async loadTilesAssets() {
         try {
-            const res = await fetch('/api/media');
+            const res = await fetch('/api/images');
             const media = await res.json();
             
-            // Filter only image elements
-            const imagesOnly = media.filter(item => item.type === 'image');
+            // Filter only image elements based on common file extensions
+            const imagesOnly = media.filter(item => {
+                const url = (item.url || '').toLowerCase();
+                return url.endsWith('.png') || 
+                       url.endsWith('.jpg') || 
+                       url.endsWith('.jpeg') || 
+                       url.endsWith('.webp') || 
+                       url.endsWith('.gif') || 
+                       url.endsWith('.svg');
+            });
+            
             if (imagesOnly.length > 0) {
                 // Use actual gallery images as card faces! Standardise to relative urls
                 this.mediaAssets = imagesOnly.map(img => img.url);
