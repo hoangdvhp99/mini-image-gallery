@@ -233,3 +233,6 @@ export function renderIdeas(ideas, elements, onLikeIdea) {
         `;
     }).join('');
 }
+
+// Expose showToast globally for non-module scripts like game.js
+window.showToast = showToast;

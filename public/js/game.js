@@ -970,8 +970,10 @@ class PikabeoGame {
                     const card = document.createElement('div');
                     card.className = 'relative aspect-square rounded-lg border border-neutral-850 overflow-hidden group/sec shadow-inner';
                     card.innerHTML = `
-                        <img src="${sec.url}" class="w-full h-full object-cover" alt="Secret Image">
-                        <button onclick="pikaGame.deleteSecretImage('${sec.name}')" class="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-500 text-white w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold transition shadow-md opacity-0 group-hover/sec:opacity-100">
+                        <a href="${sec.url}" target="_blank" class="block w-full h-full cursor-zoom-in">
+                            <img src="${sec.url}" class="w-full h-full object-cover hover:scale-105 transition duration-300" alt="Secret Image">
+                        </a>
+                        <button onclick="pikaGame.deleteSecretImage('${sec.name}')" class="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-500 text-white w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold transition shadow-md opacity-0 group-hover/sec:opacity-100 z-10">
                             &times;
                         </button>
                     `;
