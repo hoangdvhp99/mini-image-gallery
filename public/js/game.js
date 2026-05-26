@@ -8,10 +8,10 @@ class PikabeoGame {
         // Grid sizes
         this.rows = 8;
         this.cols = 14;
-        
+
         // Matrix padding of 1 cell all around (padding is empty border)
         this.grid = []; // (rows + 2) x (cols + 2)
-        
+
         // State variables
         this.level = 1;
         this.score = 0;
@@ -22,14 +22,14 @@ class PikabeoGame {
         this.selectedTile = null;
         this.soundEnabled = true;
         this.gameActive = false;
-        
+
         // Asset cache
         this.secretBgUrl = '';
         this.mediaAssets = [];
-        
+
         // Web Audio Context for synthesized sounds
         this.audioCtx = null;
-        
+
         // Lbeo Funny SVG Templates (Fallback if gallery is empty)
         this.lbeoTemplates = [
             // 1. Vui vẻ
@@ -61,7 +61,7 @@ class PikabeoGame {
         document.getElementById('btnPikaShuffle').addEventListener('click', () => this.manualShuffle());
         document.getElementById('btnPikaRestart').addEventListener('click', () => this.restartGame());
         document.getElementById('btnPikaQuit').addEventListener('click', () => this.quitGame());
-        
+
         // Listen to Admin Secret Uploads
         const fileInput = document.getElementById('secretImageFile');
         if (fileInput) {
@@ -89,10 +89,10 @@ class PikabeoGame {
 
             const osc = this.audioCtx.createOscillator();
             const gain = this.audioCtx.createGain();
-            
+
             osc.connect(gain);
             gain.connect(this.audioCtx.destination);
-            
+
             const now = this.audioCtx.currentTime;
 
             if (type === 'select') {
@@ -191,7 +191,14 @@ class PikabeoGame {
     // Start / Load the Pikabeo Game
     async startGame() {
         this.playSound('select');
-        
+
+        // Expand the container to take maximum screen width when playing
+        const container = document.getElementById('minigameContainer');
+        if (container) {
+            container.classList.remove('max-w-4xl');
+            container.classList.add('max-w-[95vw]');
+        }
+
         // Check viewport size to determine responsive grid rows & columns
         if (window.innerWidth < 768) {
             this.rows = 6;
@@ -212,10 +219,10 @@ class PikabeoGame {
         // Hide main section, show playground
         document.getElementById('minigameHome').classList.add('hidden');
         document.getElementById('pikabeoPlayground').classList.remove('hidden');
-        
+
         // Fetch Admin uploaded secret image random reward
         await this.loadSecretReward();
-        
+
         // Fetch media lists to load tiles icons
         await this.loadTilesAssets();
 
@@ -231,7 +238,7 @@ class PikabeoGame {
             const data = await res.json();
             if (data.success) {
                 this.secretBgUrl = data.url;
-                
+
                 // Set the secret background
                 const secretBg = document.getElementById('pikabeoSecretBg');
                 secretBg.style.backgroundImage = `url('${this.secretBgUrl}')`;
@@ -249,18 +256,18 @@ class PikabeoGame {
         try {
             const res = await fetch('/api/images');
             const media = await res.json();
-            
+
             // Filter only image elements based on common file extensions
             const imagesOnly = media.filter(item => {
                 const url = (item.url || '').toLowerCase();
-                return url.endsWith('.png') || 
-                       url.endsWith('.jpg') || 
-                       url.endsWith('.jpeg') || 
-                       url.endsWith('.webp') || 
-                       url.endsWith('.gif') || 
-                       url.endsWith('.svg');
+                return url.endsWith('.png') ||
+                    url.endsWith('.jpg') ||
+                    url.endsWith('.jpeg') ||
+                    url.endsWith('.webp') ||
+                    url.endsWith('.gif') ||
+                    url.endsWith('.svg');
             });
-            
+
             if (imagesOnly.length > 0) {
                 // Use actual gallery images as card faces! Standardise to relative urls
                 this.mediaAssets = imagesOnly.map(img => img.url);
@@ -278,7 +285,7 @@ class PikabeoGame {
         document.getElementById('pikaLevel').innerText = this.level;
         document.getElementById('pikaShuffles').innerText = this.shuffles;
         document.getElementById('pikaScore').innerText = this.score;
-        
+
         // 1. Initialize padded matrix representation
         // (rows + 2) x (cols + 2) padded with 0 (empty outer cells)
         this.grid = Array(this.rows + 2).fill(null).map(() => Array(this.cols + 2).fill(0));
@@ -289,7 +296,7 @@ class PikabeoGame {
 
         // Choose unique card types based on available gallery images (fallback to 8 SVGs if empty)
         const numTypes = this.mediaAssets.length > 0 ? this.mediaAssets.length : 8;
-        
+
         let tilesPool = [];
         for (let i = 0; i < totalPairs; i++) {
             const type = (i % numTypes) + 1; // 1-indexed tile type
@@ -318,7 +325,7 @@ class PikabeoGame {
         // 5. Render dynamically
         this.renderBoard();
         this.resizeCanvas();
-        
+
         // Clear secret bg reveal opacity
         document.getElementById('pikabeoSecretBg').style.opacity = '0.05'; // very slight hint
     }
@@ -342,7 +349,7 @@ class PikabeoGame {
             }
         }
         this.shuffleArray(activeTiles);
-        
+
         let idx = 0;
         for (let r = 1; r <= this.rows; r++) {
             for (let c = 1; c <= this.cols; c++) {
@@ -357,7 +364,7 @@ class PikabeoGame {
     renderBoard() {
         const gridContainer = document.getElementById('pikabeoGrid');
         gridContainer.innerHTML = '';
-        
+
         // Setup Grid templates
         gridContainer.style.gridTemplateRows = `repeat(${this.rows}, minmax(0, 1fr))`;
         gridContainer.style.gridTemplateColumns = `repeat(${this.cols}, minmax(0, 1fr))`;
@@ -373,7 +380,7 @@ class PikabeoGame {
                 if (type !== 0) {
                     const tile = document.createElement('div');
                     tile.className = 'pikabeo-tile';
-                    
+
                     // Render image or funny fallback SVG
                     if (this.mediaAssets.length > 0) {
                         const imgUrl = this.mediaAssets[(type - 1) % this.mediaAssets.length];
@@ -388,7 +395,7 @@ class PikabeoGame {
                     }
 
                     tileWrapper.appendChild(tile);
-                    
+
                     // Register click listener
                     tileWrapper.addEventListener('click', () => this.handleTileClick(r, c));
                 }
@@ -436,7 +443,7 @@ class PikabeoGame {
                 if (path) {
                     // Match found!
                     this.playSound('match');
-                    
+
                     // Draw glowing line connecting them!
                     this.drawLightningPath(path);
 
@@ -512,13 +519,13 @@ class PikabeoGame {
         // Queue state: { r, c, dir, turns, path }
         // dir: 0: up, 1: right, 2: down, 3: left, -1: start
         const queue = [];
-        
+
         // Visited tracking: visited[r][c][dir][turns] = boolean
         const rowsCount = this.rows + 2;
         const colsCount = this.cols + 2;
-        
-        const visited = Array(rowsCount).fill(null).map(() => 
-            Array(colsCount).fill(null).map(() => 
+
+        const visited = Array(rowsCount).fill(null).map(() =>
+            Array(colsCount).fill(null).map(() =>
                 Array(4).fill(null).map(() => Array(3).fill(false))
             )
         );
@@ -531,7 +538,7 @@ class PikabeoGame {
         for (let d = 0; d < 4; d++) {
             const nr = r1 + dr[d];
             const nc = c1 + dc[d];
-            
+
             if (nr >= 0 && nr < rowsCount && nc >= 0 && nc < colsCount) {
                 if (nr === r2 && nc === c2) {
                     return [[r1, c1], [r2, c2]];
@@ -565,7 +572,7 @@ class PikabeoGame {
                 if (nr >= 0 && nr < rowsCount && nc >= 0 && nc < colsCount) {
                     // Check turn count
                     const newTurns = curr.dir === d ? curr.turns : curr.turns + 1;
-                    
+
                     if (newTurns <= 2) {
                         // Check if block is empty or is target
                         if (this.grid[nr][nc] === 0 || (nr === r2 && nc === c2)) {
@@ -605,7 +612,7 @@ class PikabeoGame {
             for (let j = i + 1; j < activeList.length; j++) {
                 const a = activeList[i];
                 const b = activeList[j];
-                
+
                 if (a.type === b.type) {
                     const path = this.findOnetPath(a.r, a.c, b.r, b.c);
                     if (path) {
@@ -620,7 +627,7 @@ class PikabeoGame {
     // Auto shuffle board when no moves left
     autoShuffle() {
         if (!this.gameActive) return;
-        
+
         if (this.shuffles <= 0) {
             // No shuffles left, lose condition
             this.handleGameOver();
@@ -645,7 +652,7 @@ class PikabeoGame {
     manualShuffle() {
         this.playSound('select');
         if (!this.gameActive) return;
-        
+
         if (this.shuffles <= 0) {
             showToast('⚠️ Bạn đã hết lượt đổi vị trí bài!', 'error');
             return;
@@ -698,7 +705,7 @@ class PikabeoGame {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.beginPath();
             ctx.moveTo(coords[0].x, coords[0].y);
-            
+
             for (let i = 1; i < coords.length; i++) {
                 ctx.lineTo(coords[i].x, coords[i].y);
             }
@@ -706,7 +713,7 @@ class PikabeoGame {
             // Neon stroke glow settings
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            
+
             // Background thick neon shadow lines
             ctx.shadowBlur = 16;
             ctx.shadowColor = '#ff9900';
@@ -728,22 +735,22 @@ class PikabeoGame {
     getCellCenterCoords(r, c) {
         const gridEl = document.getElementById('pikabeoGrid');
         const wrapper = document.querySelector(`.pikabeo-tile-wrapper[data-row="${r}"][data-col="${c}"]`);
-        
+
         if (wrapper && gridEl) {
             const gridRect = gridEl.getBoundingClientRect();
             const cellRect = wrapper.getBoundingClientRect();
-            
+
             const x = (cellRect.left - gridRect.left) + cellRect.width / 2;
             const y = (cellRect.top - gridRect.top) + cellRect.height / 2;
-            
+
             return { x, y };
         }
-        
+
         // Safe padding calculation outside boundary boxes
         // If coordinate routes outside active boundaries, estimate it
         const cellWidth = gridEl.clientWidth / this.cols;
         const cellHeight = gridEl.clientHeight / this.rows;
-        
+
         const x = (c - 0.5) * cellWidth;
         const y = (r - 0.5) * cellHeight;
         return { x, y };
@@ -779,7 +786,7 @@ class PikabeoGame {
         if (timerBar) {
             const percentage = (this.timeLeft / this.maxTime) * 100;
             timerBar.style.width = `${percentage}%`;
-            
+
             // Adjust timer bar colors based on remaining time percentage
             if (percentage > 50) {
                 timerBar.className = "h-full bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full transition-all duration-100";
@@ -797,7 +804,7 @@ class PikabeoGame {
         this.stopTimer();
         this.gameActive = false;
         this.playSound('win');
-        
+
         // Fade in the secret reward background image 100%!
         const secretBg = document.getElementById('pikabeoSecretBg');
         secretBg.style.opacity = '1';
@@ -875,7 +882,7 @@ class PikabeoGame {
         this.score = 0;
         this.timeLeft = 180;
         this.maxTime = 180;
-        
+
         this.loadSecretReward().then(() => {
             this.gameActive = true;
             this.setupNewLevel();
@@ -888,7 +895,14 @@ class PikabeoGame {
         this.stopTimer();
         this.gameActive = false;
         this.selectedTile = null;
-        
+
+        // Restore the container width back to 4xl when exiting the game
+        const container = document.getElementById('minigameContainer');
+        if (container) {
+            container.classList.remove('max-w-[95vw]');
+            container.classList.add('max-w-4xl');
+        }
+
         // Switch sections
         document.getElementById('pikabeoPlayground').classList.add('hidden');
         document.getElementById('minigameHome').classList.remove('hidden');
@@ -905,7 +919,7 @@ class PikabeoGame {
             const data = await res.json();
             if (data.success) {
                 container.innerHTML = '';
-                
+
                 if (data.secrets.length === 0) {
                     container.innerHTML = `
                         <div class="col-span-full py-6 text-center text-xs text-neutral-600 font-medium">

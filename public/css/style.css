@@ -121,8 +121,8 @@ body {
 }
 
 .pikabeo-tile-img {
-    width: 86%;
-    height: 86%;
+    width: 92%;
+    height: 92%;
     object-fit: cover;
     border-radius: 6px;
     pointer-events: none;
