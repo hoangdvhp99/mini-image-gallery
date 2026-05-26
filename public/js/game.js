@@ -252,8 +252,8 @@ class PikabeoGame {
             
             // Filter only image elements
             const imagesOnly = media.filter(item => item.type === 'image');
-            if (imagesOnly.length >= 8) {
-                // Standardise to relative urls
+            if (imagesOnly.length > 0) {
+                // Use actual gallery images as card faces! Standardise to relative urls
                 this.mediaAssets = imagesOnly.map(img => img.url);
             } else {
                 this.mediaAssets = []; // fallback to funny Lbeo SVGs
@@ -278,8 +278,8 @@ class PikabeoGame {
         const totalActiveCells = this.rows * this.cols;
         const totalPairs = totalActiveCells / 2;
 
-        // Choose 8-12 unique card types
-        const numTypes = Math.min(12, Math.max(6, Math.floor(totalActiveCells / 8)));
+        // Choose unique card types based on available gallery images (fallback to 8 SVGs if empty)
+        const numTypes = this.mediaAssets.length > 0 ? this.mediaAssets.length : 8;
         
         let tilesPool = [];
         for (let i = 0; i < totalPairs; i++) {
