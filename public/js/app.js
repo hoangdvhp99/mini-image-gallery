@@ -102,9 +102,47 @@ window.closeDonateModal = () => {
     }
 };
 
+// Hàm tải và render bảng xếp hạng lượt truy cập IP (Chỉ dành cho Admin)
+async function loadLeaderboard() {
+    if (!isAdmin) return;
+    try {
+        const res = await fetch(`/api/visits/leaderboard?isLbeo=0`);
+        const data = await res.json();
+        if (data.success && data.leaderboard) {
+            const tbody = document.getElementById('leaderboardBody');
+            if (!tbody) return;
+            
+            if (data.leaderboard.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 py-3 text-[10px]">Chưa có lượt truy cập từ IP khác...</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = data.leaderboard.map((item, index) => {
+                let badge = `${index + 1}`;
+                if (index === 0) badge = '🥇';
+                else if (index === 1) badge = '🥈';
+                else if (index === 2) badge = '🥉';
+                
+                const highlightClass = index === 0 ? 'text-amber-400 font-bold' : '';
+                
+                return `
+                    <tr class="border-b border-neutral-900/50 py-1 hover:bg-neutral-800/20 transition">
+                        <td class="py-1.5 text-center text-xs">${badge}</td>
+                        <td class="py-1.5 font-mono text-white ${highlightClass}">${item.ip}</td>
+                        <td class="py-1.5 text-right font-bold text-amber-500 font-mono">${item.count}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    } catch (err) {
+        console.error('Lỗi khi tải bảng xếp hạng IP:', err);
+    }
+}
+
 window.openDonateModal = () => {
     if (elements.donateModal) {
         elements.donateModal.classList.remove('hidden');
+        loadLeaderboard();
     }
 };
 

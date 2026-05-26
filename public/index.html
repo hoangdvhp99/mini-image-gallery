@@ -380,6 +380,27 @@
                         PHÁT SÓNG TOÀN DÂN 🚀
                     </button>
                 </form>
+
+                <!-- Bảng vàng truy cập IP dành cho Admin -->
+                <div id="adminLeaderboardContainer" class="border-t border-neutral-800 pt-3 mt-3 space-y-1.5">
+                    <h4 class="text-[10px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                        <span>🏆</span> BẢNG VÀNG TRUY CẬP BEOHUB (TOP IPs)
+                    </h4>
+                    <div class="bg-neutral-900/60 p-2.5 rounded-lg border border-neutral-800/80 max-h-36 overflow-y-auto scrollbar-thin">
+                        <table class="w-full text-left text-[10px] text-gray-300">
+                            <thead>
+                                <tr class="border-b border-neutral-800 text-gray-500 font-bold">
+                                    <th class="pb-1 w-10 text-center">HẠNG</th>
+                                    <th class="pb-1">IP KHÁCH</th>
+                                    <th class="pb-1 text-right">LƯỢT VIEW</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBody">
+                                <!-- Render động bằng JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <button onclick="closeDonateModal()" class="w-full bg-neutral-800 hover:bg-neutral-700 text-white py-2.5 rounded-xl font-bold text-xs transition duration-150 tracking-wider shadow-md border border-neutral-700">
