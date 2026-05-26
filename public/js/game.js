@@ -11,6 +11,7 @@ class PikabeoGame {
 
         // Matrix padding of 1 cell all around (padding is empty border)
         this.grid = []; // (rows + 2) x (cols + 2)
+        this.activeTileFaces = []; // Tracks unique faces (images/emojis) for the current level
 
         // State variables
         this.level = 1;
@@ -290,18 +291,53 @@ class PikabeoGame {
         // (rows + 2) x (cols + 2) padded with 0 (empty outer cells)
         this.grid = Array(this.rows + 2).fill(null).map(() => Array(this.cols + 2).fill(0));
 
-        // 2. Prepare tiles list
+        // 2. Prepare unique tile faces for this level (guarantee exactly 1 pair per card face)
         const totalActiveCells = this.rows * this.cols;
         const totalPairs = totalActiveCells / 2;
 
-        // Choose unique card types based on available gallery images (fallback to 8 SVGs if empty)
-        const numTypes = this.mediaAssets.length > 0 ? this.mediaAssets.length : 8;
+        // Shuffle gallery images to pick random ones for this session
+        let galleryPool = [...this.mediaAssets];
+        this.shuffleArray(galleryPool);
 
+        this.activeTileFaces = [];
+
+        // Fill with unique gallery images first
+        const numGalleryToUse = Math.min(totalPairs, galleryPool.length);
+        for (let i = 0; i < numGalleryToUse; i++) {
+            this.activeTileFaces.push({
+                type: 'image',
+                value: galleryPool[i]
+            });
+        }
+
+        // Fill the rest with unique high-quality emojis if gallery has fewer images than totalPairs
+        if (this.activeTileFaces.length < totalPairs) {
+            const needed = totalPairs - this.activeTileFaces.length;
+            let emojiPool = [
+                '🐱', '🐶', '🦊', '🐯', '🦁', '🐮', '🐷', '🐵', '🐔', '🐧', 
+                '🐦', '🐸', '🐙', '🦑', '🐝', '🐞', '🦋', '🐢', '🐍', '🐬', 
+                '🐳', '🐠', '🦀', '🦞', '🦖', '🦄', '🐨', '🐼', '🐺', '🐗', 
+                '🐴', '🐑', '🐐', '🐪', '🐘', '🦏', '🦍', '🐁', '🐇', '🐿', 
+                '🦔', '🦇', '🦉', '🦅', '🦆', 'Swan', '🦩', '🦎', '🦈', '🐡',
+                '🍯', '🍒', '🍓', '🍑', '🍋', '🍍', '🥥', '🥝', '🍅', '🍆',
+                '🥑', '🥦', '🍔', '🍕', '🍟', '🥪', '🌮', '🍿', '🍩', '🍪',
+                '🧁', '🍫', '🍬', '🍭', '🍨', '🎨', '🚀', '🛸', '🎸', '⚽'
+            ];
+            this.shuffleArray(emojiPool);
+            
+            for (let i = 0; i < needed; i++) {
+                this.activeTileFaces.push({
+                    type: 'emoji',
+                    value: emojiPool[i % emojiPool.length]
+                });
+            }
+        }
+
+        // Generate tilesPool with exactly 2 of each unique type (1 to totalPairs)
         let tilesPool = [];
-        for (let i = 0; i < totalPairs; i++) {
-            const type = (i % numTypes) + 1; // 1-indexed tile type
-            tilesPool.push(type);
-            tilesPool.push(type);
+        for (let i = 1; i <= totalPairs; i++) {
+            tilesPool.push(i);
+            tilesPool.push(i);
         }
 
         // Shuffle pool
@@ -381,17 +417,18 @@ class PikabeoGame {
                     const tile = document.createElement('div');
                     tile.className = 'pikabeo-tile';
 
-                    // Render image or funny fallback SVG
-                    if (this.mediaAssets.length > 0) {
-                        const imgUrl = this.mediaAssets[(type - 1) % this.mediaAssets.length];
-                        const img = document.createElement('img');
-                        img.src = imgUrl;
-                        img.className = 'pikabeo-tile-img';
-                        tile.appendChild(img);
-                    } else {
-                        // Inline SVG templates
-                        const svgMarkup = this.lbeoTemplates[(type - 1) % this.lbeoTemplates.length];
-                        tile.innerHTML = svgMarkup;
+                    // Render active unique tile face
+                    if (this.activeTileFaces && this.activeTileFaces[type - 1]) {
+                        const face = this.activeTileFaces[type - 1];
+                        if (face.type === 'image') {
+                            const img = document.createElement('img');
+                            img.src = face.value;
+                            img.className = 'pikabeo-tile-img';
+                            tile.appendChild(img);
+                        } else {
+                            // Render high-quality fallback emoji
+                            tile.innerHTML = `<span style="font-size: 1.8rem; pointer-events: none; user-select: none;">${face.value}</span>`;
+                        }
                     }
 
                     tileWrapper.appendChild(tile);
