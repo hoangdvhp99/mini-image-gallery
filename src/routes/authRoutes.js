@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { readAdminsDB } = require('../config/db');
+const { db } = require('../config/db');
 
 const router = express.Router();
 
@@ -13,8 +13,7 @@ router.post('/login', (req, res) => {
     }
 
     try {
-        const admins = readAdminsDB();
-        const adminUser = admins.find(u => u.username === username);
+        const adminUser = db.prepare('SELECT * FROM admins WHERE username = ?').get(username);
 
         if (!adminUser) {
             return res.status(401).json({ success: false, message: 'Sai tên đăng nhập hoặc mật khẩu!' });

@@ -5,10 +5,7 @@ const multer = require('multer');
 const session = require('express-session');
 
 // Cấu hình đường dẫn cho Ảnh Bí Mật Pikabeo
-const secretsPath = path.join(__dirname, 'data', 'secrets.json');
-if (!fs.existsSync(secretsPath)) {
-    fs.writeFileSync(secretsPath, JSON.stringify([]));
-}
+const { db } = require('./src/config/db');
 
 const secretsDir = path.join(__dirname, 'public', 'uploads', 'secrets');
 if (!fs.existsSync(secretsDir)) {
@@ -60,18 +57,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Khởi chạy việc tạo database và thư mục nếu cần thông qua việc import db config
-require('./src/config/db');
+// Đã được gọi ở trên qua const { db } = require('./src/config/db');
 
 // Import router
 const mediaRouter = require('./src/routes/mediaRoutes');
 const ideaRouter = require('./src/routes/ideaRoutes');
 const authRouter = require('./src/routes/authRoutes');
 
-// Đường dẫn lưu trữ IP truy cập
-const visitsPath = path.join(__dirname, 'data', 'visits.json');
-if (!fs.existsSync(visitsPath)) {
-    fs.writeFileSync(visitsPath, JSON.stringify({}));
-}
+// (Phần IP visitsPath đã được gỡ bỏ vì dùng SQLite)
 
 // MẢNG CHỨA CÁC IP BỎ QUA KHÔNG GHI NHẬN (Hãy thêm/sửa các IP bạn muốn bỏ qua tại đây!)
 const IGNORED_IPS = [
@@ -98,12 +91,7 @@ app.use((req, res, next) => {
         // Chỉ đếm nếu IP hợp lệ và không nằm trong mảng bỏ qua
         if (ip && !IGNORED_IPS.includes(ip)) {
             try {
-                let visits = {};
-                if (fs.existsSync(visitsPath)) {
-                    visits = JSON.parse(fs.readFileSync(visitsPath, 'utf8'));
-                }
-                visits[ip] = (visits[ip] || 0) + 1;
-                fs.writeFileSync(visitsPath, JSON.stringify(visits, null, 2));
+                db.prepare('INSERT INTO visits (ip, count) VALUES (?, 1) ON CONFLICT(ip) DO UPDATE SET count = count + 1').run(ip);
             } catch (e) {
                 console.error('Lỗi khi ghi nhận lượt truy cập IP:', e);
             }
@@ -138,11 +126,7 @@ app.use('/api/auth', authRouter);
 app.use('/api', mediaRouter);
 app.use('/api/ideas', ideaRouter);
 
-// Đường dẫn file lưu trữ lời nhắn donate
-const donationsPath = path.join(__dirname, 'data', 'donations.json');
-if (!fs.existsSync(donationsPath)) {
-    fs.writeFileSync(donationsPath, JSON.stringify([]));
-}
+// (Phần donationsPath đã được gỡ bỏ vì dùng SQLite)
 
 let latestDonation = null;
 
@@ -163,15 +147,9 @@ app.post('/api/donate/alert', (req, res) => {
 
     // Lưu trữ thông tin quyên góp để phát sóng tự động về sau
     try {
-        let savedDonations = [];
-        if (fs.existsSync(donationsPath)) {
-            savedDonations = JSON.parse(fs.readFileSync(donationsPath, 'utf8'));
-        }
-        savedDonations.push({
-            name: name || 'Ẩn danh',
-            message: message || ''
-        });
-        fs.writeFileSync(donationsPath, JSON.stringify(savedDonations, null, 2));
+        db.prepare('INSERT INTO donations (id, name, amount, message, timestamp) VALUES (?, ?, ?, ?, ?)').run(
+            Date.now(), name || 'Ẩn danh', amount || '0 VND', message || '', Date.now()
+        );
     } catch (e) {
         console.error('Lỗi khi lưu thông tin donate:', e);
     }
@@ -188,17 +166,7 @@ app.get('/api/visits/leaderboard', (req, res) => {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     try {
-        let visits = {};
-        if (fs.existsSync(visitsPath)) {
-            visits = JSON.parse(fs.readFileSync(visitsPath, 'utf8'));
-        }
-        
-        // Chuyển đổi đối tượng sang mảng và sắp xếp số lượt truy cập giảm dần
-        const leaderboard = Object.keys(visits).map(ip => ({
-            ip: ip,
-            count: visits[ip]
-        })).sort((a, b) => b.count - a.count);
-
+        const leaderboard = db.prepare('SELECT ip, count FROM visits ORDER BY count DESC').all();
         res.json({ success: true, leaderboard });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
@@ -213,10 +181,7 @@ app.get('/api/pikabeo/secrets', (req, res) => {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     try {
-        let secrets = [];
-        if (fs.existsSync(secretsPath)) {
-            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
-        }
+        const secrets = db.prepare('SELECT * FROM secrets').all();
         res.json({ success: true, secrets });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
@@ -232,18 +197,14 @@ app.post('/api/pikabeo/secrets', uploadSecret.single('secretImage'), (req, res) 
         return res.status(400).json({ success: false, message: 'Không có tệp tải lên!' });
     }
     try {
-        let secrets = [];
-        if (fs.existsSync(secretsPath)) {
-            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
-        }
-        
         const newSecret = {
             name: req.file.filename,
             url: `/uploads/secrets/${req.file.filename}`,
             timestamp: Date.now()
         };
-        secrets.push(newSecret);
-        fs.writeFileSync(secretsPath, JSON.stringify(secrets, null, 2));
+        db.prepare('INSERT INTO secrets (name, url, timestamp) VALUES (?, ?, ?)').run(
+            newSecret.name, newSecret.url, newSecret.timestamp
+        );
         
         res.json({ success: true, secret: newSecret });
     } catch (e) {
@@ -263,12 +224,7 @@ app.delete('/api/pikabeo/secrets/:name', (req, res) => {
             fs.unlinkSync(filePath);
         }
         
-        let secrets = [];
-        if (fs.existsSync(secretsPath)) {
-            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
-        }
-        secrets = secrets.filter(item => item.name !== filename);
-        fs.writeFileSync(secretsPath, JSON.stringify(secrets, null, 2));
+        db.prepare('DELETE FROM secrets WHERE name = ?').run(filename);
         
         res.json({ success: true });
     } catch (e) {
@@ -279,10 +235,7 @@ app.delete('/api/pikabeo/secrets/:name', (req, res) => {
 // Lấy ngẫu nhiên 1 Ảnh Bí Mật (Mọi người dùng)
 app.get('/api/pikabeo/secrets/random', (req, res) => {
     try {
-        let secrets = [];
-        if (fs.existsSync(secretsPath)) {
-            secrets = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
-        }
+        const secrets = db.prepare('SELECT * FROM secrets').all();
         
         if (secrets.length > 0) {
             const randomIndex = Math.floor(Math.random() * secrets.length);
@@ -307,8 +260,7 @@ app.get('/api/pikabeo/secrets/random', (req, res) => {
 // Thiết lập vòng lặp phát sóng tự động mỗi 3 phút (180000ms)
 setInterval(() => {
     try {
-        if (!fs.existsSync(donationsPath)) return;
-        const savedDonations = JSON.parse(fs.readFileSync(donationsPath, 'utf8'));
+        const savedDonations = db.prepare('SELECT * FROM donations').all();
         if (savedDonations.length === 0) return;
 
         // Chọn ngẫu nhiên một thông điệp từ danh sách đã lưu

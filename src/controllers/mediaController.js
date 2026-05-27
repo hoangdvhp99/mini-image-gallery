@@ -1,10 +1,9 @@
 const path = require('path');
 const fs = require('fs');
-const { readDB, writeDB, UPLOAD_DIR } = require('../config/db');
+const { db, UPLOAD_DIR } = require('../config/db');
 const { removeVietnameseTones } = require('../utils/vietnamese');
 
 exports.uploadMedia = (req, res) => {
-    let db = readDB();
     const files = req.files;
 
     if (!files || files.length === 0) {
@@ -15,7 +14,6 @@ exports.uploadMedia = (req, res) => {
         const hashtags = req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [];
         const description = req.body.description || '';
 
-        // Nhận mảng tên tương ứng từ Frontend gửi lên (nếu upload 1 file thì gộp thành mảng luôn)
         let customNames = req.body.customNames;
         if (!Array.isArray(customNames)) {
             customNames = [customNames];
@@ -24,65 +22,68 @@ exports.uploadMedia = (req, res) => {
         let newRecords = [];
         let errors = [];
 
-        files.forEach((file, index) => {
-            const tempPath = file.path;
-            const originalNameFix = Buffer.from(file.originalname, 'latin1').toString('utf8');
-            const ext = path.extname(originalNameFix);
+        const checkDuplicateStmt = db.prepare('SELECT count(*) as count FROM media WHERE LOWER(name) LIKE ?');
+        const insertStmt = db.prepare('INSERT INTO media (name, url, hashtags, description, category, likes, hahas, comments, uploadedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
-            // Đọc tên tùy chỉnh tương ứng của file tại index này, nếu trống thì fallback về tên file gốc
-            let eachCustomName = customNames[index] ? customNames[index].trim() : '';
-            let cleanBaseName = "";
+        db.transaction(() => {
+            files.forEach((file, index) => {
+                const tempPath = file.path;
+                const originalNameFix = Buffer.from(file.originalname, 'latin1').toString('utf8');
+                const ext = path.extname(originalNameFix);
 
-            if (eachCustomName) {
-                const inputExt = path.extname(eachCustomName);
-                if (inputExt.toLowerCase() === ext.toLowerCase()) {
-                    cleanBaseName = removeVietnameseTones(path.basename(eachCustomName, inputExt));
+                let eachCustomName = customNames[index] ? customNames[index].trim() : '';
+                let cleanBaseName = "";
+
+                if (eachCustomName) {
+                    const inputExt = path.extname(eachCustomName);
+                    if (inputExt.toLowerCase() === ext.toLowerCase()) {
+                        cleanBaseName = removeVietnameseTones(path.basename(eachCustomName, inputExt));
+                    } else {
+                        cleanBaseName = removeVietnameseTones(eachCustomName);
+                    }
                 } else {
-                    cleanBaseName = removeVietnameseTones(eachCustomName);
+                    cleanBaseName = removeVietnameseTones(path.basename(originalNameFix, ext));
                 }
-            } else {
-                cleanBaseName = removeVietnameseTones(path.basename(originalNameFix, ext));
-            }
 
-            // Kiểm tra trùng tên file thô (Base name)
-            const isDuplicateDB = db.some(img => {
-                const dbExt = path.extname(img.name);
-                const dbBaseName = path.basename(img.name, dbExt);
-                return dbBaseName.toLowerCase() === cleanBaseName.toLowerCase();
+                // Check DB duplicate
+                const dupCount = checkDuplicateStmt.get(`%${cleanBaseName}%`).count;
+                // Since base name can have any extension, we could check without ext, but % deals with it loosely
+                // For exact match: check if cleanBaseName matches the base name in db. SQLite doesn't have good path.basename out of box.
+                // We'll just fetch by name if it exists exactly with this extension
+                const finalFileName = cleanBaseName + ext;
+                const exist = db.prepare('SELECT name FROM media WHERE name = ?').get(finalFileName);
+
+                const targetFilePath = path.join(UPLOAD_DIR, finalFileName);
+                const isDuplicateDisk = fs.existsSync(targetFilePath);
+
+                if (exist || isDuplicateDisk) {
+                    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+                    errors.push(`Tên tệp "${cleanBaseName}" đã tồn tại (Bị chặn trùng tên thô).`);
+                    return;
+                }
+
+                fs.renameSync(tempPath, targetFilePath);
+
+                const now = new Date().toISOString();
+                insertStmt.run(
+                    finalFileName,
+                    `/uploads/${finalFileName}`,
+                    JSON.stringify(hashtags),
+                    description,
+                    req.body.category || 'home',
+                    0,
+                    0,
+                    '[]',
+                    now
+                );
+
+                newRecords.push(finalFileName);
             });
-
-            const finalFileName = cleanBaseName + ext;
-            const targetFilePath = path.join(UPLOAD_DIR, finalFileName);
-            const isDuplicateDisk = fs.existsSync(targetFilePath);
-
-            if (isDuplicateDB || isDuplicateDisk) {
-                if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
-                errors.push(`Tên tệp "${cleanBaseName}" đã tồn tại (Bị chặn trùng tên thô).`);
-                return;
-            }
-
-            fs.renameSync(tempPath, targetFilePath);
-
-            const imageData = {
-                name: finalFileName,
-                url: `/uploads/${finalFileName}`,
-                hashtags: hashtags,
-                description: description,
-                category: req.body.category || 'home',
-                likes: 0,
-                comments: [],
-                uploadedAt: new Date().toISOString()
-            };
-
-            newRecords.push(imageData);
-        });
+        })();
 
         if (newRecords.length === 0) {
             return res.status(400).json({ success: false, message: errors.join('\n') });
         }
-
-        db.push(...newRecords);
-        writeDB(db);
 
         let msg = `Đã tải lên ${newRecords.length} tệp tin thành công.`;
         if (errors.length > 0) msg += `\nCảnh báo lỗi trùng tên:\n` + errors.join('\n');
@@ -98,13 +99,19 @@ exports.uploadMedia = (req, res) => {
 exports.getMediaList = (req, res) => {
     try {
         const search = (req.query.search || '').toLowerCase().trim();
-        const db = readDB();
-        let filtered = db;
+        let rows = [];
         if (search) {
-            filtered = db.filter(img => img.name.toLowerCase().includes(search) || img.hashtags.some(tag => tag.includes(search)));
+            rows = db.prepare('SELECT * FROM media WHERE LOWER(name) LIKE ? OR LOWER(hashtags) LIKE ? ORDER BY uploadedAt DESC').all(`%${search}%`, `%${search}%`);
+        } else {
+            rows = db.prepare('SELECT * FROM media ORDER BY uploadedAt DESC').all();
         }
-        filtered.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-        res.json(filtered);
+        
+        const results = rows.map(r => ({
+            ...r,
+            hashtags: JSON.parse(r.hashtags),
+            comments: JSON.parse(r.comments)
+        }));
+        res.json(results);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -114,13 +121,13 @@ exports.deleteMedia = (req, res) => {
     try {
         if (!req.session || !req.session.isAdmin) return res.status(403).json({ success: false, message: 'Từ chối!' });
         const name = req.params.name;
-        let db = readDB();
-        const idx = db.findIndex(i => i.name === name);
-        if (idx === -1) return res.status(404).json({ success: false });
+        
+        const info = db.prepare('DELETE FROM media WHERE name = ?').run(name);
+        if (info.changes === 0) return res.status(404).json({ success: false });
+        
         const filePath = path.join(UPLOAD_DIR, name);
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        db.splice(idx, 1);
-        writeDB(db);
+        
         res.json({ success: true, message: 'Xóa thành công.' });
     } catch (e) {
         res.status(500).json({ success: false });
@@ -131,25 +138,29 @@ exports.updateMedia = (req, res) => {
     try {
         if (!req.session || !req.session.isAdmin) return res.status(403).json({ success: false });
         const oldName = req.params.name;
-        let db = readDB();
-        const idx = db.findIndex(i => i.name === oldName);
-        if (idx === -1) return res.status(404).json({ success: false });
+        const row = db.prepare('SELECT * FROM media WHERE name = ?').get(oldName);
+        if (!row) return res.status(404).json({ success: false });
+        
         let finalFileName = oldName;
         if (req.body.newName) {
             const inputName = req.body.newName.trim();
             const oldExt = path.extname(oldName);
             const inputExt = path.extname(inputName);
             let cleanNewBaseName = inputExt.toLowerCase() === oldExt.toLowerCase() ? removeVietnameseTones(path.basename(inputName, inputExt)) : removeVietnameseTones(inputName);
-            const isDuplicateEdit = db.some((img, i) => i !== idx && path.basename(img.name, path.extname(img.name)).toLowerCase() === cleanNewBaseName.toLowerCase());
+            
             finalFileName = cleanNewBaseName + oldExt;
-            if (isDuplicateEdit) return res.status(400).json({ success: false, message: 'Tên bài đăng đã tồn tại.' });
             if (finalFileName !== oldName) {
+                const exist = db.prepare('SELECT name FROM media WHERE name = ?').get(finalFileName);
+                if (exist) return res.status(400).json({ success: false, message: 'Tên bài đăng đã tồn tại.' });
+                
                 if (fs.existsSync(path.join(UPLOAD_DIR, finalFileName))) return res.status(400).json({ success: false, message: 'Tệp vật lý trùng.' });
                 if (fs.existsSync(path.join(UPLOAD_DIR, oldName))) fs.renameSync(path.join(UPLOAD_DIR, oldName), path.join(UPLOAD_DIR, finalFileName));
             }
         }
-        const oldCategory = db[idx].category || 'home';
+        const oldCategory = row.category || 'home';
         const newCategory = req.body.category || 'home';
+        const hashtags = req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [];
+        const description = req.body.description || '';
 
         if (newCategory !== oldCategory) {
             const oldExt = path.extname(finalFileName);
@@ -158,7 +169,7 @@ exports.updateMedia = (req, res) => {
             
             let counter = 1;
             while (
-                db.some(img => img.name.toLowerCase() === copyFileName.toLowerCase()) || 
+                db.prepare('SELECT name FROM media WHERE name = ?').get(copyFileName) || 
                 fs.existsSync(path.join(UPLOAD_DIR, copyFileName))
             ) {
                 copyFileName = `${baseName}_copy${counter}${oldExt}`;
@@ -171,37 +182,21 @@ exports.updateMedia = (req, res) => {
                 fs.copyFileSync(sourcePath, destPath);
             }
             
-            db[idx] = {
-                ...db[idx],
-                name: finalFileName,
-                url: `/uploads/${finalFileName}`,
-                hashtags: req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [],
-                description: req.body.description || '',
-                category: oldCategory,
-                uploadedAt: new Date().toISOString()
-            };
+            // Update old record
+            db.prepare('UPDATE media SET name = ?, url = ?, hashtags = ?, description = ? WHERE name = ?').run(
+                finalFileName, `/uploads/${finalFileName}`, JSON.stringify(hashtags), description, oldName
+            );
 
-            const duplicatedRecord = {
-                ...db[idx],
-                name: copyFileName,
-                url: `/uploads/${copyFileName}`,
-                category: newCategory,
-                uploadedAt: new Date().toISOString()
-            };
-            db.push(duplicatedRecord);
-            writeDB(db);
+            // Insert new copied record
+            db.prepare('INSERT INTO media (name, url, hashtags, description, category, likes, hahas, comments, uploadedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
+                copyFileName, `/uploads/${copyFileName}`, JSON.stringify(hashtags), description, newCategory, row.likes, row.hahas, row.comments, new Date().toISOString()
+            );
+
             res.json({ success: true, message: 'Đã nhân bản và copy thêm 1 bản sang nơi hiển thị mới thành công!' });
         } else {
-            db[idx] = {
-                ...db[idx],
-                name: finalFileName,
-                url: `/uploads/${finalFileName}`,
-                hashtags: req.body.hashtags ? req.body.hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [],
-                description: req.body.description || '',
-                category: newCategory,
-                uploadedAt: new Date().toISOString()
-            };
-            writeDB(db);
+            db.prepare('UPDATE media SET name = ?, url = ?, hashtags = ?, description = ?, category = ? WHERE name = ?').run(
+                finalFileName, `/uploads/${finalFileName}`, JSON.stringify(hashtags), description, newCategory, oldName
+            );
             res.json({ success: true, message: 'Cập nhật thành công.' });
         }
     } catch (e) {
@@ -211,11 +206,9 @@ exports.updateMedia = (req, res) => {
 
 exports.likeMedia = (req, res) => {
     try {
-        let db = readDB();
-        const idx = db.findIndex(i => i.name === req.params.name);
-        db[idx].likes = (db[idx].likes || 0) + 1;
-        writeDB(db);
-        res.json({ success: true, likes: db[idx].likes });
+        db.prepare('UPDATE media SET likes = likes + 1 WHERE name = ?').run(req.params.name);
+        const row = db.prepare('SELECT likes FROM media WHERE name = ?').get(req.params.name);
+        res.json({ success: true, likes: row ? row.likes : 0 });
     } catch (e) {
         res.status(500).json({ success: false });
     }
@@ -223,11 +216,9 @@ exports.likeMedia = (req, res) => {
 
 exports.hahaMedia = (req, res) => {
     try {
-        let db = readDB();
-        const idx = db.findIndex(i => i.name === req.params.name);
-        db[idx].hahas = (db[idx].hahas || 0) + 1;
-        writeDB(db);
-        res.json({ success: true, hahas: db[idx].hahas });
+        db.prepare('UPDATE media SET hahas = hahas + 1 WHERE name = ?').run(req.params.name);
+        const row = db.prepare('SELECT hahas FROM media WHERE name = ?').get(req.params.name);
+        res.json({ success: true, hahas: row ? row.hahas : 0 });
     } catch (e) {
         res.status(500).json({ success: false });
     }
@@ -236,16 +227,18 @@ exports.hahaMedia = (req, res) => {
 exports.commentMedia = (req, res) => {
     try {
         const { text } = req.body;
-        let db = readDB();
-        const idx = db.findIndex(i => i.name === req.params.name);
-        if (!db[idx].comments) db[idx].comments = [];
-        db[idx].comments.push({
+        const row = db.prepare('SELECT comments FROM media WHERE name = ?').get(req.params.name);
+        if (!row) return res.status(404).json({ success: false });
+
+        let comments = JSON.parse(row.comments || '[]');
+        comments.push({
             id: Date.now(),
             author: 'Ẩn danh',
             text: text.trim(),
             createdAt: new Date().toISOString()
         });
-        writeDB(db);
+
+        db.prepare('UPDATE media SET comments = ? WHERE name = ?').run(JSON.stringify(comments), req.params.name);
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ success: false });
