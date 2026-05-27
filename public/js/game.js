@@ -14,6 +14,9 @@ class PikabeoGame {
         this.activeTileFaces = []; // Tracks unique faces (images/emojis) for the current level
 
         // State variables
+        this.playerName = '';
+        this.shufflesUsed = 0;
+        this.hintsUsed = 0;
         this.level = 1;
         this.score = 0;
         this.shuffles = 10;
@@ -59,7 +62,45 @@ class PikabeoGame {
     }
 
     bindEvents() {
-        document.getElementById('btnStartPikabeo').addEventListener('click', () => this.startGame());
+        // Thay thế để mở modal đăng ký danh tánh trước
+        document.getElementById('btnStartPikabeo').addEventListener('click', () => this.showNameModal());
+
+        // Modal buttons
+        const nameModal = document.getElementById('pikaNameModal');
+        const inputName = document.getElementById('pikaInputName');
+        const btnCancel = document.getElementById('btnPikaNameCancel');
+        const btnSubmit = document.getElementById('btnPikaNameSubmit');
+
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                nameModal.classList.add('hidden');
+                this.playSound('select');
+            });
+        }
+
+        if (btnSubmit) {
+            btnSubmit.addEventListener('click', () => {
+                const name = inputName.value.trim();
+                if (!name) {
+                    showToast('⚠️ Vui lòng nhập tên của bạn để tiếp tục!', 'warning');
+                    this.playSound('error');
+                    return;
+                }
+                localStorage.setItem('pikabeoPlayerName', name);
+                this.playerName = name;
+                nameModal.classList.add('hidden');
+                this.startGame();
+            });
+        }
+
+        if (inputName) {
+            inputName.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    btnSubmit.click();
+                }
+            });
+        }
+
         document.getElementById('btnPikaSound').addEventListener('click', () => this.toggleSound());
         document.getElementById('btnPikaShuffle').addEventListener('click', () => this.manualShuffle());
         
@@ -93,6 +134,22 @@ class PikabeoGame {
                 this.resizeCanvas();
             }
         });
+    }
+
+    showNameModal() {
+        this.playSound('select');
+        const nameModal = document.getElementById('pikaNameModal');
+        const inputName = document.getElementById('pikaInputName');
+        
+        if (nameModal && inputName) {
+            const savedName = localStorage.getItem('pikabeoPlayerName') || '';
+            inputName.value = savedName;
+            nameModal.classList.remove('hidden');
+            inputName.focus();
+        } else {
+            this.playerName = 'Cao Thủ';
+            this.startGame();
+        }
     }
 
     // Play offline-synthesized Web Audio tones
@@ -234,6 +291,8 @@ class PikabeoGame {
         this.hints = 5;
         this.timeLeft = 1200;
         this.maxTime = 1200;
+        this.shufflesUsed = 0;
+        this.hintsUsed = 0;
         this.selectedTile = null;
         this.gamePaused = false;
 
@@ -760,6 +819,7 @@ class PikabeoGame {
         }
 
         this.hints--;
+        this.hintsUsed++;
         this.updateHintsUI();
         this.playSound('select');
 
@@ -824,6 +884,7 @@ class PikabeoGame {
         }
 
         this.shuffles--;
+        this.shufflesUsed++;
         document.getElementById('pikaShuffles').innerText = this.shuffles;
         this.playSound('shuffle');
 
@@ -1044,11 +1105,14 @@ class PikabeoGame {
                         Bạn thật xuất sắc khi chinh phục toàn bộ câu đố và mở khóa thành công **Ảnh Bí Mật Của Lbeo**!
                     </p>
                     <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                        <a href="${this.secretBgUrl}" download="lbeo_bi_mat.webp" class="bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-amber-500/10">
-                            📥 TẢI ẢNH BÍ MẬT VỀ MÁY
+                        <a href="${this.secretBgUrl}" download="lbeo_bi_mat.webp" class="bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-amber-500/10 text-center">
+                            📥 TẢI ẢNH VỀ
                         </a>
                         <button onclick="pikaGame.advanceLevel()" class="bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2.5 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-emerald-500/10">
-                            TIẾP TỤC BÀN MỚI ⏭️
+                            BÀN TIẾP THEO ⏭️
+                        </button>
+                        <button onclick="pikaGame.saveAndQuit()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-amber-600/10">
+                            LƯU ĐIỂM & THOÁT 🏆
                         </button>
                     </div>
                 </div>
@@ -1092,6 +1156,12 @@ class PikabeoGame {
         // Reveal background partially
         document.getElementById('pikabeoSecretBg').style.opacity = '0.3';
 
+        // Tự động lưu điểm khi thua nếu điểm lớn hơn 0
+        const finalScoreData = this.calculateFinalScore();
+        if (finalScoreData.finalScore > 0) {
+            this.submitScore(finalScoreData);
+        }
+
         const gridContainer = document.getElementById('pikabeoGrid');
         gridContainer.innerHTML = `
             <div class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center text-center p-6 space-y-4 backdrop-blur-md rounded-2xl z-30 border border-red-500/20">
@@ -1100,16 +1170,157 @@ class PikabeoGame {
                 <p class="text-xs text-gray-300 max-w-sm leading-relaxed">
                     Đã hết thời gian chơi hoặc hết nước cờ khả dụng. Đừng nản chí nhé!
                 </p>
+                <div class="text-xs bg-neutral-950/60 p-3 rounded-xl border border-neutral-850 w-full max-w-xs space-y-1 font-bold text-gray-400">
+                    <div class="flex justify-between"><span>Điểm cơ bản:</span><span class="text-white">${finalScoreData.baseScore}</span></div>
+                    <div class="flex justify-between"><span>Hỗ trợ đã dùng:</span><span class="text-red-400">-${finalScoreData.helperPenalty}</span></div>
+                    <div class="border-t border-neutral-900 my-1 pt-1 flex justify-between text-amber-500 font-extrabold"><span>Tổng Điểm:</span><span>${finalScoreData.finalScore}</span></div>
+                </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="pikaGame.restartGame()" class="bg-red-500 hover:bg-red-400 text-white px-5 py-2.5 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-red-500/10">
-                        CHƠI LẠI BÀN NÀY 🔄
+                        CHƠI LẠI 🔄
                     </button>
                     <button onclick="pikaGame.quitGame()" class="bg-neutral-800 hover:bg-neutral-700 text-gray-400 px-5 py-2.5 rounded-xl font-black text-xs tracking-wider transition border border-neutral-700">
-                        🚪 THOÁT GAME
+                        Thoát 🚪
                     </button>
                 </div>
             </div>
         `;
+    }
+
+    calculateFinalScore() {
+        let baseScore = this.score;
+        let speedBonus = Math.max(0, Math.floor(this.timeLeft)) * 10;
+        let levelBonus = (this.level - 1) * 1000;
+        let helperPenalty = (this.hintsUsed * 150) + (this.shufflesUsed * 100);
+        let finalScore = Math.max(0, baseScore + speedBonus + levelBonus - helperPenalty);
+
+        return {
+            baseScore,
+            speedBonus,
+            levelBonus,
+            helperPenalty,
+            finalScore,
+            hintsUsed: this.hintsUsed,
+            shufflesUsed: this.shufflesUsed,
+            level: this.level,
+            timeLeft: Math.max(0, Math.floor(this.timeLeft))
+        };
+    }
+
+    async submitScore(scoreData) {
+        if (!this.playerName) return;
+        try {
+            const res = await fetch('/api/pikabeo/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerName: this.playerName,
+                    score: scoreData.finalScore,
+                    level: scoreData.level,
+                    timeLeft: scoreData.timeLeft,
+                    hintsUsed: scoreData.hintsUsed,
+                    shufflesUsed: scoreData.shufflesUsed
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`🏆 Điểm số đã được lưu thành công! Thứ hạng: #${data.rank}`, 'success');
+                this.loadLeaderboard();
+            } else {
+                console.error('Không thể lưu điểm:', data.message);
+            }
+        } catch (e) {
+            console.error('Lỗi khi gửi điểm:', e);
+        }
+    }
+
+    async saveAndQuit() {
+        this.playSound('select');
+        const finalScoreData = this.calculateFinalScore();
+        showToast('🏆 Đang lưu điểm số xếp hạng...', 'info');
+        await this.submitScore(finalScoreData);
+        
+        // Dừng trạng thái game
+        this.gameActive = false;
+        
+        // Quay lại màn hình minigame home
+        this.quitGame();
+    }
+
+    async loadLeaderboard() {
+        const listEl = document.getElementById('pikabeoLeaderboardList');
+        if (!listEl) return;
+
+        try {
+            const res = await fetch('/api/pikabeo/scores/leaderboard');
+            const data = await res.json();
+            if (data.success) {
+                listEl.innerHTML = '';
+                
+                if (data.leaderboard.length === 0) {
+                    listEl.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-neutral-600 font-medium select-none">
+                                Chưa có kỷ lục nào được thiết lập. Hãy là người đầu tiên leo bảng! 🚀
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Render tối đa top 10 kỷ lục
+                const top10 = data.leaderboard.slice(0, 10);
+                top10.forEach((item, index) => {
+                    const rank = index + 1;
+                    let rankBadge = `${rank}`;
+                    let rowBg = 'hover:bg-neutral-900/30 transition';
+
+                    if (rank === 1) {
+                        rankBadge = '🥇';
+                        rowBg = 'bg-amber-500/5 hover:bg-amber-500/10 text-amber-300 transition border-l-2 border-amber-500';
+                    } else if (rank === 2) {
+                        rankBadge = '🥈';
+                        rowBg = 'bg-slate-300/5 hover:bg-slate-300/10 text-slate-300 transition border-l-2 border-slate-400';
+                    } else if (rank === 3) {
+                        rankBadge = '🥉';
+                        rowBg = 'bg-amber-800/5 hover:bg-amber-800/10 text-amber-600 transition border-l-2 border-amber-850';
+                    }
+
+                    // Format helpers
+                    const helpersStr = `💡 ${item.hintsUsed || 0} / 🔄 ${item.shufflesUsed || 0}`;
+                    
+                    // Format time (s to mm:ss)
+                    const m = Math.floor((item.timeLeft || 0) / 60);
+                    const s = (item.timeLeft || 0) % 60;
+                    const timeStr = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+                    // Create row
+                    const tr = document.createElement('tr');
+                    tr.className = rowBg;
+                    tr.innerHTML = `
+                        <td class="py-3.5 px-4 text-center font-black text-sm select-none">${rankBadge}</td>
+                        <td class="py-3.5 px-4 text-white font-extrabold flex items-center gap-2">
+                            <span>${item.playerName}</span>
+                            ${rank <= 3 ? '<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1 rounded font-bold uppercase select-none">Top</span>' : ''}
+                        </td>
+                        <td class="py-3.5 px-4 text-center text-gray-400 font-bold">Lvl ${item.level || 1}</td>
+                        <td class="py-3.5 px-4 text-center font-mono text-cyan-400 font-bold">${timeStr}</td>
+                        <td class="py-3.5 px-4 text-center text-gray-400 font-semibold">${helpersStr}</td>
+                        <td class="py-3.5 px-4 text-right pr-6 font-mono text-emerald-400 font-black text-sm">${(item.score || 0).toLocaleString('vi-VN')}</td>
+                    `;
+                    listEl.appendChild(tr);
+                });
+            }
+        } catch (e) {
+            console.error('Lỗi khi tải bảng xếp hạng:', e);
+            listEl.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-8 text-center text-red-500/70 font-medium select-none">
+                        ⚠️ Không thể kết nối với máy chủ để tải bảng xếp hạng!
+                    </td>
+                </tr>
+            `;
+        }
     }
 
     restartGame() {
@@ -1120,6 +1331,8 @@ class PikabeoGame {
         this.score = 0;
         this.timeLeft = 1200;
         this.maxTime = 1200;
+        this.shufflesUsed = 0;
+        this.hintsUsed = 0;
         this.gamePaused = false;
 
         // Reset bottom pause button
@@ -1144,6 +1357,17 @@ class PikabeoGame {
     quitGame() {
         this.playSound('select');
         this.stopTimer();
+
+        // Nếu game đang hoạt động và đã có điểm số, gợi ý hỏi xem họ có muốn lưu không
+        if (this.gameActive && this.score > 0) {
+            const finalScoreData = this.calculateFinalScore();
+            if (finalScoreData.finalScore > 0) {
+                if (confirm(`Bạn có muốn lưu điểm số hiện tại (${finalScoreData.finalScore} điểm) vào Bảng Xếp Hạng trước khi thoát không?`)) {
+                    this.submitScore(finalScoreData);
+                }
+            }
+        }
+
         this.gameActive = false;
         this.selectedTile = null;
 
@@ -1157,6 +1381,9 @@ class PikabeoGame {
         // Switch sections
         document.getElementById('pikabeoPlayground').classList.add('hidden');
         document.getElementById('minigameHome').classList.remove('hidden');
+
+        // Tải lại bảng xếp hạng
+        this.loadLeaderboard();
     }
 
     // ================= Admin Secret Image upload and management =================

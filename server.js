@@ -7,6 +7,12 @@ const session = require('express-session');
 // Cấu hình đường dẫn cho Ảnh Bí Mật Pikabeo
 const { db } = require('./src/config/db');
 
+// Cấu hình đường dẫn cho Điểm số Pikabeo
+const pikabeoScoresPath = path.join(__dirname, 'data', 'pikabeo_scores.json');
+if (!fs.existsSync(pikabeoScoresPath)) {
+    fs.writeFileSync(pikabeoScoresPath, JSON.stringify([]));
+}
+
 const secretsDir = path.join(__dirname, 'public', 'uploads', 'secrets');
 if (!fs.existsSync(secretsDir)) {
     fs.mkdirSync(secretsDir, { recursive: true });
@@ -262,6 +268,81 @@ app.get('/api/pikabeo/secrets/random', (req, res) => {
         ];
         const randomDefault = defaults[Math.floor(Math.random() * defaults.length)];
         res.json({ success: true, url: randomDefault });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// ================= pikabeo leaderboard ranking apis =================
+
+// Lấy danh sách bảng xếp hạng cao thủ Pikabeo (Top 50)
+app.get('/api/pikabeo/scores/leaderboard', (req, res) => {
+    try {
+        let scores = [];
+        if (fs.existsSync(pikabeoScoresPath)) {
+            scores = JSON.parse(fs.readFileSync(pikabeoScoresPath, 'utf8'));
+        }
+        
+        // Sắp xếp: score giảm dần, level giảm dần, timeLeft giảm dần, timestamp tăng dần
+        const sorted = scores.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            if (b.level !== a.level) return b.level - a.level;
+            if (b.timeLeft !== a.timeLeft) return b.timeLeft - a.timeLeft;
+            return a.timestamp - b.timestamp;
+        });
+
+        res.json({ success: true, leaderboard: sorted.slice(0, 50) });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Lưu điểm số mới đạt được
+app.post('/api/pikabeo/scores', (req, res) => {
+    const { playerName, score, level, timeLeft, hintsUsed, shufflesUsed } = req.body;
+    
+    if (!playerName || String(playerName).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Tên người chơi không được để trống!' });
+    }
+
+    try {
+        let scores = [];
+        if (fs.existsSync(pikabeoScoresPath)) {
+            scores = JSON.parse(fs.readFileSync(pikabeoScoresPath, 'utf8'));
+        }
+        
+        const newEntry = {
+            id: Date.now(),
+            playerName: String(playerName).trim().substring(0, 15),
+            score: Math.max(0, parseInt(score) || 0),
+            level: Math.max(1, parseInt(level) || 1),
+            timeLeft: Math.max(0, parseInt(timeLeft) || 0),
+            hintsUsed: Math.max(0, parseInt(hintsUsed) || 0),
+            shufflesUsed: Math.max(0, parseInt(shufflesUsed) || 0),
+            timestamp: Date.now()
+        };
+
+        scores.push(newEntry);
+        
+        // Sắp xếp danh sách
+        scores.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            if (b.level !== a.level) return b.level - a.level;
+            if (b.timeLeft !== a.timeLeft) return b.timeLeft - a.timeLeft;
+            return a.timestamp - b.timestamp;
+        });
+
+        // Giới hạn 100 dòng ghi nhận
+        if (scores.length > 100) {
+            scores = scores.slice(0, 100);
+        }
+
+        fs.writeFileSync(pikabeoScoresPath, JSON.stringify(scores, null, 2));
+
+        // Tìm thứ hạng của lượt chơi hiện tại (1-indexed)
+        const rankIndex = scores.findIndex(item => item.id === newEntry.id) + 1;
+
+        res.json({ success: true, rank: rankIndex, entry: newEntry });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
