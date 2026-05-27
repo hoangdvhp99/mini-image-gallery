@@ -388,6 +388,7 @@ class PikabeoGame {
         document.getElementById('pikaShuffles').innerText = this.shuffles;
         document.getElementById('pikaScore').innerText = this.score;
         this.updateHintsUI();
+        this.showGravityToast();
 
         // 1. Initialize padded matrix representation
         // (rows + 2) x (cols + 2) padded with 0 (empty outer cells)
@@ -564,6 +565,89 @@ class PikabeoGame {
         }
     }
 
+    showGravityToast() {
+        if (this.level === 1) {
+            showToast('🎮 BÀN 1: Bắt đầu kết nối các thẻ Lbeo giống nhau!', 'info');
+            return;
+        }
+
+        const gravityNames = [
+            'DỒN XUỐNG DƯỚI ⬇️',
+            'DỒN LÊN TRÊN ⬆️',
+            'DỒN SANG TRÁI ⬅️',
+            'DỒN SANG PHẢI ➡️'
+        ];
+        const gravityType = (this.level - 2) % 4;
+        const name = gravityNames[gravityType];
+
+        showToast(`⚡ BÀN ${this.level}: TRỌNG LỰC ${name}! Các quân bài sẽ tự động dịch chuyển sau mỗi nước đi.`, 'success');
+    }
+
+    applyGravity() {
+        if (this.level === 1) return; // Level 1 is standard static
+
+        const gravityType = (this.level - 2) % 4;
+
+        if (gravityType === 0) { // 1. Gravity Down
+            for (let c = 1; c <= this.cols; c++) {
+                let temp = [];
+                for (let r = 1; r <= this.rows; r++) {
+                    if (this.grid[r][c] !== 0) temp.push(this.grid[r][c]);
+                }
+                let zeros = this.rows - temp.length;
+                for (let r = 1; r <= zeros; r++) {
+                    this.grid[r][c] = 0;
+                }
+                for (let r = zeros + 1; r <= this.rows; r++) {
+                    this.grid[r][c] = temp[r - zeros - 1];
+                }
+            }
+        } else if (gravityType === 1) { // 2. Gravity Up
+            for (let c = 1; c <= this.cols; c++) {
+                let temp = [];
+                for (let r = 1; r <= this.rows; r++) {
+                    if (this.grid[r][c] !== 0) temp.push(this.grid[r][c]);
+                }
+                for (let r = 1; r <= temp.length; r++) {
+                    this.grid[r][c] = temp[r - 1];
+                }
+                for (let r = temp.length + 1; r <= this.rows; r++) {
+                    this.grid[r][c] = 0;
+                }
+            }
+        } else if (gravityType === 2) { // 3. Gravity Left
+            for (let r = 1; r <= this.rows; r++) {
+                let temp = [];
+                for (let c = 1; c <= this.cols; c++) {
+                    if (this.grid[r][c] !== 0) temp.push(this.grid[r][c]);
+                }
+                for (let c = 1; c <= temp.length; c++) {
+                    this.grid[r][c] = temp[c - 1];
+                }
+                for (let c = temp.length + 1; c <= this.cols; c++) {
+                    this.grid[r][c] = 0;
+                }
+            }
+        } else if (gravityType === 3) { // 4. Gravity Right
+            for (let r = 1; r <= this.rows; r++) {
+                let temp = [];
+                for (let c = 1; c <= this.cols; c++) {
+                    if (this.grid[r][c] !== 0) temp.push(this.grid[r][c]);
+                }
+                let zeros = this.cols - temp.length;
+                for (let c = 1; c <= zeros; c++) {
+                    this.grid[r][c] = 0;
+                }
+                for (let c = zeros + 1; c <= this.cols; c++) {
+                    this.grid[r][c] = temp[c - zeros - 1];
+                }
+            }
+        }
+
+        // Re-render board with updated matrix positions
+        this.renderBoard();
+    }
+
     // Click handler
     handleTileClick(r, c) {
         if (!this.gameActive || this.gamePaused) return;
@@ -632,9 +716,19 @@ class PikabeoGame {
                     if (this.isBoardCleared()) {
                         this.handleWin();
                     } else {
-                        // Verify moves left
-                        if (!this.hasValidMove()) {
-                            setTimeout(() => this.autoShuffle(), 500);
+                        if (this.level > 1) {
+                            // Áp dụng trọng lực dồn bài sau khi hoạt ảnh kết nối hoàn thành (300ms)
+                            setTimeout(() => {
+                                this.applyGravity();
+                                if (!this.hasValidMove()) {
+                                    this.autoShuffle();
+                                }
+                            }, 300);
+                        } else {
+                            // Level 1: không trọng lực, check nước đi ngay
+                            if (!this.hasValidMove()) {
+                                setTimeout(() => this.autoShuffle(), 500);
+                            }
                         }
                     }
                 } else {
