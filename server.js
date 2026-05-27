@@ -298,11 +298,11 @@ app.get('/api/pikabeo/scores/leaderboard', (req, res) => {
             scores = JSON.parse(fs.readFileSync(pikabeoScoresPath, 'utf8'));
         }
         
-        // Sắp xếp: score giảm dần, level giảm dần, timeLeft giảm dần, timestamp tăng dần
+        // Sắp xếp: score giảm dần, level giảm dần, timePlayed tăng dần (chơi ít thời gian hơn thì giỏi hơn), timestamp tăng dần
         const sorted = scores.sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
             if (b.level !== a.level) return b.level - a.level;
-            if (b.timeLeft !== a.timeLeft) return b.timeLeft - a.timeLeft;
+            if (a.timePlayed !== b.timePlayed) return a.timePlayed - b.timePlayed;
             return a.timestamp - b.timestamp;
         });
 
@@ -314,7 +314,7 @@ app.get('/api/pikabeo/scores/leaderboard', (req, res) => {
 
 // Lưu điểm số mới đạt được
 app.post('/api/pikabeo/scores', (req, res) => {
-    const { playerName, score, level, timeLeft, hintsUsed, shufflesUsed } = req.body;
+    const { playerName, score, level, timePlayed, hintsUsed, shufflesUsed } = req.body;
     
     if (!playerName || String(playerName).trim() === '') {
         return res.status(400).json({ success: false, message: 'Tên người chơi không được để trống!' });
@@ -331,7 +331,7 @@ app.post('/api/pikabeo/scores', (req, res) => {
             playerName: String(playerName).trim().substring(0, 15),
             score: Math.max(0, parseInt(score) || 0),
             level: Math.max(1, parseInt(level) || 1),
-            timeLeft: Math.max(0, parseInt(timeLeft) || 0),
+            timePlayed: Math.max(0, parseInt(timePlayed) || 0),
             hintsUsed: Math.max(0, parseInt(hintsUsed) || 0),
             shufflesUsed: Math.max(0, parseInt(shufflesUsed) || 0),
             timestamp: Date.now()
@@ -343,7 +343,7 @@ app.post('/api/pikabeo/scores', (req, res) => {
         scores.sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
             if (b.level !== a.level) return b.level - a.level;
-            if (b.timeLeft !== a.timeLeft) return b.timeLeft - a.timeLeft;
+            if (a.timePlayed !== b.timePlayed) return a.timePlayed - b.timePlayed;
             return a.timestamp - b.timestamp;
         });
 

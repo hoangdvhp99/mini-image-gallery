@@ -23,6 +23,7 @@ class PikabeoGame {
         this.hints = 5;
         this.timeLeft = 1200; // 20 minutes
         this.maxTime = 1200;
+        this.timePlayed = 0;
         this.timerInterval = null;
         this.selectedTile = null;
         this.soundEnabled = true;
@@ -301,6 +302,7 @@ class PikabeoGame {
         this.hints = 5;
         this.timeLeft = 1200;
         this.maxTime = 1200;
+        this.timePlayed = 0;
         this.shufflesUsed = 0;
         this.hintsUsed = 0;
         this.selectedTile = null;
@@ -1100,6 +1102,7 @@ class PikabeoGame {
 
         this.timerInterval = setInterval(() => {
             this.timeLeft--;
+            this.timePlayed++;
             this.updateTimerUI();
 
             if (this.timeLeft <= 0) {
@@ -1307,7 +1310,8 @@ class PikabeoGame {
             hintsUsed: this.hintsUsed,
             shufflesUsed: this.shufflesUsed,
             level: this.level,
-            timeLeft: Math.max(0, Math.floor(this.timeLeft))
+            timeLeft: Math.max(0, Math.floor(this.timeLeft)),
+            timePlayed: Math.max(0, Math.floor(this.timePlayed))
         };
     }
 
@@ -1321,7 +1325,7 @@ class PikabeoGame {
                     playerName: this.playerName,
                     score: scoreData.finalScore,
                     level: scoreData.level,
-                    timeLeft: scoreData.timeLeft,
+                    timePlayed: scoreData.timePlayed,
                     hintsUsed: scoreData.hintsUsed,
                     shufflesUsed: scoreData.shufflesUsed
                 })
@@ -1394,8 +1398,8 @@ class PikabeoGame {
                     const helpersStr = `💡 ${item.hintsUsed || 0} / 🔄 ${item.shufflesUsed || 0}`;
                     
                     // Format time (s to mm:ss)
-                    const m = Math.floor((item.timeLeft || 0) / 60);
-                    const s = (item.timeLeft || 0) % 60;
+                    const m = Math.floor((item.timePlayed || 0) / 60);
+                    const s = (item.timePlayed || 0) % 60;
                     const timeStr = `${m}:${s < 10 ? '0' : ''}${s}`;
 
                     // Create row
@@ -1435,6 +1439,7 @@ class PikabeoGame {
         this.score = 0;
         this.timeLeft = 1200;
         this.maxTime = 1200;
+        this.timePlayed = 0;
         this.shufflesUsed = 0;
         this.hintsUsed = 0;
         this.gamePaused = false;
