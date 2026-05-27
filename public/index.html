@@ -326,23 +326,38 @@
                             <!-- Ảnh bí ẩn làm hình nền của bàn cờ -->
                             <div id="pikabeoSecretBg" class="absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-700 pointer-events-none z-0"></div>
                             
-                            <!-- Các ô thẻ bài sẽ được chèn động bằng JS vào đây -->
-                            <div id="pikabeoGrid" class="absolute inset-2 grid z-10 w-[calc(100%-16px)] h-[calc(100%-16px)] gap-1 md:gap-1.5"></div>
-                        </div>
-
-                        <!-- Bộ nút điều khiển phía dưới -->
-                        <div class="flex flex-wrap justify-center gap-3 mt-4 w-full">
-                            <button id="btnPikaSound" class="bg-neutral-850 hover:bg-neutral-800 text-white font-bold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                <span id="pikaSoundIcon">🔊</span> Âm Thanh: Bật
-                            </button>
-                            <button id="btnPikaShuffle" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🔄 Đổi Vị Trí
-                            </button>
-                            <button id="btnPikaHint" class="bg-neutral-850 hover:bg-neutral-800 text-cyan-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                💡 Gợi Ý (<span id="pikaHints">5</span>)
-                            </button>
-                            <button id="btnPikaRestart" class="bg-neutral-850 hover:bg-neutral-800 text-emerald-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🎮 Chơi Lại
+                             <!-- Các ô thẻ bài sẽ được chèn động bằng JS vào đây -->
+                             <div id="pikabeoGrid" class="absolute inset-2 grid z-10 w-[calc(100%-16px)] h-[calc(100%-16px)] gap-1 md:gap-1.5"></div>
+                             
+                             <!-- Lớp phủ Tạm dừng Glassmorphism cao cấp -->
+                             <div id="pikabeoPauseOverlay" class="absolute inset-0 bg-neutral-950/80 backdrop-blur-md z-40 hidden flex flex-col items-center justify-center gap-4">
+                                 <div class="text-center space-y-2 animate-pulse">
+                                     <span class="text-4xl block">⏸️</span>
+                                     <h3 class="text-yellow-400 font-black text-lg tracking-wider">GAME ĐANG TẠM DỪNG</h3>
+                                     <p class="text-xs text-neutral-400 font-bold">Thời gian chơi và lưới cờ đã được đóng băng</p>
+                                 </div>
+                                 <button id="btnPikaResumeOverlay" class="bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xs px-6 py-3 rounded-2xl transition shadow-lg shadow-yellow-500/20 tracking-wider flex items-center gap-2">
+                                     ▶️ Tiếp Tục Chơi
+                                 </button>
+                             </div>
+                         </div>
+ 
+                         <!-- Bộ nút điều khiển phía dưới -->
+                         <div class="flex flex-wrap justify-center gap-3 mt-4 w-full">
+                             <button id="btnPikaSound" class="bg-neutral-850 hover:bg-neutral-800 text-white font-bold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 <span id="pikaSoundIcon">🔊</span> Âm Thanh: Bật
+                             </button>
+                             <button id="btnPikaShuffle" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 🔄 Đổi Vị Trí
+                             </button>
+                             <button id="btnPikaHint" class="bg-neutral-850 hover:bg-neutral-800 text-cyan-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 💡 Gợi Ý (<span id="pikaHints">5</span>)
+                             </button>
+                             <button id="btnPikaPause" class="bg-neutral-850 hover:bg-neutral-800 text-yellow-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 <span id="pikaPauseIcon">⏸️</span> Tạm Dừng
+                             </button>
+                             <button id="btnPikaRestart" class="bg-neutral-850 hover:bg-neutral-800 text-emerald-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 🎮 Chơi Lại
                             </button>
                             <button id="btnPikaQuit" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
                                 🚪 Thoát Game

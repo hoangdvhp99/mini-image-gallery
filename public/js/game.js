@@ -18,12 +18,13 @@ class PikabeoGame {
         this.score = 0;
         this.shuffles = 10;
         this.hints = 5;
-        this.timeLeft = 180; // seconds
-        this.maxTime = 180;
+        this.timeLeft = 1200; // 20 minutes
+        this.maxTime = 1200;
         this.timerInterval = null;
         this.selectedTile = null;
         this.soundEnabled = true;
         this.gameActive = false;
+        this.gamePaused = false;
 
         // Asset cache
         this.secretBgUrl = '';
@@ -65,6 +66,16 @@ class PikabeoGame {
         const hintBtn = document.getElementById('btnPikaHint');
         if (hintBtn) {
             hintBtn.addEventListener('click', () => this.useHint());
+        }
+
+        const pauseBtn = document.getElementById('btnPikaPause');
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => this.togglePause());
+        }
+
+        const resumeOverlayBtn = document.getElementById('btnPikaResumeOverlay');
+        if (resumeOverlayBtn) {
+            resumeOverlayBtn.addEventListener('click', () => this.resumeGame());
         }
 
         document.getElementById('btnPikaRestart').addEventListener('click', () => this.restartGame());
@@ -221,9 +232,22 @@ class PikabeoGame {
         this.score = 0;
         this.shuffles = 10;
         this.hints = 5;
-        this.timeLeft = 180;
-        this.maxTime = 180;
+        this.timeLeft = 1200;
+        this.maxTime = 1200;
         this.selectedTile = null;
+        this.gamePaused = false;
+
+        // Reset bottom pause button
+        const pauseBtn = document.getElementById('btnPikaPause');
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '<span id="pikaPauseIcon">⏸️</span> Tạm Dừng';
+            pauseBtn.classList.remove('text-emerald-400');
+            pauseBtn.classList.add('text-yellow-400');
+        }
+
+        // Hide pause overlay
+        const overlay = document.getElementById('pikabeoPauseOverlay');
+        if (overlay) overlay.classList.add('hidden');
 
         // Hide main section, show playground
         document.getElementById('minigameHome').classList.add('hidden');
@@ -237,7 +261,7 @@ class PikabeoGame {
 
         this.gameActive = true;
         this.setupNewLevel();
-        this.startTimer();
+        this.startTimer(true);
     }
 
     // Load random secret reward image
@@ -473,7 +497,7 @@ class PikabeoGame {
 
     // Click handler
     handleTileClick(r, c) {
-        if (!this.gameActive) return;
+        if (!this.gameActive || this.gamePaused) return;
 
         const tileEl = this.getTileDOM(r, c);
         if (!tileEl) return;
@@ -902,9 +926,11 @@ class PikabeoGame {
 
     // ================= Timer controller =================
 
-    startTimer() {
+    startTimer(isNew = false) {
         this.stopTimer();
-        this.timeLeft = this.maxTime;
+        if (isNew) {
+            this.timeLeft = this.maxTime;
+        }
         this.updateTimerUI();
 
         this.timerInterval = setInterval(() => {
@@ -916,6 +942,60 @@ class PikabeoGame {
                 this.handleGameOver();
             }
         }, 1000);
+    }
+
+    // Toggle pause state
+    togglePause() {
+        if (!this.gameActive) return;
+        if (this.gamePaused) {
+            this.resumeGame();
+        } else {
+            this.pauseGame();
+        }
+    }
+
+    // Pause the active game countdown and block interactions
+    pauseGame() {
+        if (!this.gameActive || this.gamePaused) return;
+        this.playSound('select');
+        this.gamePaused = true;
+
+        // Freeze countdown
+        this.stopTimer();
+
+        // Show glassmorphic overlay
+        const overlay = document.getElementById('pikabeoPauseOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+
+        // Update control button
+        const pauseBtn = document.getElementById('btnPikaPause');
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '<span id="pikaPauseIcon">▶️</span> Tiếp Tục';
+            pauseBtn.classList.remove('text-yellow-400');
+            pauseBtn.classList.add('text-emerald-400');
+        }
+    }
+
+    // Resume the active game countdown
+    resumeGame() {
+        if (!this.gameActive || !this.gamePaused) return;
+        this.playSound('select');
+        this.gamePaused = false;
+
+        // Hide overlay
+        const overlay = document.getElementById('pikabeoPauseOverlay');
+        if (overlay) overlay.classList.add('hidden');
+
+        // Resume countdown from current timeLeft
+        this.startTimer(false);
+
+        // Update control button
+        const pauseBtn = document.getElementById('btnPikaPause');
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '<span id="pikaPauseIcon">⏸️</span> Tạm Dừng';
+            pauseBtn.classList.remove('text-emerald-400');
+            pauseBtn.classList.add('text-yellow-400');
+        }
     }
 
     stopTimer() {
@@ -979,15 +1059,28 @@ class PikabeoGame {
     advanceLevel() {
         this.level++;
         this.shuffles = Math.min(15, this.shuffles + 2); // reward extra shuffles
-        this.timeLeft = Math.max(90, 180 - (this.level * 15)); // level gets faster
+        this.timeLeft = 1200; // Keep the full 20 minutes per level
         this.maxTime = this.timeLeft;
         this.selectedTile = null;
+        this.gamePaused = false;
+
+        // Reset bottom pause button
+        const pauseBtn = document.getElementById('btnPikaPause');
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '<span id="pikaPauseIcon">⏸️</span> Tạm Dừng';
+            pauseBtn.classList.remove('text-emerald-400');
+            pauseBtn.classList.add('text-yellow-400');
+        }
+
+        // Hide pause overlay
+        const overlay = document.getElementById('pikabeoPauseOverlay');
+        if (overlay) overlay.classList.add('hidden');
 
         // Fetch another new secret image random reward
         this.loadSecretReward().then(() => {
             this.gameActive = true;
             this.setupNewLevel();
-            this.startTimer();
+            this.startTimer(true);
         });
     }
 
@@ -1025,13 +1118,26 @@ class PikabeoGame {
         this.shuffles = 10;
         this.hints = 5;
         this.score = 0;
-        this.timeLeft = 180;
-        this.maxTime = 180;
+        this.timeLeft = 1200;
+        this.maxTime = 1200;
+        this.gamePaused = false;
+
+        // Reset bottom pause button
+        const pauseBtn = document.getElementById('btnPikaPause');
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '<span id="pikaPauseIcon">⏸️</span> Tạm Dừng';
+            pauseBtn.classList.remove('text-emerald-400');
+            pauseBtn.classList.add('text-yellow-400');
+        }
+
+        // Hide pause overlay
+        const overlay = document.getElementById('pikabeoPauseOverlay');
+        if (overlay) overlay.classList.add('hidden');
 
         this.loadSecretReward().then(() => {
             this.gameActive = true;
             this.setupNewLevel();
-            this.startTimer();
+            this.startTimer(true);
         });
     }
 
