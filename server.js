@@ -112,6 +112,12 @@ app.use((req, res, next) => {
 
 // Middlewares
 app.use(express.json());
+
+// Route phục vụ trang Minigame riêng biệt
+app.get('/minigame', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'minigame.html'));
+});
+
 app.use(express.static('public'));
 
 // Cấu hình các route API

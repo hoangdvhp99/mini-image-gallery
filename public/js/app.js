@@ -457,7 +457,7 @@ async function switchTab(tabName) {
     elements.lbeoBanner.classList.add('hidden');
     elements.homeSection.classList.remove('hidden');
     elements.ideasSection.classList.add('hidden');
-    elements.minigameSection.classList.add('hidden');
+    if (elements.minigameSection) elements.minigameSection.classList.add('hidden');
 
     // Quit active game session if switching away
     if (tabName !== 'minigame' && window.pikaGame && window.pikaGame.gameActive) {
@@ -478,21 +478,9 @@ async function switchTab(tabName) {
         elements.homeSection.classList.add('hidden');
         elements.ideasSection.classList.remove('hidden');
     } else if (tabName === 'minigame') {
-        elements.tabMinigame.classList.add('active');
-        elements.homeSection.classList.add('hidden');
-        elements.minigameSection.classList.remove('hidden');
-        
-        // Show/hide admin secrets uploader and load its list
         const isAdmin = new URLSearchParams(window.location.search).get('isLbeo') === '0';
-        const adminSecretsContainer = document.getElementById('adminSecretsContainer');
-        if (adminSecretsContainer) {
-            if (isAdmin) {
-                adminSecretsContainer.classList.remove('hidden');
-                if (window.pikaGame) window.pikaGame.loadAdminSecretsList();
-            } else {
-                adminSecretsContainer.classList.add('hidden');
-            }
-        }
+        window.location.href = '/minigame' + (isAdmin ? '?isLbeo=0' : '');
+        return;
     }
 }
 
@@ -693,8 +681,17 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Khởi tạo chạy lần đầu
-fetchImages();
+// Khởi tạo chạy lần đầu dựa trên tham số URL
+const tabParam = urlParams.get('tab');
+if (tabParam && ['home', 'lbeo', 'ideas'].includes(tabParam)) {
+    switchTab(tabParam);
+} else {
+    fetchImages();
+}
+
+if (urlParams.get('donate') === '1') {
+    window.openDonateModal();
+}
 
 // --- TÍNH NĂNG DONATE REAL-TIME (HIỆU ỨNG PHÁO HOA & NỔ TIN NHẮN) ---
 
