@@ -23,10 +23,14 @@ const storage = multer.diskStorage({
 const uploadNews = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) {
+        const isImage = file.mimetype.startsWith('image/');
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeImageExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'];
+        
+        if (isImage && safeImageExts.includes(ext)) {
             cb(null, true);
         } else {
-            cb(new Error('Chỉ chấp nhận định dạng Ảnh cho tin tức!'));
+            cb(new Error('Chỉ chấp nhận tệp hình ảnh hợp lệ (.png, .jpg, .jpeg, .webp, .gif, .svg, .bmp) cho tin tức!'), false);
         }
     }
 });

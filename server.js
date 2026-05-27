@@ -31,10 +31,14 @@ const secretsStorage = multer.diskStorage({
 const uploadSecret = multer({
     storage: secretsStorage,
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) {
+        const isImage = file.mimetype.startsWith('image/');
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeImageExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'];
+        
+        if (isImage && safeImageExts.includes(ext)) {
             cb(null, true);
         } else {
-            cb(new Error('Chỉ chấp nhận định dạng Ảnh làm phần thưởng bí mật!'));
+            cb(new Error('Chỉ chấp nhận tệp hình ảnh hợp lệ (.png, .jpg, .jpeg, .webp, .gif, .svg, .bmp) làm phần thưởng bí mật!'), false);
         }
     }
 });

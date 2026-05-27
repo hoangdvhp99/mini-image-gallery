@@ -14,11 +14,25 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Chỉ chấp nhận định dạng Ảnh hoặc Video!'));
+        const isImage = file.mimetype.startsWith('image/');
+        const isVideo = file.mimetype.startsWith('video/');
+        
+        if (!isImage && !isVideo) {
+            return cb(new Error('Chỉ chấp nhận định dạng Ảnh hoặc Video!'), false);
         }
+        
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeImageExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'];
+        const safeVideoExts = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv'];
+        
+        const isSafeImage = isImage && safeImageExts.includes(ext);
+        const isSafeVideo = isVideo && safeVideoExts.includes(ext);
+        
+        if (!isSafeImage && !isSafeVideo) {
+            return cb(new Error('Tệp tải lên không hợp lệ hoặc chứa đuôi mở rộng có nguy cơ độc hại!'), false);
+        }
+        
+        cb(null, true);
     }
 });
 
