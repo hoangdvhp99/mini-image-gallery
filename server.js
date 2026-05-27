@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const session = require('express-session');
 
 // Cấu hình đường dẫn cho Ảnh Bí Mật Pikabeo
 const secretsPath = path.join(__dirname, 'data', 'secrets.json');
@@ -64,6 +65,7 @@ require('./src/config/db');
 // Import router
 const mediaRouter = require('./src/routes/mediaRoutes');
 const ideaRouter = require('./src/routes/ideaRoutes');
+const authRouter = require('./src/routes/authRoutes');
 
 // Đường dẫn lưu trữ IP truy cập
 const visitsPath = path.join(__dirname, 'data', 'visits.json');
@@ -113,6 +115,17 @@ app.use((req, res, next) => {
 // Middlewares
 app.use(express.json());
 
+// Session Middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'beohub-super-secret-key-12345',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, // process.env.NODE_ENV === 'production' nếu có HTTPS
+        maxAge: 24 * 60 * 60 * 1000 // 1 ngày
+    }
+}));
+
 // Route phục vụ trang Minigame riêng biệt
 app.get('/minigame', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'minigame.html'));
@@ -121,6 +134,7 @@ app.get('/minigame', (req, res) => {
 app.use(express.static('public'));
 
 // Cấu hình các route API
+app.use('/api/auth', authRouter);
 app.use('/api', mediaRouter);
 app.use('/api/ideas', ideaRouter);
 
@@ -133,7 +147,7 @@ if (!fs.existsSync(donationsPath)) {
 let latestDonation = null;
 
 app.post('/api/donate/alert', (req, res) => {
-    if (req.query.isLbeo !== '0') {
+    if (!req.session || !req.session.isAdmin) {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     const { name, amount, message } = req.body;
@@ -170,7 +184,7 @@ app.get('/api/donate/latest', (req, res) => {
 });
 
 app.get('/api/visits/leaderboard', (req, res) => {
-    if (req.query.isLbeo !== '0') {
+    if (!req.session || !req.session.isAdmin) {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     try {
@@ -195,7 +209,7 @@ app.get('/api/visits/leaderboard', (req, res) => {
 
 // Lấy danh sách Ảnh Bí Mật (Quyền Admin)
 app.get('/api/pikabeo/secrets', (req, res) => {
-    if (req.query.isLbeo !== '0') {
+    if (!req.session || !req.session.isAdmin) {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     try {
@@ -211,7 +225,7 @@ app.get('/api/pikabeo/secrets', (req, res) => {
 
 // Admin upload Ảnh Bí Mật mới
 app.post('/api/pikabeo/secrets', uploadSecret.single('secretImage'), (req, res) => {
-    if (req.query.isLbeo !== '0') {
+    if (!req.session || !req.session.isAdmin) {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     if (!req.file) {
@@ -239,7 +253,7 @@ app.post('/api/pikabeo/secrets', uploadSecret.single('secretImage'), (req, res) 
 
 // Admin xóa Ảnh Bí Mật
 app.delete('/api/pikabeo/secrets/:name', (req, res) => {
-    if (req.query.isLbeo !== '0') {
+    if (!req.session || !req.session.isAdmin) {
         return res.status(403).json({ success: false, message: 'Từ chối!' });
     }
     const filename = req.params.name;

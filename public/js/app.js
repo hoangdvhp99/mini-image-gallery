@@ -86,7 +86,14 @@ const itemsPerPage = 15;
 
 // Lấy thông tin từ URL
 const urlParams = new URLSearchParams(window.location.search);
-const isAdmin = urlParams.get('isLbeo') === '0';
+let isAdmin = false;
+try {
+    const authRes = await fetch('/api/auth/me');
+    const authData = await authRes.json();
+    isAdmin = authData.isAdmin;
+} catch (e) {
+    console.error('Lỗi kiểm tra quyền:', e);
+}
 
 // Đăng ký các hàm đóng mở modal lên window để HTML onclick (từ các nút đóng modal tĩnh trong HTML) có thể gọi được
 window.closeModal = () => {
@@ -108,7 +115,7 @@ window.closeDonateModal = () => {
 async function loadLeaderboard() {
     if (!isAdmin) return;
     try {
-        const res = await fetch(`/api/visits/leaderboard?isLbeo=0`);
+        const res = await fetch(`/api/visits/leaderboard`);
         const data = await res.json();
         if (data.success && data.leaderboard) {
             const tbody = document.getElementById('leaderboardBody');
@@ -181,7 +188,7 @@ async function fetchImages(search = '') {
             onDeleteImage: async (fileName) => {
                 if (!confirm(`Xóa vĩnh viễn tệp tin "${fileName}" khỏi BeoHub?`)) return;
                 try {
-                    const result = await deleteMedia(fileName, urlParams.get('isLbeo') || '1');
+                    const result = await deleteMedia(fileName);
                     if (result.success) {
                         showToast('Đã xóa dữ liệu thành công.', 'success');
                         fetchImages(elements.searchInput.value);
@@ -286,7 +293,7 @@ elements.editForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        const result = await updateMedia(oldName, urlParams.get('isLbeo') || '1', formData);
+        const result = await updateMedia(oldName, formData);
         showToast(result.message, 'success');
         closeEditModal(elements);
         fetchImages(elements.searchInput.value);
@@ -478,8 +485,7 @@ async function switchTab(tabName) {
         elements.homeSection.classList.add('hidden');
         elements.ideasSection.classList.remove('hidden');
     } else if (tabName === 'minigame') {
-        const isAdmin = new URLSearchParams(window.location.search).get('isLbeo') === '0';
-        window.location.href = '/minigame' + (isAdmin ? '?isLbeo=0' : '');
+        window.location.href = '/minigame';
         return;
     }
 }
@@ -658,7 +664,7 @@ function loadMoreImages() {
         onDeleteImage: async (fileName) => {
             if (!confirm(`Xóa vĩnh viễn tệp tin "${fileName}" khỏi BeoHub?`)) return;
             try {
-                const result = await deleteMedia(fileName, urlParams.get('isLbeo') || '1');
+                const result = await deleteMedia(fileName);
                 if (result.success) {
                     showToast('Đã xóa dữ liệu thành công.', 'success');
                     fetchImages(elements.searchInput.value);
@@ -711,7 +717,7 @@ if (adminDonateForm) {
         const message = document.getElementById('donateMessageInput').value.trim();
 
         try {
-            const res = await fetch(`/api/donate/alert?isLbeo=0`, {
+            const res = await fetch(`/api/donate/alert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, amount, message })

@@ -1166,7 +1166,7 @@ class PikabeoGame {
         if (!container) return;
 
         try {
-            const res = await fetch('/api/pikabeo/secrets?isLbeo=0');
+            const res = await fetch('/api/pikabeo/secrets');
             const data = await res.json();
             if (data.success) {
                 container.innerHTML = '';
@@ -1208,7 +1208,7 @@ class PikabeoGame {
 
         try {
             showToast('📤 Đang tải ảnh bí mật lên...', 'info');
-            const res = await fetch('/api/pikabeo/secrets?isLbeo=0', {
+            const res = await fetch('/api/pikabeo/secrets', {
                 method: 'POST',
                 body: formData
             });
@@ -1233,7 +1233,7 @@ class PikabeoGame {
 
         try {
             showToast('🗑️ Đang xóa ảnh bí mật...', 'info');
-            const res = await fetch(`/api/pikabeo/secrets/${name}?isLbeo=0`, {
+            const res = await fetch(`/api/pikabeo/secrets/${name}`, {
                 method: 'DELETE'
             });
             const data = await res.json();

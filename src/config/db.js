@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const DB_PATH = path.join(__dirname, '..', '..', 'data', 'db.json');
 const IDEAS_PATH = path.join(__dirname, '..', '..', 'data', 'ideas.json');
+const ADMINS_PATH = path.join(__dirname, '..', '..', 'data', 'admins.json');
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'public', 'uploads');
 
 // Khởi tạo các thư mục và file db nếu chưa tồn tại
@@ -17,6 +19,11 @@ if (!fs.existsSync(DB_PATH)) {
 }
 if (!fs.existsSync(IDEAS_PATH)) {
     fs.writeFileSync(IDEAS_PATH, JSON.stringify([]));
+}
+if (!fs.existsSync(ADMINS_PATH)) {
+    const defaultPasswordHash = bcrypt.hashSync('BeoHub_Admin_99@Secure!#', 10);
+    const defaultAdmin = [{ username: 'admin', password: defaultPasswordHash }];
+    fs.writeFileSync(ADMINS_PATH, JSON.stringify(defaultAdmin, null, 2));
 }
 
 function readDB() {
@@ -35,12 +42,23 @@ function writeIdeasDB(data) {
     fs.writeFileSync(IDEAS_PATH, JSON.stringify(data, null, 2));
 }
 
+function readAdminsDB() {
+    return JSON.parse(fs.readFileSync(ADMINS_PATH, 'utf8'));
+}
+
+function writeAdminsDB(data) {
+    fs.writeFileSync(ADMINS_PATH, JSON.stringify(data, null, 2));
+}
+
 module.exports = {
     DB_PATH,
     IDEAS_PATH,
+    ADMINS_PATH,
     UPLOAD_DIR,
     readDB,
     writeDB,
     readIdeasDB,
-    writeIdeasDB
+    writeIdeasDB,
+    readAdminsDB,
+    writeAdminsDB
 };

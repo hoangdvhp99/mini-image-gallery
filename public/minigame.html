@@ -245,18 +245,24 @@
         import { showToast } from '/js/ui.js';
         window.showToast = showToast;
         
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isAdmin = urlParams.get('isLbeo') === '0';
+        document.addEventListener('DOMContentLoaded', async () => {
             const adminSecretsContainer = document.getElementById('adminSecretsContainer');
             
             if (adminSecretsContainer) {
-                if (isAdmin) {
-                    adminSecretsContainer.classList.remove('hidden');
-                    if (window.pikaGame) {
-                        window.pikaGame.loadAdminSecretsList();
+                try {
+                    const res = await fetch('/api/auth/me');
+                    const data = await res.json();
+                    
+                    if (data.success && data.isAdmin) {
+                        adminSecretsContainer.classList.remove('hidden');
+                        if (window.pikaGame) {
+                            window.pikaGame.loadAdminSecretsList();
+                        }
+                    } else {
+                        adminSecretsContainer.classList.add('hidden');
                     }
-                } else {
+                } catch (e) {
+                    console.error('Lỗi kiểm tra quyền Admin:', e);
                     adminSecretsContainer.classList.add('hidden');
                 }
             }

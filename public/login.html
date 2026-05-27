@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Admin - BeoHub</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+        .glass-panel {
+            background: rgba(25, 25, 25, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.8);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-gray-300 relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-ph-orange opacity-[0.03] blur-[100px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-amber-600 opacity-[0.03] blur-[100px] pointer-events-none"></div>
+
+    <div class="glass-panel p-10 md:p-12 rounded-3xl w-full max-w-md relative z-10 mx-4">
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center font-black text-4xl tracking-tighter select-none mb-3">
+                <span class="text-white pr-1">Beo</span>
+                <span class="bg-ph-orange text-black px-2 py-1 rounded-md font-bold">Hub</span>
+            </div>
+            <h1 class="text-xl font-bold text-white uppercase tracking-wider">Admin Portal</h1>
+            <p class="text-xs text-neutral-400 mt-2">Vui lòng đăng nhập để truy cập quyền quản trị</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div id="errorMsg" class="hidden bg-red-900/30 border border-red-500/50 text-red-400 p-3 rounded-xl text-xs font-bold text-center">
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Tên đăng nhập</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
+                        👤
+                    </div>
+                    <input type="text" id="username" required
+                        class="w-full pl-10 p-3.5 bg-neutral-900/50 border border-neutral-800 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600"
+                        placeholder="Nhập tên đăng nhập">
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
+                        🔒
+                    </div>
+                    <input type="password" id="password" required
+                        class="w-full pl-10 p-3.5 bg-neutral-900/50 border border-neutral-800 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600"
+                        placeholder="Nhập mật khẩu">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full btn-gradient text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg flex justify-center items-center gap-2">
+                <span>Đăng nhập</span>
+                <svg id="loadingIcon" class="hidden animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center">
+            <a href="/" class="text-xs text-neutral-500 hover:text-ph-orange transition font-medium">&larr; Quay lại trang chủ</a>
+        </div>
+    </div>
+
+    <script src="/js/login.js"></script>
+</body>
+</html>

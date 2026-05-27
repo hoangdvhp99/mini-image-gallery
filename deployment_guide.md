@@ -101,6 +101,9 @@ server {
     listen 80;
     server_name your-domain-or-ip.com;
 
+    # Cấu hình giới hạn dung lượng tải tệp lên (ví dụ: 100MB)
+    client_max_body_size 100M;
+
     # Cấu hình proxy ngược đến ứng dụng Node.js chạy ở cổng 3000
     location / {
         proxy_pass http://127.0.0.1:3000;
