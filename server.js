@@ -217,6 +217,9 @@ app.post('/api/pikabeo/secrets', uploadSecret.single('secretImage'), (req, res) 
         return res.status(400).json({ success: false, message: 'Không có tệp tải lên!' });
     }
     try {
+        const { logUpload } = require('./src/utils/logger');
+        logUpload(req, req.file.filename, req.file.originalname, 'Pikabeo Secret');
+
         const newSecret = {
             name: req.file.filename,
             url: `/uploads/secrets/${req.file.filename}`,

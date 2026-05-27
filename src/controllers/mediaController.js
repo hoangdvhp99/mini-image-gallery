@@ -64,6 +64,10 @@ exports.uploadMedia = (req, res) => {
 
                 fs.renameSync(tempPath, targetFilePath);
 
+                // Ghi nhận lịch sử upload tệp tin
+                const { logUpload } = require('../utils/logger');
+                logUpload(req, finalFileName, originalNameFix, 'Media Gallery');
+
                 const now = new Date().toISOString();
                 insertStmt.run(
                     finalFileName,

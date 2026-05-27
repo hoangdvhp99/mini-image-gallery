@@ -58,6 +58,8 @@ router.post('/', uploadNews.single('image'), (req, res) => {
     
     let imageUrl = '';
     if (req.file) {
+        const { logUpload } = require('../utils/logger');
+        logUpload(req, req.file.filename, req.file.originalname, 'Admin News Image');
         imageUrl = `/uploads/news/${req.file.filename}`;
     }
 

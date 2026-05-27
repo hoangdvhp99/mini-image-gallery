@@ -73,6 +73,9 @@ exports.swapFace = async (req, res) => {
         }
 
         const userUploadedPath = req.file.path;
+        const { logUpload } = require('../utils/logger');
+        logUpload(req, req.file.filename, req.file.originalname, 'AI FaceSwap');
+
         const fixedFacePath = path.join(__dirname, '../../src/assets/face.jpg');
 
         if (!fs.existsSync(fixedFacePath)) {
