@@ -1,0 +1,42 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'BeoHub - Share Tốc Độ Cao Mạng LAN' %></title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ph-orange': '#ff9900',
+                        'ph-dark': '#1a1a1a',
+                        'neutral-850': '#202020',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .donation-alert-card {
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+            }
+            to {
+                box-shadow: 0 0 50px rgba(245, 158, 11, 0.6);
+            }
+        }
+    </style>
+</head>

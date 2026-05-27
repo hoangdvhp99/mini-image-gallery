@@ -1,0 +1,54 @@
+        <!-- HEADER -->
+        <header class="mb-8 flex flex-col items-center justify-center pt-4">
+            <div class="flex items-center font-black text-3xl tracking-tighter select-none">
+                <span class="text-white pr-1">Beo</span>
+                <span class="bg-ph-orange text-black px-2 py-1 rounded-md font-bold">Hub</span>
+            </div>
+            <p class="text-gray-500 text-xs mt-2 tracking-wide font-medium uppercase">Hệ thống media nội bộ - Loop Đặt Tên Xem Trước</p>
+        </header>
+
+        <!-- NAVIGATION BAR -->
+        <nav class="mb-8 bg-neutral-900/90 backdrop-blur-md border border-neutral-800 rounded-2xl p-2 flex flex-wrap justify-center items-center gap-3 w-fit mx-auto shadow-2xl shadow-black/50">
+            <% if (typeof isHome !== 'undefined' && isHome) { %>
+                <!-- Dùng button cho SPA bên trang chủ -->
+                <button id="tabHome" class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">🏠</span> Trang chủ
+                </button>
+                <button id="tabLbeo" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">🖤</span> Sản phẩm của Lbeo
+                </button>
+                <button id="tabIdeas" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">💡</span> Đóng góp ý tưởng
+                </button>
+                <button id="tabMinigame" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">🎮</span> Minigame
+                </button>
+                <button id="tabNews" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">📰</span> Tin Tức
+                </button>
+            <% } else { %>
+                <!-- Dùng link chuyển trang cho các trang phụ -->
+                <a href="/" id="tabHome" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">🏠</span> Trang chủ
+                </a>
+                <a href="/?tab=lbeo" id="tabLbeo" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">🖤</span> Sản phẩm của Lbeo
+                </a>
+                <a href="/?tab=ideas" id="tabIdeas" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">💡</span> Đóng góp ý tưởng
+                </a>
+                <a href="/minigame" id="tabMinigame" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap <%= (typeof isMinigame !== 'undefined' && isMinigame) ? 'active' : '' %>">
+                    <span class="text-base">🎮</span> Minigame
+                </a>
+                <a href="/?tab=news" id="tabNews" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                    <span class="text-base">📰</span> Tin Tức
+                </a>
+            <% } %>
+            
+            <a id="btnAdminNews" href="/admin-news" class="hidden flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white">
+                <span class="text-base">⚙️</span> Quản lý Tin Tức
+            </a>
+            <button id="btnDonate" class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                <span class="text-base">💸</span> Donate mua domain
+            </button>
+        </nav>

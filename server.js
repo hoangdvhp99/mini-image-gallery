@@ -66,6 +66,10 @@ if (fs.existsSync(envPath)) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Set up EJS view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Khởi chạy việc tạo database và thư mục nếu cần thông qua việc import db config
 // Đã được gọi ở trên qua const { db } = require('./src/config/db');
 
@@ -125,17 +129,21 @@ app.use(session({
     }
 }));
 
-// Route phục vụ trang Minigame riêng biệt
+// Route render bằng EJS
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
 app.get('/minigame', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'minigame.html'));
+    res.render('minigame');
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.render('login');
 });
 
 app.get('/admin-news', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin-news.html'));
+    res.render('admin-news');
 });
 
 app.use(express.static('public'));

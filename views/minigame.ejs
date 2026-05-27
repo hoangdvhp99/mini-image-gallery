@@ -1,69 +1,7 @@
-<!DOCTYPE html>
-<html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pikabeo Onet Connect - Kho Minigame BeoHub</title>
-    
-    <!-- Google Font "Outfit" -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'ph-orange': '#ff9900',
-                        'ph-dark': '#1a1a1a',
-                        'neutral-850': '#202020',
-                    },
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-
-<body class="min-h-screen font-sans text-gray-300">
+<%- include('partials/head', { title: 'Pikabeo Onet Connect - Kho Minigame BeoHub' }) %>
+<body class="min-h-screen font-outfit text-gray-300">
     <div class="container mx-auto p-4 max-w-6xl">
-
-        <!-- HEADER -->
-        <header class="mb-8 flex flex-col items-center justify-center pt-4">
-            <div class="flex items-center font-black text-3xl tracking-tighter select-none">
-                <span class="text-white pr-1">Beo</span>
-                <span class="bg-ph-orange text-black px-2 py-1 rounded-md font-bold">Hub</span>
-            </div>
-            <p class="text-gray-500 text-xs mt-2 tracking-wide font-medium uppercase">Hệ thống media nội bộ - Loop Đặt Tên Xem Trước</p>
-        </header>
-
-        <!-- NAVIGATION BAR -->
-        <nav class="mb-8 bg-neutral-900/90 backdrop-blur-md border border-neutral-800 rounded-2xl p-2 flex flex-wrap justify-center items-center gap-3 w-fit mx-auto shadow-2xl shadow-black/50">
-            <a href="/" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
-                <span class="text-base">🏠</span> Trang chủ
-            </a>
-            <a href="/?tab=lbeo" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
-                <span class="text-base">🖤</span> Sản phẩm của Lbeo
-            </a>
-            <a href="/?tab=ideas" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
-                <span class="text-base">💡</span> Đóng góp ý tưởng
-            </a>
-            <a href="/minigame" class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
-                <span class="text-base">🎮</span> Minigame
-            </a>
-            <a href="/?donate=1" class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]">
-                <span class="text-base">💸</span> Donate mua domain
-            </a>
-        </nav>
+        <%- include('partials/nav', { isMinigame: true }) %>
 
         <!-- MINIGAME CONTENT -->
         <section id="minigameSection" class="transition-all duration-300">

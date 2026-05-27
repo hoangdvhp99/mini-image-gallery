@@ -746,7 +746,7 @@ window.addEventListener('scroll', () => {
 
 // Khởi tạo chạy lần đầu dựa trên tham số URL
 const tabParam = urlParams.get('tab');
-if (tabParam && ['home', 'lbeo', 'ideas'].includes(tabParam)) {
+if (tabParam && ['home', 'lbeo', 'ideas', 'news'].includes(tabParam)) {
     switchTab(tabParam);
 } else {
     fetchImages();
