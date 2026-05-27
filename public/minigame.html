@@ -134,43 +134,6 @@
                         </div>
                     </div>
 
-                    <!-- Bảng Xếp Hạng Cao Thủ Pikabeo -->
-                    <div id="pikabeoLeaderboardContainer" class="border-t border-neutral-800/80 pt-6 mt-6 space-y-4">
-                        <div class="space-y-1">
-                            <h4 class="text-xs font-black text-amber-500 uppercase tracking-widest flex items-center gap-1.5">
-                                <span>🏆</span> BẢNG XẾP HẠNG PIKABEO CONNECT (TOP 10)
-                            </h4>
-                            <p class="text-[10px] text-gray-500">Nơi vinh danh 10 cao thủ có điểm số kỷ lục, giải mã thần tốc và hạn chế dùng hỗ trợ!</p>
-                        </div>
-
-                        <!-- Bảng Glassmorphism -->
-                        <div class="bg-neutral-950/40 rounded-2xl border border-neutral-850/80 overflow-hidden shadow-xl backdrop-blur-sm">
-                            <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full text-left border-collapse text-xs">
-                                    <thead>
-                                        <tr class="border-b border-neutral-850 bg-neutral-900/50 text-[10px] uppercase font-black text-gray-400 select-none">
-                                            <th class="py-3 px-4 text-center w-12">Hạng</th>
-                                            <th class="py-3 px-4">Cao Thủ</th>
-                                            <th class="py-3 px-4 text-center">Cấp Độ</th>
-                                            <th class="py-3 px-4 text-center">Thời Gian Dư</th>
-                                            <th class="py-3 px-4 text-center">Hỗ Trợ (Gợi ý/Đổi vị trí)</th>
-                                            <th class="py-3 px-4 text-right pr-6">Tổng Điểm</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="pikabeoLeaderboardList" class="divide-y divide-neutral-900/60 font-bold text-gray-300">
-                                        <!-- Render động qua API -->
-                                        <tr>
-                                            <td colspan="6" class="py-8 text-center text-neutral-600 font-medium select-none">
-                                                <div class="flex items-center justify-center gap-2">
-                                                    <span class="animate-spin text-amber-500">🔄</span> Đang tải bảng xếp hạng...
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Khu Vực Bàn Chơi Pikabeo (Ẩn mặc định) -->
@@ -242,6 +205,50 @@
                                      ▶️ Tiếp Tục Chơi
                                  </button>
                              </div>
+
+                             <!-- Lớp phủ Bảng Xếp Hạng Glassmorphism trong Game -->
+                             <div id="pikabeoLeaderboardOverlay" class="absolute inset-0 bg-neutral-950/85 backdrop-blur-md z-45 hidden flex flex-col items-center justify-center p-4">
+                                 <div class="w-full max-w-xl bg-neutral-900/90 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl space-y-4 max-h-[95%] overflow-hidden flex flex-col justify-between transform scale-95 transition-all duration-300">
+                                     <div class="space-y-1 text-center select-none">
+                                         <h4 class="text-sm font-black text-amber-500 uppercase tracking-widest flex items-center justify-center gap-1.5">
+                                             <span>🏆</span> BẢNG XẾP HẠNG PIKABEO CONNECT (TOP 10)
+                                         </h4>
+                                         <p class="text-[9px] text-gray-500">Những cao thủ có tốc độ giải mã thần sầu và dùng ít quyền hỗ trợ nhất!</p>
+                                     </div>
+
+                                     <!-- Bảng Glassmorphism -->
+                                     <div class="bg-neutral-950/60 rounded-2xl border border-neutral-850 overflow-hidden shadow-xl flex-grow overflow-y-auto custom-scrollbar my-2 max-h-[280px]">
+                                         <table class="w-full text-left border-collapse text-[11px]">
+                                             <thead>
+                                                 <tr class="border-b border-neutral-850 bg-neutral-900/50 text-[9px] uppercase font-black text-gray-400 select-none">
+                                                     <th class="py-2 px-3 text-center w-10">Hạng</th>
+                                                     <th class="py-2 px-3">Cao Thủ</th>
+                                                     <th class="py-2 px-3 text-center">Cấp Độ</th>
+                                                     <th class="py-2 px-3 text-center">Thời Gian Dư</th>
+                                                     <th class="py-2 px-3 text-center">Hỗ Trợ</th>
+                                                     <th class="py-2 px-3 text-right pr-4">Tổng Điểm</th>
+                                                 </tr>
+                                             </thead>
+                                             <tbody id="pikabeoLeaderboardList" class="divide-y divide-neutral-900/60 font-bold text-gray-300">
+                                                 <!-- Render động qua API -->
+                                                 <tr>
+                                                     <td colspan="6" class="py-8 text-center text-neutral-600 font-medium select-none">
+                                                         <div class="flex items-center justify-center gap-2">
+                                                             <span class="animate-spin text-amber-500">🔄</span> Đang tải bảng xếp hạng...
+                                                         </div>
+                                                     </td>
+                                                 </tr>
+                                             </tbody>
+                                         </table>
+                                     </div>
+
+                                     <div class="flex justify-center">
+                                         <button id="btnPikaCloseLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-white font-black text-[10px] px-6 py-2.5 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                             ❌ Đóng Bảng Xếp Hạng
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
                          </div>
  
                          <!-- Bộ nút điều khiển phía dưới -->
@@ -257,6 +264,9 @@
                              </button>
                              <button id="btnPikaPause" class="bg-neutral-850 hover:bg-neutral-800 text-yellow-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
                                  <span id="pikaPauseIcon">⏸️</span> Tạm Dừng
+                             </button>
+                             <button id="btnPikaShowLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-amber-500 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 🏆 Xếp Hạng
                              </button>
                              <button id="btnPikaRestart" class="bg-neutral-850 hover:bg-neutral-800 text-emerald-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
                                  🎮 Chơi Lại

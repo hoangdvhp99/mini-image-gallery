@@ -122,6 +122,16 @@ class PikabeoGame {
         document.getElementById('btnPikaRestart').addEventListener('click', () => this.restartGame());
         document.getElementById('btnPikaQuit').addEventListener('click', () => this.quitGame());
 
+        const showLboardBtn = document.getElementById('btnPikaShowLeaderboard');
+        if (showLboardBtn) {
+            showLboardBtn.addEventListener('click', () => this.showLeaderboardOverlay());
+        }
+
+        const closeLboardBtn = document.getElementById('btnPikaCloseLeaderboard');
+        if (closeLboardBtn) {
+            closeLboardBtn.addEventListener('click', () => this.closeLeaderboardOverlay());
+        }
+
         // Listen to Admin Secret Uploads
         const fileInput = document.getElementById('secretImageFile');
         if (fileInput) {
@@ -1384,6 +1394,42 @@ class PikabeoGame {
 
         // Tải lại bảng xếp hạng
         this.loadLeaderboard();
+    }
+
+    showLeaderboardOverlay() {
+        this.playSound('select');
+        
+        // Dừng thời gian nếu đang chơi
+        if (this.gameActive && !this.gamePaused) {
+            this.wasPlayingBeforeLeaderboard = true;
+            this.stopTimer();
+        } else {
+            this.wasPlayingBeforeLeaderboard = false;
+        }
+
+        // Tải bảng xếp hạng lên
+        this.loadLeaderboard();
+
+        // Hiển thị lớp phủ
+        const overlay = document.getElementById('pikabeoLeaderboardOverlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+        }
+    }
+
+    closeLeaderboardOverlay() {
+        this.playSound('select');
+        
+        // Ẩn lớp phủ
+        const overlay = document.getElementById('pikabeoLeaderboardOverlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
+
+        // Tiếp tục chạy thời gian nếu trước đó đang chơi
+        if (this.gameActive && this.wasPlayingBeforeLeaderboard) {
+            this.startTimer(false);
+        }
     }
 
     // ================= Admin Secret Image upload and management =================
