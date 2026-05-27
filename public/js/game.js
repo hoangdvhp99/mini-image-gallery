@@ -7,7 +7,7 @@ class PikabeoGame {
     constructor() {
         // Grid sizes
         this.rows = 8;
-        this.cols = 14;
+        this.cols = 8;
 
         // Matrix padding of 1 cell all around (padding is empty border)
         this.grid = []; // (rows + 2) x (cols + 2)
@@ -202,11 +202,11 @@ class PikabeoGame {
 
         // Check viewport size to determine responsive grid rows & columns
         if (window.innerWidth < 768) {
-            this.rows = 6;
-            this.cols = 10;
+            this.rows = 8;
+            this.cols = 6;
         } else {
             this.rows = 8;
-            this.cols = 14;
+            this.cols = 8;
         }
 
         // Reset score & levels
