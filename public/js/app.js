@@ -38,9 +38,11 @@ const elements = {
     // Navigation & Ideas Elements
     tabHome: document.getElementById('tabHome'),
     tabLbeo: document.getElementById('tabLbeo'),
+    tabNews: document.getElementById('tabNews'),
     tabIdeas: document.getElementById('tabIdeas'),
     tabMinigame: document.getElementById('tabMinigame'),
     homeSection: document.getElementById('homeSection'),
+    newsSection: document.getElementById('newsSection'),
     ideasSection: document.getElementById('ideasSection'),
     minigameSection: document.getElementById('minigameSection'),
     uploadContainer: document.getElementById('uploadContainer'),
@@ -52,6 +54,7 @@ const elements = {
     ideaDescInput: document.getElementById('ideaDescInput'),
     ideaTagsInput: document.getElementById('ideaTagsInput'),
     ideasGrid: document.getElementById('ideasGrid'),
+    publicNewsList: document.getElementById('publicNewsList'),
     
     // Face Swap AI Elements
     faceSwapForm: document.getElementById('faceSwapForm'),
@@ -450,11 +453,58 @@ async function loadIdeas() {
     }
 }
 
+async function loadPublicNews() {
+    try {
+        const res = await fetch('/api/news');
+        const data = await res.json();
+        
+        const listContainer = elements.publicNewsList;
+        if (data.success) {
+            if (data.news.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-10 text-neutral-500 text-xs font-bold">Chưa có bản tin nào.</div>`;
+                return;
+            }
+            listContainer.innerHTML = '';
+            data.news.forEach(item => {
+                const dateStr = new Date(item.created_at).toLocaleString('vi-VN');
+                const contentHtml = item.content.replace(/\n/g, '<br/>');
+                const div = document.createElement('div');
+                div.className = 'bg-neutral-900/80 border border-neutral-800 rounded-2xl overflow-hidden shadow-lg';
+                
+                let imageHtml = '';
+                if (item.image_url) {
+                    imageHtml = `<img src="${item.image_url}" class="w-full h-auto object-cover max-h-96">`;
+                }
+
+                div.innerHTML = `
+                    ${imageHtml}
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-neutral-800 pb-3">
+                            <h3 class="font-black text-amber-500 text-lg lg:text-xl uppercase tracking-wide">${item.title}</h3>
+                            <span class="text-[11px] text-neutral-500 font-bold bg-neutral-950 px-2.5 py-1.5 rounded-lg border border-neutral-800 flex items-center gap-1.5">
+                                <span>📅</span> ${dateStr}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-300 leading-relaxed font-medium">
+                            ${contentHtml}
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+        } else {
+            elements.publicNewsList.innerHTML = `<div class="text-center py-10 text-red-500 text-xs font-bold">Lỗi tải dữ liệu</div>`;
+        }
+    } catch (e) {
+        elements.publicNewsList.innerHTML = `<div class="text-center py-10 text-red-500 text-xs font-bold">Lỗi tải dữ liệu: ${e.message}</div>`;
+    }
+}
+
 async function switchTab(tabName) {
     currentTab = tabName;
 
     // Reset active button classes
-    [elements.tabHome, elements.tabLbeo, elements.tabIdeas, elements.tabMinigame].forEach(btn => {
+    [elements.tabHome, elements.tabLbeo, elements.tabNews, elements.tabIdeas, elements.tabMinigame].forEach(btn => {
         if (btn) btn.classList.remove('active');
     });
 
@@ -462,7 +512,8 @@ async function switchTab(tabName) {
     elements.uploadContainer.classList.remove('hidden');
     elements.galleryContainer.className = 'md:col-span-3 space-y-4';
     elements.lbeoBanner.classList.add('hidden');
-    elements.homeSection.classList.remove('hidden');
+    elements.homeSection.classList.add('hidden');
+    elements.newsSection.classList.add('hidden');
     elements.ideasSection.classList.add('hidden');
     if (elements.minigameSection) elements.minigameSection.classList.add('hidden');
 
@@ -473,16 +524,21 @@ async function switchTab(tabName) {
 
     if (tabName === 'home') {
         elements.tabHome.classList.add('active');
+        elements.homeSection.classList.remove('hidden');
         fetchImages(elements.searchInput.value);
     } else if (tabName === 'lbeo') {
         elements.tabLbeo.classList.add('active');
+        elements.homeSection.classList.remove('hidden');
         elements.uploadContainer.classList.add('hidden');
         elements.galleryContainer.className = 'md:col-span-4 space-y-4';
         elements.lbeoBanner.classList.remove('hidden');
         fetchImages('');
+    } else if (tabName === 'news') {
+        elements.tabNews.classList.add('active');
+        elements.newsSection.classList.remove('hidden');
+        loadPublicNews();
     } else if (tabName === 'ideas') {
         elements.tabIdeas.classList.add('active');
-        elements.homeSection.classList.add('hidden');
         elements.ideasSection.classList.remove('hidden');
     } else if (tabName === 'minigame') {
         window.location.href = '/minigame';
@@ -493,6 +549,7 @@ async function switchTab(tabName) {
 // Đăng ký sự kiện click các Tab điều hướng
 if (elements.tabHome) elements.tabHome.addEventListener('click', () => switchTab('home'));
 if (elements.tabLbeo) elements.tabLbeo.addEventListener('click', () => switchTab('lbeo'));
+if (elements.tabNews) elements.tabNews.addEventListener('click', () => switchTab('news'));
 if (elements.tabIdeas) elements.tabIdeas.addEventListener('click', () => switchTab('ideas'));
 if (elements.tabMinigame) elements.tabMinigame.addEventListener('click', () => switchTab('minigame'));
 if (elements.btnDonate) elements.btnDonate.addEventListener('click', () => window.openDonateModal());
@@ -705,6 +762,9 @@ if (urlParams.get('donate') === '1') {
 if (isAdmin) {
     const adminDonateFormContainer = document.getElementById('adminDonateFormContainer');
     if (adminDonateFormContainer) adminDonateFormContainer.classList.remove('hidden');
+    
+    const btnAdminNews = document.getElementById('btnAdminNews');
+    if (btnAdminNews) btnAdminNews.classList.remove('hidden');
 }
 
 // Xử lý gửi Form Donate của Admin

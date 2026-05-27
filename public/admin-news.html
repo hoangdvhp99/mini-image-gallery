@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tin Tức - Admin Portal</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+        .glass-panel {
+            background: rgba(25, 25, 25, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.8);
+            transform: translateY(-2px);
+        }
+        /* Markdown style for preview */
+        .markdown-preview h1, .markdown-preview h2, .markdown-preview h3 { font-weight: bold; margin-bottom: 0.5rem; color: #fff; }
+        .markdown-preview p { margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="min-h-screen text-gray-300 relative overflow-x-hidden">
+    <!-- Decorative background elements -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-ph-orange opacity-[0.02] blur-[100px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-amber-600 opacity-[0.02] blur-[100px] pointer-events-none"></div>
+
+    <div class="container mx-auto p-4 max-w-5xl py-10 relative z-10">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10 bg-neutral-900/60 p-5 rounded-2xl border border-neutral-800 shadow-xl backdrop-blur-sm">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center font-black text-2xl tracking-tighter select-none">
+                    <span class="text-white pr-1">Beo</span>
+                    <span class="bg-ph-orange text-black px-2 py-1 rounded-md font-bold">Hub</span>
+                </div>
+                <div class="h-8 w-px bg-neutral-700"></div>
+                <h1 class="text-lg font-black text-amber-500 uppercase tracking-widest">Tin Tức</h1>
+            </div>
+            <a href="/" class="flex items-center gap-2 bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-xl text-xs font-bold transition text-white border border-neutral-700 shadow-lg">
+                <span>🏠</span> Về trang chủ
+            </a>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Form Upload (Cột trái) -->
+            <div class="md:col-span-1 space-y-6">
+                <div class="glass-panel p-6 rounded-2xl relative">
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-neutral-800 pb-3 mb-4 flex items-center gap-2">
+                        <span>📝</span> Viết bản tin mới
+                    </h2>
+                    
+                    <form id="newsForm" class="space-y-4">
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tiêu đề</label>
+                            <input type="text" id="newsTitle" required
+                                class="w-full p-3 bg-neutral-900/50 border border-neutral-800 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600"
+                                placeholder="Nhập tiêu đề tin tức">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Nội dung bài viết</label>
+                            <textarea id="newsContent" rows="6" required
+                                class="w-full p-3 bg-neutral-900/50 border border-neutral-800 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600 resize-y"
+                                placeholder="Nhập nội dung (Hỗ trợ xuống dòng)..."></textarea>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Ảnh đính kèm</label>
+                            <div class="border-2 border-dashed border-neutral-700 hover:border-ph-orange rounded-xl p-4 text-center cursor-pointer transition-all relative bg-neutral-900/50 group" onclick="document.getElementById('newsImage').click()">
+                                <input type="file" id="newsImage" accept="image/*" class="hidden">
+                                <div class="space-y-2 pointer-events-none">
+                                    <div id="imagePreviewContainer" class="hidden aspect-video w-full mx-auto bg-neutral-950 rounded-lg overflow-hidden border border-neutral-800 relative flex items-center justify-center shadow-inner mb-2">
+                                        <img id="imagePreview" src="" class="w-full h-full object-cover">
+                                    </div>
+                                    <div id="uploadIcon" class="text-3xl transition-transform group-hover:scale-110">📸</div>
+                                    <span id="uploadText" class="text-neutral-400 text-[11px] block font-bold">Chọn ảnh làm banner bài viết</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitBtn"
+                            class="w-full btn-gradient text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg flex justify-center items-center gap-2 mt-4">
+                            <span>🚀 Đăng Bản Tin</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danh sách bản tin (Cột phải) -->
+            <div class="md:col-span-2">
+                <div class="glass-panel p-6 rounded-2xl h-full flex flex-col">
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-neutral-800 pb-3 mb-4 flex items-center gap-2">
+                        <span>📰</span> Quản lý bản tin đã đăng
+                    </h2>
+                    
+                    <div id="newsList" class="flex-grow space-y-4 overflow-y-auto pr-2 custom-scrollbar max-h-[600px]">
+                        <!-- Render danh sách tin tức ở đây -->
+                        <div class="text-center py-10 text-neutral-500 text-xs font-bold">
+                            Đang tải danh sách...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <script type="module" src="/js/admin-news.js"></script>
+</body>
+</html>

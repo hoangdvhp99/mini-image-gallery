@@ -63,6 +63,7 @@ const PORT = process.env.PORT || 3000;
 const mediaRouter = require('./src/routes/mediaRoutes');
 const ideaRouter = require('./src/routes/ideaRoutes');
 const authRouter = require('./src/routes/authRoutes');
+const newsRouter = require('./src/routes/newsRoutes');
 
 // (Phần IP visitsPath đã được gỡ bỏ vì dùng SQLite)
 
@@ -119,12 +120,21 @@ app.get('/minigame', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'minigame.html'));
 });
 
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/admin-news', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin-news.html'));
+});
+
 app.use(express.static('public'));
 
 // Cấu hình các route API
 app.use('/api/auth', authRouter);
 app.use('/api', mediaRouter);
 app.use('/api/ideas', ideaRouter);
+app.use('/api/news', newsRouter);
 
 // (Phần donationsPath đã được gỡ bỏ vì dùng SQLite)
 

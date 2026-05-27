@@ -56,6 +56,13 @@ db.exec(`
         ip TEXT PRIMARY KEY,
         count INTEGER DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS news (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        content TEXT,
+        image_url TEXT,
+        created_at INTEGER
+    );
 `);
 
 // Insert default admin if not exists

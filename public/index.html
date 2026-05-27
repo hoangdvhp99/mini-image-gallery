@@ -52,6 +52,12 @@
             <button id="tabMinigame" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
                 <span class="text-base">🎮</span> Minigame
             </button>
+            <button id="tabNews" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap">
+                <span class="text-base">📰</span> Tin Tức
+            </button>
+            <a id="btnAdminNews" href="/admin-news" class="hidden flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white">
+                <span class="text-base">⚙️</span> Quản lý Tin Tức
+            </a>
             <button id="btnDonate" class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]">
                 <span class="text-base">💸</span> Donate mua domain
             </button>
@@ -130,6 +136,25 @@
                             class="w-full p-3.5 bg-ph-dark rounded-xl border border-neutral-800 text-white focus:outline-none focus:border-ph-orange transition text-sm shadow-xl pl-5 placeholder-gray-600">
                     </div>
                     <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEWS SECTION -->
+        <section id="newsSection" class="hidden transition-all duration-300">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="text-center space-y-2 mb-6">
+                    <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center justify-center gap-2">
+                        <span>📰</span> Tin Tức Mới Nhất
+                    </h2>
+                    <p class="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
+                        Cập nhật các thông tin, sự kiện và thông báo mới nhất từ BeoHub.
+                    </p>
+                </div>
+                <div id="publicNewsList" class="space-y-4">
+                     <div class="text-center py-10 text-neutral-500 text-xs font-bold">
+                         Đang tải tin tức...
+                     </div>
                 </div>
             </div>
         </section>
