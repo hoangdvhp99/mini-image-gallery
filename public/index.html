@@ -297,6 +297,12 @@
                                     <span id="pikaScore" class="text-emerald-500 font-mono font-black text-sm">0</span>
                                 </div>
                             </div>
+                            <div class="flex md:flex-col justify-between gap-1.5">
+                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
+                                    <span class="text-gray-500">Lượt gợi ý:</span>
+                                    <span id="pikaSidebarHints" class="text-cyan-400 font-mono font-black text-sm">5</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Thanh thời gian dạng đứng trên desktop, nằm ngang trên mobile -->
@@ -331,6 +337,9 @@
                             </button>
                             <button id="btnPikaShuffle" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
                                 🔄 Đổi Vị Trí
+                            </button>
+                            <button id="btnPikaHint" class="bg-neutral-850 hover:bg-neutral-800 text-cyan-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                💡 Gợi Ý (<span id="pikaHints">5</span>)
                             </button>
                             <button id="btnPikaRestart" class="bg-neutral-850 hover:bg-neutral-800 text-emerald-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
                                 🎮 Chơi Lại

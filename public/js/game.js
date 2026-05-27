@@ -17,6 +17,7 @@ class PikabeoGame {
         this.level = 1;
         this.score = 0;
         this.shuffles = 10;
+        this.hints = 5;
         this.timeLeft = 180; // seconds
         this.maxTime = 180;
         this.timerInterval = null;
@@ -60,6 +61,12 @@ class PikabeoGame {
         document.getElementById('btnStartPikabeo').addEventListener('click', () => this.startGame());
         document.getElementById('btnPikaSound').addEventListener('click', () => this.toggleSound());
         document.getElementById('btnPikaShuffle').addEventListener('click', () => this.manualShuffle());
+        
+        const hintBtn = document.getElementById('btnPikaHint');
+        if (hintBtn) {
+            hintBtn.addEventListener('click', () => this.useHint());
+        }
+
         document.getElementById('btnPikaRestart').addEventListener('click', () => this.restartGame());
         document.getElementById('btnPikaQuit').addEventListener('click', () => this.quitGame());
 
@@ -213,6 +220,7 @@ class PikabeoGame {
         this.level = 1;
         this.score = 0;
         this.shuffles = 10;
+        this.hints = 5;
         this.timeLeft = 180;
         this.maxTime = 180;
         this.selectedTile = null;
@@ -286,6 +294,7 @@ class PikabeoGame {
         document.getElementById('pikaLevel').innerText = this.level;
         document.getElementById('pikaShuffles').innerText = this.shuffles;
         document.getElementById('pikaScore').innerText = this.score;
+        this.updateHintsUI();
 
         // 1. Initialize padded matrix representation
         // (rows + 2) x (cols + 2) padded with 0 (empty outer cells)
@@ -684,6 +693,78 @@ class PikabeoGame {
         return false;
     }
 
+    // Find the first connectable pair on the active board
+    findValidMove() {
+        const activeList = [];
+        for (let r = 1; r <= this.rows; r++) {
+            for (let c = 1; c <= this.cols; c++) {
+                if (this.grid[r][c] !== 0) {
+                    activeList.push({ r, c, type: this.grid[r][c] });
+                }
+            }
+        }
+
+        for (let i = 0; i < activeList.length; i++) {
+            for (let j = i + 1; j < activeList.length; j++) {
+                const a = activeList[i];
+                const b = activeList[j];
+
+                if (a.type === b.type) {
+                    const path = this.findOnetPath(a.r, a.c, b.r, b.c);
+                    if (path) {
+                        return { a, b };
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // Use a hint to highlight a valid connectable pair
+    useHint() {
+        if (!this.gameActive) return;
+
+        if (this.hints <= 0) {
+            showToast('⚠️ Bạn đã hết lượt gợi ý!', 'error');
+            return;
+        }
+
+        const move = this.findValidMove();
+        if (!move) {
+            showToast('⚠️ Không tìm thấy cặp thẻ nào có thể kết nối! Hãy nhấn Đổi Vị Trí.', 'info');
+            return;
+        }
+
+        this.hints--;
+        this.updateHintsUI();
+        this.playSound('select');
+
+        const tileA = this.getTileDOM(move.a.r, move.a.c);
+        const tileB = this.getTileDOM(move.b.r, move.b.c);
+
+        if (tileA && tileB) {
+            // Apply neon cyan pulsing hint glow
+            tileA.classList.add('hint-glow');
+            tileB.classList.add('hint-glow');
+
+            showToast('💡 Đã phát hiện cặp thẻ có thể kết nối!', 'success');
+
+            // Remove glow after 3 seconds
+            setTimeout(() => {
+                tileA.classList.remove('hint-glow');
+                tileB.classList.remove('hint-glow');
+            }, 3000);
+        }
+    }
+
+    // Update hints count in both button and sidebar
+    updateHintsUI() {
+        const hBtn = document.getElementById('pikaHints');
+        if (hBtn) hBtn.innerText = this.hints;
+        const hSidebar = document.getElementById('pikaSidebarHints');
+        if (hSidebar) hSidebar.innerText = this.hints;
+    }
+
     // Auto shuffle board when no moves left
     autoShuffle() {
         if (!this.gameActive) return;
@@ -942,6 +1023,7 @@ class PikabeoGame {
         this.playSound('select');
         this.selectedTile = null;
         this.shuffles = 10;
+        this.hints = 5;
         this.score = 0;
         this.timeLeft = 180;
         this.maxTime = 180;
