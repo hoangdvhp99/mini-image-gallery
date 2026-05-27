@@ -7,10 +7,14 @@ const session = require('express-session');
 // Cấu hình đường dẫn cho Ảnh Bí Mật Pikabeo
 const { db } = require('./src/config/db');
 
-// Cấu hình đường dẫn cho Điểm số Pikabeo
+// Cấu hình đường dẫn cho Điểm số Pikabeo và Dino
 const pikabeoScoresPath = path.join(__dirname, 'data', 'pikabeo_scores.json');
 if (!fs.existsSync(pikabeoScoresPath)) {
     fs.writeFileSync(pikabeoScoresPath, JSON.stringify([]));
+}
+const dinoScoresPath = path.join(__dirname, 'data', 'dino_scores.json');
+if (!fs.existsSync(dinoScoresPath)) {
+    fs.writeFileSync(dinoScoresPath, JSON.stringify([]));
 }
 
 const secretsDir = path.join(__dirname, 'public', 'uploads', 'secrets');
@@ -355,6 +359,68 @@ app.post('/api/pikabeo/scores', (req, res) => {
         fs.writeFileSync(pikabeoScoresPath, JSON.stringify(scores, null, 2));
 
         // Tìm thứ hạng của lượt chơi hiện tại (1-indexed)
+        const rankIndex = scores.findIndex(item => item.id === newEntry.id) + 1;
+
+        res.json({ success: true, rank: rankIndex, entry: newEntry });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// ================= dino run leaderboard apis =================
+
+app.get('/api/dino/scores/leaderboard', (req, res) => {
+    try {
+        let scores = [];
+        if (fs.existsSync(dinoScoresPath)) {
+            scores = JSON.parse(fs.readFileSync(dinoScoresPath, 'utf8'));
+        }
+        
+        // Sắp xếp: score giảm dần, timestamp tăng dần
+        const sorted = scores.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.timestamp - b.timestamp;
+        });
+
+        res.json({ success: true, leaderboard: sorted.slice(0, 50) });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+app.post('/api/dino/scores', (req, res) => {
+    const { playerName, score } = req.body;
+    
+    if (!playerName || String(playerName).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Tên người chơi không được để trống!' });
+    }
+
+    try {
+        let scores = [];
+        if (fs.existsSync(dinoScoresPath)) {
+            scores = JSON.parse(fs.readFileSync(dinoScoresPath, 'utf8'));
+        }
+        
+        const newEntry = {
+            id: Date.now(),
+            playerName: String(playerName).trim().substring(0, 15),
+            score: Math.max(0, parseInt(score) || 0),
+            timestamp: Date.now()
+        };
+
+        scores.push(newEntry);
+        
+        scores.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.timestamp - b.timestamp;
+        });
+
+        if (scores.length > 100) {
+            scores = scores.slice(0, 100);
+        }
+
+        fs.writeFileSync(dinoScoresPath, JSON.stringify(scores, null, 2));
+
         const rankIndex = scores.findIndex(item => item.id === newEntry.id) + 1;
 
         res.json({ success: true, rank: rankIndex, entry: newEntry });
