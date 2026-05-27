@@ -362,8 +362,8 @@ class PikabeoGame {
         this.renderBoard();
         this.resizeCanvas();
 
-        // Clear secret bg reveal opacity
-        document.getElementById('pikabeoSecretBg').style.opacity = '0.05'; // very slight hint
+        // Reset secret bg reveal opacity dynamically based on cleared board status
+        this.updateSecretBgOpacity();
     }
 
     // Shuffle simple JS Array
@@ -393,6 +393,26 @@ class PikabeoGame {
                     this.grid[r][c] = activeTiles[idx++];
                 }
             }
+        }
+    }
+
+    // Dynamically increase secret bg opacity as player clears cards
+    updateSecretBgOpacity() {
+        const totalCells = this.rows * this.cols;
+        let matchedCount = 0;
+        for (let r = 1; r <= this.rows; r++) {
+            for (let c = 1; c <= this.cols; c++) {
+                if (this.grid[r][c] === 0) {
+                    matchedCount++;
+                }
+            }
+        }
+        const progress = matchedCount / totalCells;
+        // Map progress from a clear base (0.18) up to full brightness (0.95)
+        const opacity = 0.18 + progress * 0.77;
+        const secretBg = document.getElementById('pikabeoSecretBg');
+        if (secretBg) {
+            secretBg.style.opacity = opacity.toFixed(2);
         }
     }
 
@@ -487,6 +507,9 @@ class PikabeoGame {
                     // Mark grid space empty
                     this.grid[first.r][first.c] = 0;
                     this.grid[r][c] = 0;
+
+                    // Dynamically reveal background secret image brighter!
+                    this.updateSecretBgOpacity();
 
                     // Match animations
                     firstEl.classList.remove('selected');
@@ -698,6 +721,9 @@ class PikabeoGame {
         this.shuffles--;
         document.getElementById('pikaShuffles').innerText = this.shuffles;
         this.playSound('shuffle');
+
+        // Shuffle at least once!
+        this.shuffleBoardData();
 
         let safety = 0;
         while (!this.hasValidMove() && safety < 100) {
