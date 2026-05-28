@@ -79,6 +79,16 @@ db.exec(`
         shufflesUsed INTEGER,
         timestamp INTEGER
     );
+    CREATE TABLE IF NOT EXISTS qanda (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        title TEXT,
+        description TEXT,
+        imageUrl TEXT,
+        reply TEXT,
+        createdAt INTEGER,
+        repliedAt INTEGER
+    );
 `);
 
 // Insert default admin if not exists

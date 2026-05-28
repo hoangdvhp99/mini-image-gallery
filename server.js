@@ -39,6 +39,37 @@ const uploadSecret = multer({
     }
 });
 
+// Cấu hình đường dẫn cho Ảnh Q&A
+const qandaDir = path.join(__dirname, 'public', 'uploads', 'qanda');
+if (!fs.existsSync(qandaDir)) {
+    fs.mkdirSync(qandaDir, { recursive: true });
+}
+
+// Cấu hình Multer để lưu trữ Ảnh Q&A
+const qandaStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, qandaDir),
+    filename: (req, file, cb) => {
+        const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        const cleanName = originalName.replace(/[^a-zA-Z0-9.\-_]/g, '');
+        cb(null, Date.now() + '-' + cleanName);
+    }
+});
+
+const uploadQanda = multer({
+    storage: qandaStorage,
+    fileFilter: (req, file, cb) => {
+        const isImage = file.mimetype.startsWith('image/');
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeImageExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'];
+        
+        if (isImage && safeImageExts.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Chỉ chấp nhận tệp hình ảnh hợp lệ (.png, .jpg, .jpeg, .webp, .gif, .svg, .bmp)!'), false);
+        }
+    }
+});
+
 // Đọc file .env nếu có để tải các biến môi trường (như PORT) khi chạy trực tiếp
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
@@ -141,6 +172,10 @@ app.get('/login', (req, res) => {
 
 app.get('/admin-news', (req, res) => {
     res.render('admin-news');
+});
+
+app.get('/qanda', (req, res) => {
+    res.render('qanda');
 });
 
 app.use(express.static('public'));
@@ -454,6 +489,112 @@ app.delete('/api/dino/scores/:id', (req, res) => {
     try {
         db.prepare('DELETE FROM dino_scores WHERE id = ?').run(id);
         res.json({ success: true, message: 'Đã xóa kỷ lục!' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// ================= Q&A APIs =================
+
+// Lấy danh sách câu hỏi Q&A
+app.get('/api/qanda', (req, res) => {
+    try {
+        const questions = db.prepare('SELECT * FROM qanda ORDER BY createdAt DESC').all();
+        res.json({ success: true, questions });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Submit câu hỏi mới
+app.post('/api/qanda', uploadQanda.single('qandaImage'), (req, res) => {
+    const { username, title, description } = req.body;
+    
+    if (!username || String(username).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Tên người dùng không được để trống!' });
+    }
+    if (!title || String(title).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Tiêu đề không được để trống!' });
+    }
+    if (!description || String(description).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Nội dung không được để trống!' });
+    }
+
+    try {
+        let imageUrl = '';
+        if (req.file) {
+            imageUrl = `/uploads/qanda/${req.file.filename}`;
+            const { logUpload } = require('./src/utils/logger');
+            logUpload(req, req.file.filename, req.file.originalname, 'Q&A Image');
+        }
+
+        const newQuestion = {
+            username: String(username).trim().substring(0, 30),
+            title: String(title).trim().substring(0, 100),
+            description: String(description).trim(),
+            imageUrl,
+            reply: '',
+            createdAt: Date.now(),
+            repliedAt: null
+        };
+
+        const stmt = db.prepare(`
+            INSERT INTO qanda (username, title, description, imageUrl, reply, createdAt, repliedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `);
+        const info = stmt.run(
+            newQuestion.username,
+            newQuestion.title,
+            newQuestion.description,
+            newQuestion.imageUrl,
+            newQuestion.reply,
+            newQuestion.createdAt,
+            newQuestion.repliedAt
+        );
+
+        res.json({ success: true, questionId: info.lastInsertRowid });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Admin trả lời câu hỏi
+app.post('/api/qanda/:id/reply', (req, res) => {
+    if (!req.session || !req.session.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Từ chối! Quyền Admin là bắt buộc.' });
+    }
+    
+    const id = req.params.id;
+    const { reply } = req.body;
+
+    if (!reply || String(reply).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Nội dung câu trả lời không được để trống!' });
+    }
+
+    try {
+        const cleanReply = String(reply).trim();
+        const stmt = db.prepare('UPDATE qanda SET reply = ?, repliedAt = ? WHERE id = ?');
+        const result = stmt.run(cleanReply, Date.now(), id);
+
+        if (result.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy câu hỏi này!' });
+        }
+
+        res.json({ success: true, message: 'Đã lưu câu trả lời!' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Admin xóa câu hỏi Q&A
+app.delete('/api/qanda/:id', (req, res) => {
+    if (!req.session || !req.session.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const id = req.params.id;
+    try {
+        db.prepare('DELETE FROM qanda WHERE id = ?').run(id);
+        res.json({ success: true, message: 'Đã xóa câu hỏi!' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }

@@ -1,0 +1,133 @@
+<%- include('partials/head', { title: 'Q&A Hỏi & Đáp - BeoHub' }) %>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #171717 100%);
+        }
+        .glass-panel {
+            background: rgba(23, 23, 23, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.8);
+            transform: translateY(-2px);
+        }
+        .admin-reply-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 3px solid #f59e0b;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-300 relative overflow-x-hidden">
+    <!-- Background glows -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-ph-orange opacity-[0.02] blur-[100px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-amber-600 opacity-[0.02] blur-[100px] pointer-events-none"></div>
+
+    <div class="container mx-auto p-4 max-w-5xl py-8 relative z-10">
+        <!-- Navigation -->
+        <%- include('partials/nav', { isQanda: true }) %>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cột trái: Form đặt câu hỏi -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
+                    <!-- Background glow inside panel -->
+                    <div class="absolute -top-12 -left-12 w-24 h-24 bg-amber-500/10 rounded-full filter blur-xl pointer-events-none"></div>
+                    
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-neutral-800 pb-3 mb-4 flex items-center gap-2 select-none">
+                        <span>💬</span> Gửi Câu Hỏi Cho Admin
+                    </h2>
+                    
+                    <form id="qandaForm" class="space-y-4">
+                        <div class="space-y-1">
+                            <label for="qandaUsername" class="block text-[10px] font-black text-gray-400 uppercase tracking-wider pl-1">Danh Tánh</label>
+                            <input type="text" id="qandaUsername" required maxlength="30"
+                                class="w-full px-4 py-3 bg-neutral-950 border border-neutral-850 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600 font-bold"
+                                placeholder="Nhập tên của bạn...">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="qandaTitle" class="block text-[10px] font-black text-gray-400 uppercase tracking-wider pl-1">Vấn Đề / Tiêu Đề</label>
+                            <input type="text" id="qandaTitle" required maxlength="100"
+                                class="w-full px-4 py-3 bg-neutral-950 border border-neutral-850 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600 font-bold"
+                                placeholder="Ví dụ: Lỗi tải minigame, góp ý...">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label for="qandaDescription" class="block text-[10px] font-black text-gray-400 uppercase tracking-wider pl-1">Nội Dung Chi Tiết</label>
+                            <textarea id="qandaDescription" rows="5" required
+                                class="w-full p-4 bg-neutral-950 border border-neutral-850 rounded-xl text-sm text-white focus:outline-none focus:border-ph-orange input-glow transition placeholder-neutral-600 resize-none font-medium leading-relaxed"
+                                placeholder="Hãy mô tả chi tiết thắc mắc của bạn..."></textarea>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-wider pl-1">Ảnh Đính Kèm (Không bắt buộc)</label>
+                            <div class="border-2 border-dashed border-neutral-800 hover:border-ph-orange rounded-2xl p-4 text-center cursor-pointer transition-all relative bg-neutral-950/60 group" onclick="document.getElementById('qandaImage').click()">
+                                <input type="file" id="qandaImage" accept="image/*" class="hidden">
+                                <div class="space-y-2 pointer-events-none">
+                                    <div id="imagePreviewContainer" class="hidden aspect-video w-full mx-auto bg-neutral-950 rounded-lg overflow-hidden border border-neutral-850 relative flex items-center justify-center shadow-inner mb-2">
+                                        <img id="imagePreview" src="" class="w-full h-full object-cover">
+                                    </div>
+                                    <div id="uploadIcon" class="text-2xl transition-transform group-hover:scale-110">📸</div>
+                                    <span id="uploadText" class="text-neutral-500 text-[10px] block font-bold">Tải hình ảnh minh họa lên</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="qandaSubmitBtn"
+                            class="w-full btn-gradient text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg flex justify-center items-center gap-2 mt-4">
+                            <span>🚀 Gửi Câu Hỏi</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cột phải: Danh sách câu hỏi và câu trả lời -->
+            <div class="lg:col-span-2">
+                <div class="glass-panel p-6 rounded-3xl h-full flex flex-col min-h-[500px]">
+                    <h2 class="text-sm font-black text-white uppercase tracking-wider border-b border-neutral-800 pb-3 mb-6 flex items-center gap-2 select-none">
+                        <span>💬</span> Các Câu Hỏi Đã Gửi
+                    </h2>
+                    
+                    <div id="qandaList" class="flex-grow space-y-6 overflow-y-auto pr-2 custom-scrollbar max-h-[700px]">
+                        <!-- Sẽ render động bằng JS -->
+                        <div class="text-center py-16 text-neutral-500 text-sm font-bold flex flex-col items-center gap-2 select-none">
+                            <span class="animate-spin text-2xl text-amber-500">🔄</span>
+                            <span>Đang tải danh sách câu hỏi...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <script type="module" src="/js/qanda.js?v=<%= version %>"></script>
+    <%- include('partials/footer') %>
+</body>
+</html>
