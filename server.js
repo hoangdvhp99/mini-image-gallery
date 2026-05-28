@@ -65,6 +65,7 @@ const PORT = process.env.PORT || 3000;
 // Set up EJS view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.version = Date.now(); // Global cache-busting version
 
 // Khởi chạy việc tạo database và thư mục nếu cần thông qua việc import db config
 // Đã được gọi ở trên qua const { db } = require('./src/config/db');
@@ -314,9 +315,22 @@ app.post('/api/pikabeo/scores', (req, res) => {
         const safeHintsUsed = Math.max(0, parseInt(hintsUsed) || 0);
         const safeShufflesUsed = Math.max(0, parseInt(shufflesUsed) || 0);
 
-        const stmt = db.prepare('INSERT INTO pikabeo_scores (id, playerName, score, level, timePlayed, hintsUsed, shufflesUsed, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-        stmt.run(id, cleanName, safeScore, safeLevel, safeTimePlayed, safeHintsUsed, safeShufflesUsed, id);
+        const existing = db.prepare('SELECT * FROM pikabeo_scores WHERE playerName = ?').get(cleanName);
+        if (existing) {
+            const isBetter = safeScore > existing.score || 
+                             (safeScore === existing.score && safeLevel > existing.level) || 
+                             (safeScore === existing.score && safeLevel === existing.level && safeTimePlayed < existing.timePlayed);
+            
+            if (isBetter) {
+                db.prepare('UPDATE pikabeo_scores SET score = ?, level = ?, timePlayed = ?, hintsUsed = ?, shufflesUsed = ?, timestamp = ? WHERE playerName = ?').run(safeScore, safeLevel, safeTimePlayed, safeHintsUsed, safeShufflesUsed, id, cleanName);
+            }
+        } else {
+            db.prepare('INSERT INTO pikabeo_scores (id, playerName, score, level, timePlayed, hintsUsed, shufflesUsed, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(id, cleanName, safeScore, safeLevel, safeTimePlayed, safeHintsUsed, safeShufflesUsed, id);
+        }
         
+        // Find their best score to calculate rank
+        const bestEntry = db.prepare('SELECT * FROM pikabeo_scores WHERE playerName = ?').get(cleanName);
+
         // Lấy thứ hạng (Rank)
         const rankStmt = db.prepare(`
             SELECT COUNT(*) + 1 AS rank FROM pikabeo_scores 
@@ -325,20 +339,9 @@ app.post('/api/pikabeo/scores', (req, res) => {
             OR (score = ? AND level = ? AND timePlayed < ?)
             OR (score = ? AND level = ? AND timePlayed = ? AND timestamp < ?)
         `);
-        const rankResult = rankStmt.get(safeScore, safeScore, safeLevel, safeScore, safeLevel, safeTimePlayed, safeScore, safeLevel, safeTimePlayed, id);
+        const rankResult = rankStmt.get(bestEntry.score, bestEntry.score, bestEntry.level, bestEntry.score, bestEntry.level, bestEntry.timePlayed, bestEntry.score, bestEntry.level, bestEntry.timePlayed, bestEntry.timestamp);
 
-        const newEntry = {
-            id,
-            playerName: cleanName,
-            score: safeScore,
-            level: safeLevel,
-            timePlayed: safeTimePlayed,
-            hintsUsed: safeHintsUsed,
-            shufflesUsed: safeShufflesUsed,
-            timestamp: id
-        };
-
-        res.json({ success: true, rank: rankResult.rank, entry: newEntry });
+        res.json({ success: true, rank: rankResult.rank, entry: bestEntry });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -402,25 +405,27 @@ app.post('/api/dino/scores', (req, res) => {
         const cleanName = String(playerName).trim().substring(0, 15);
         const safeScore = Math.max(0, parseInt(score) || 0);
 
-        const stmt = db.prepare('INSERT INTO dino_scores (id, playerName, score, timestamp) VALUES (?, ?, ?, ?)');
-        stmt.run(id, cleanName, safeScore, id);
+        const existing = db.prepare('SELECT * FROM dino_scores WHERE playerName = ?').get(cleanName);
+        if (existing) {
+            if (safeScore > existing.score) {
+                db.prepare('UPDATE dino_scores SET score = ?, timestamp = ? WHERE playerName = ?').run(safeScore, id, cleanName);
+            }
+        } else {
+            db.prepare('INSERT INTO dino_scores (id, playerName, score, timestamp) VALUES (?, ?, ?, ?)').run(id, cleanName, safeScore, id);
+        }
         
+        // Find their best score to calculate rank
+        const bestEntry = db.prepare('SELECT * FROM dino_scores WHERE playerName = ?').get(cleanName);
+
         // Lấy thứ hạng
         const rankStmt = db.prepare(`
             SELECT COUNT(*) + 1 AS rank FROM dino_scores 
             WHERE score > ? 
             OR (score = ? AND timestamp < ?)
         `);
-        const rankResult = rankStmt.get(safeScore, safeScore, id);
+        const rankResult = rankStmt.get(bestEntry.score, bestEntry.score, bestEntry.timestamp);
 
-        const newEntry = {
-            id,
-            playerName: cleanName,
-            score: safeScore,
-            timestamp: id
-        };
-
-        res.json({ success: true, rank: rankResult.rank, entry: newEntry });
+        res.json({ success: true, rank: rankResult.rank, entry: bestEntry });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
