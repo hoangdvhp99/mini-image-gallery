@@ -56,7 +56,7 @@ class DinoGame {
             originalHeight: 100,
             duckHeight: 55,
             velocityY: 0,
-            jumpPower: -13,
+            jumpPower: -14.5,
             isJumping: false,
             isDucking: false,
             characterIndex: 5 // Mặc định ảnh số 6 (index 5)
@@ -534,38 +534,47 @@ class DinoGame {
             }
         }
 
-        // Tạo chướng ngại vật & Vật phẩm (giảm tần suất, dễ hơn)
-        if (this.frameCount % Math.floor(Math.random() * 80 + 100) === 0) {
-            const rand = Math.random();
+        // Tạo chướng ngại vật & Vật phẩm
+        if (this.frameCount > 120 && this.frameCount % Math.floor(Math.random() * 50 + 70) === 0) {
+            let rand = Math.random();
+            
+            // Chống lặp xương rồng liên tiếp
+            if (rand < 0.6 && this.lastObstacleType === 'CACTUS') {
+                rand = 0.6 + Math.random() * 0.4;
+            }
+
             if (rand < 0.6) {
                 // CACTUS (Dưới đất)
                 this.obstacles.push({
                     type: 'CACTUS',
                     x: this.canvas.width,
-                    y: this.groundY - 65,
-                    width: 55,
-                    height: 65,
+                    y: this.groundY - 80,
+                    width: 70,
+                    height: 80,
                     plantIndex: Math.floor(Math.random() * this.itemSprites.plants.length)
                 });
+                this.lastObstacleType = 'CACTUS';
             } else if (rand < 0.9) {
                 // BIRD (Bay ngang tầm đầu)
                 this.obstacles.push({
                     type: 'BIRD',
                     x: this.canvas.width,
-                    y: this.groundY - 95,
-                    width: 60,
-                    height: 45,
+                    y: this.groundY - 110,
+                    width: 75,
+                    height: 55,
                     birdIndex: Math.floor(Math.random() * Math.max(1, this.itemSprites.birds.length))
                 });
+                this.lastObstacleType = 'BIRD';
             } else {
                 // BEER (Vật phẩm Bia)
                 this.obstacles.push({
                     type: 'BEER',
                     x: this.canvas.width,
-                    y: this.groundY - 80 - Math.random() * 40,
-                    width: 40,
-                    height: 45
+                    y: this.groundY - 90 - Math.random() * 40,
+                    width: 46,
+                    height: 50
                 });
+                this.lastObstacleType = 'BEER';
             }
         }
 
@@ -734,15 +743,15 @@ class DinoGame {
                 
                 // Quai ly
                 this.ctx.beginPath();
-                this.ctx.arc(obs.x + obs.width - 5, obs.y + 26, 8, -Math.PI/2, Math.PI/2);
+                this.ctx.arc(obs.x + obs.width - 5, obs.y + obs.height/2 + 5, 8, -Math.PI/2, Math.PI/2);
                 this.ctx.stroke();
 
                 // Bọt bia
                 this.ctx.fillStyle = '#ffffff'; // Bọt trắng
                 this.ctx.beginPath();
                 this.ctx.arc(obs.x + 10, obs.y + 12, 8, 0, Math.PI * 2);
-                this.ctx.arc(obs.x + 20, obs.y + 10, 9, 0, Math.PI * 2);
-                this.ctx.arc(obs.x + 30, obs.y + 12, 8, 0, Math.PI * 2);
+                this.ctx.arc(obs.x + obs.width/2, obs.y + 10, 9, 0, Math.PI * 2);
+                this.ctx.arc(obs.x + obs.width - 10, obs.y + 12, 8, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         }
