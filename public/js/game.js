@@ -1,3 +1,4 @@
+(function() {
 /**
  * BeoHub Pikabeo Onet Connect Game Controller
  * 100% Offline-friendly, fully responsive, standard Pikachu 2003 algorithm
@@ -1653,5 +1654,13 @@ class PikabeoGame {
 
 // Global instances
 const pikaGame = new PikabeoGame();
-window.pikaGame = pikaGame;
+window.pikaGame = {
+    get gameActive() { return pikaGame.gameActive; },
+    quitGame: () => pikaGame.quitGame(),
+    loadLeaderboard: () => pikaGame.loadLeaderboard(),
+    loadAdminSecretsList: () => pikaGame.loadAdminSecretsList(),
+    deleteScore: (id) => pikaGame.deleteScore(id),
+    deleteSecretImage: (name) => pikaGame.deleteSecretImage(name)
+};
 document.addEventListener('DOMContentLoaded', () => pikaGame.init());
+})();

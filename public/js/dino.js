@@ -1,3 +1,4 @@
+(function() {
 class DinoGame {
     constructor() {
         this.canvas = document.getElementById('dinoCanvas');
@@ -1062,10 +1063,17 @@ class DinoGame {
 }
 
 // Khởi tạo game
+let beoDinoGame;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.beoDinoGame = new DinoGame();
+        beoDinoGame = new DinoGame();
     });
 } else {
-    window.beoDinoGame = new DinoGame();
+    beoDinoGame = new DinoGame();
 }
+
+window.beoDinoGame = {
+    loadLeaderboard: () => beoDinoGame.loadLeaderboard(),
+    deleteScore: (id) => beoDinoGame.deleteScore(id)
+};
+})();
