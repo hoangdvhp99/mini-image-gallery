@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="admin-reply-box p-4 rounded-xl space-y-2 mt-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-1.5 select-none">
-                                        <span>👑</span> Lbeo Admin phản hồi
+                                        <span>👑</span> Dạ, em Beo xin thưa.
                                     </span>
                                     <span class="text-[9px] text-gray-500 font-bold">${repliedDate}</span>
                                 </div>
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Normal user waiting message
                         replyHtml = `
                             <div class="flex items-center gap-1.5 text-neutral-500 text-[10px] font-bold select-none mt-1.5 pl-1">
-                                <span>⏳</span> Chờ Admin phản hồi...
+                                <span>⏳</span> Chờ Lbeo phản hồi...
                             </div>
                         `;
                     }

@@ -26,6 +26,7 @@ const secretsStorage = multer.diskStorage({
 
 const uploadSecret = multer({
     storage: secretsStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // Giới hạn 10MB tránh đầy đĩa cứng
     fileFilter: (req, file, cb) => {
         const isImage = file.mimetype.startsWith('image/');
         const ext = path.extname(file.originalname).toLowerCase();
@@ -57,6 +58,7 @@ const qandaStorage = multer.diskStorage({
 
 const uploadQanda = multer({
     storage: qandaStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // Giới hạn 10MB tránh đầy đĩa cứng
     fileFilter: (req, file, cb) => {
         const isImage = file.mimetype.startsWith('image/');
         const ext = path.extname(file.originalname).toLowerCase();
@@ -295,9 +297,21 @@ app.delete('/api/pikabeo/secrets/:name', (req, res) => {
     }
 });
 
-// Lấy ngẫu nhiên 1 Ảnh Bí Mật (Mọi người dùng)
+// Lấy ngẫu nhiên 1 Ảnh Bí Mật (Chỉ cho phép khi có phiên chơi game Pikabeo đang hoạt động)
 app.get('/api/pikabeo/secrets/random', (req, res) => {
+    // Chống hack/cào ảnh bí mật: Đòi hỏi có phiên chơi game Pikabeo hoạt động
+    if (!req.session || !req.session.activeGame || req.session.activeGame.type !== 'pikabeo') {
+        return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Lượt chơi không hợp lệ hoặc chưa được khởi tạo!' });
+    }
+
+    // Giới hạn chỉ cho phép lấy 1 lần mỗi phiên chơi
+    if (req.session.activeGame.hasRetrievedSecret) {
+        return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Bạn chỉ được tải ảnh bí mật tối đa 1 lần mỗi lượt chơi!' });
+    }
+
     try {
+        req.session.activeGame.hasRetrievedSecret = true;
+        
         const secrets = db.prepare('SELECT * FROM secrets').all();
         
         if (secrets.length > 0) {
@@ -555,6 +569,21 @@ app.get('/api/qanda', (req, res) => {
 
 // Submit câu hỏi mới
 app.post('/api/qanda', uploadQanda.single('qandaImage'), (req, res) => {
+    // Tần suất giới hạn: Tối đa 1 Q&A mỗi 15 giây mỗi session
+    const nowTime = Date.now();
+    if (req.session.lastQandaTime && (nowTime - req.session.lastQandaTime < 15000)) {
+        const waitSecs = Math.ceil((15000 - (nowTime - req.session.lastQandaTime)) / 1000);
+        // Nếu có ảnh đã tải lên tạm thời, xóa đi tránh rác đĩa
+        if (req.file) {
+            try {
+                const tempPath = path.join(qandaDir, req.file.filename);
+                if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+            } catch (e) {}
+        }
+        return res.status(429).json({ success: false, message: `Vui lòng chờ ${waitSecs} giây trước khi gửi câu hỏi tiếp theo!` });
+    }
+    req.session.lastQandaTime = nowTime;
+
     const { username, title, description } = req.body;
     
     if (!username || String(username).trim() === '') {

@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // Giới hạn 50MB tránh đầy đĩa cứng
     fileFilter: (req, file, cb) => {
         const isImage = file.mimetype.startsWith('image/');
         const isVideo = file.mimetype.startsWith('video/');

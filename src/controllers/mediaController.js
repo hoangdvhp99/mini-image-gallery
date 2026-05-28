@@ -210,8 +210,18 @@ exports.updateMedia = (req, res) => {
 
 exports.likeMedia = (req, res) => {
     try {
-        db.prepare('UPDATE media SET likes = likes + 1 WHERE name = ?').run(req.params.name);
-        const row = db.prepare('SELECT likes FROM media WHERE name = ?').get(req.params.name);
+        const name = req.params.name;
+        if (!req.session.likedMedia) {
+            req.session.likedMedia = [];
+        }
+        if (req.session.likedMedia.includes(name)) {
+            return res.status(400).json({ success: false, message: 'Bạn đã thả tim cho ảnh này rồi!' });
+        }
+
+        db.prepare('UPDATE media SET likes = likes + 1 WHERE name = ?').run(name);
+        req.session.likedMedia.push(name);
+        
+        const row = db.prepare('SELECT likes FROM media WHERE name = ?').get(name);
         res.json({ success: true, likes: row ? row.likes : 0 });
     } catch (e) {
         res.status(500).json({ success: false });
@@ -220,8 +230,18 @@ exports.likeMedia = (req, res) => {
 
 exports.hahaMedia = (req, res) => {
     try {
-        db.prepare('UPDATE media SET hahas = hahas + 1 WHERE name = ?').run(req.params.name);
-        const row = db.prepare('SELECT hahas FROM media WHERE name = ?').get(req.params.name);
+        const name = req.params.name;
+        if (!req.session.hahaMedia) {
+            req.session.hahaMedia = [];
+        }
+        if (req.session.hahaMedia.includes(name)) {
+            return res.status(400).json({ success: false, message: 'Bạn đã Haha ảnh này rồi!' });
+        }
+
+        db.prepare('UPDATE media SET hahas = hahas + 1 WHERE name = ?').run(name);
+        req.session.hahaMedia.push(name);
+
+        const row = db.prepare('SELECT hahas FROM media WHERE name = ?').get(name);
         res.json({ success: true, hahas: row ? row.hahas : 0 });
     } catch (e) {
         res.status(500).json({ success: false });
@@ -231,6 +251,18 @@ exports.hahaMedia = (req, res) => {
 exports.commentMedia = (req, res) => {
     try {
         const { text } = req.body;
+        if (!text || String(text).trim() === '') {
+            return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống!' });
+        }
+
+        // Tần suất giới hạn bình luận: Tối đa 1 bình luận mỗi 5 giây mỗi session
+        const nowTime = Date.now();
+        if (req.session.lastCommentTime && (nowTime - req.session.lastCommentTime < 5000)) {
+            const waitSecs = Math.ceil((5000 - (nowTime - req.session.lastCommentTime)) / 1000);
+            return res.status(429).json({ success: false, message: `Vui lòng chờ ${waitSecs} giây trước khi bình luận tiếp!` });
+        }
+        req.session.lastCommentTime = nowTime;
+
         const row = db.prepare('SELECT comments FROM media WHERE name = ?').get(req.params.name);
         if (!row) return res.status(404).json({ success: false });
 

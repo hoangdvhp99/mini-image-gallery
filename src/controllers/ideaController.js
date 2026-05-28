@@ -26,6 +26,14 @@ exports.createIdea = (req, res) => {
             return res.status(400).json({ success: false, message: 'Vui lòng nhập chi tiết ý tưởng.' });
         }
 
+        // Tần suất giới hạn: Tối đa 1 ý tưởng mỗi 15 giây mỗi session
+        const nowTime = Date.now();
+        if (req.session.lastIdeaTime && (nowTime - req.session.lastIdeaTime < 15000)) {
+            const waitSecs = Math.ceil((15000 - (nowTime - req.session.lastIdeaTime)) / 1000);
+            return res.status(429).json({ success: false, message: `Vui lòng chờ ${waitSecs} giây trước khi đóng góp ý tưởng tiếp theo!` });
+        }
+        req.session.lastIdeaTime = nowTime;
+
         const parsedTags = hashtags 
             ? hashtags.split(',').map(t => t.trim().toLowerCase()).filter(t => t) 
             : [];
@@ -53,12 +61,22 @@ exports.createIdea = (req, res) => {
 exports.likeIdea = (req, res) => {
     try {
         const id = req.params.id;
+
+        // Khóa spam: Một session chỉ được vote mỗi ý tưởng 1 lần
+        if (!req.session.likedIdeas) {
+            req.session.likedIdeas = [];
+        }
+        if (req.session.likedIdeas.includes(id)) {
+            return res.status(400).json({ success: false, message: 'Bạn đã bình chọn cho ý tưởng này rồi!' });
+        }
+
         const info = db.prepare('UPDATE ideas SET likes = likes + 1 WHERE id = ?').run(id);
 
         if (info.changes === 0) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy ý tưởng.' });
         }
 
+        req.session.likedIdeas.push(id);
         const row = db.prepare('SELECT likes FROM ideas WHERE id = ?').get(id);
         res.json({ success: true, likes: row.likes });
     } catch (error) {
@@ -73,6 +91,16 @@ exports.swapFace = async (req, res) => {
         }
 
         const userUploadedPath = req.file.path;
+
+        // Tần suất giới hạn nghiêm ngặt bảo vệ kết nối AI Hugging Face: Tối đa 1 lần thực hiện mỗi 20 giây mỗi session
+        const nowTime = Date.now();
+        if (req.session.lastFaceSwapTime && (nowTime - req.session.lastFaceSwapTime < 20000)) {
+            const waitSecs = Math.ceil((20000 - (nowTime - req.session.lastFaceSwapTime)) / 1000);
+            try { fs.unlinkSync(userUploadedPath); } catch (e) {}
+            return res.status(429).json({ success: false, message: `Vui lòng chờ ${waitSecs} giây trước khi ghép mặt tiếp!` });
+        }
+        req.session.lastFaceSwapTime = nowTime;
+
         const { logUpload } = require('../utils/logger');
         logUpload(req, req.file.filename, req.file.originalname, 'AI FaceSwap');
 
