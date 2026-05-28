@@ -1376,6 +1376,15 @@ class PikabeoGame {
                     return;
                 }
 
+                // If admin, adjust headers
+                const headerRow = listEl.closest('table').querySelector('thead tr');
+                if (window.isAdmin && headerRow && !headerRow.querySelector('.admin-col')) {
+                    const th = document.createElement('th');
+                    th.className = 'py-2 px-3 text-center admin-col w-12';
+                    th.innerText = 'Xóa';
+                    headerRow.appendChild(th);
+                }
+
                 // Render tối đa top 10 kỷ lục
                 const top10 = data.leaderboard.slice(0, 10);
                 top10.forEach((item, index) => {
@@ -1415,6 +1424,7 @@ class PikabeoGame {
                         <td class="py-3.5 px-4 text-center font-mono text-cyan-400 font-bold">${timeStr}</td>
                         <td class="py-3.5 px-4 text-center text-gray-400 font-semibold">${helpersStr}</td>
                         <td class="py-3.5 px-4 text-right pr-6 font-mono text-emerald-400 font-black text-sm">${(item.score || 0).toLocaleString('vi-VN')}</td>
+                        ${window.isAdmin ? `<td class="py-3.5 px-4 text-center"><button onclick="window.pikaGame.deleteScore(${item.id})" class="text-red-500 hover:text-red-400 px-1 py-0.5 rounded transition">❌</button></td>` : ''}
                     `;
                     listEl.appendChild(tr);
                 });
@@ -1428,6 +1438,25 @@ class PikabeoGame {
                     </td>
                 </tr>
             `;
+        }
+    }
+
+    async deleteScore(id) {
+        if (!confirm('⚠️ Bạn có chắc chắn muốn xóa kỷ lục này khỏi bảng xếp hạng không?')) return;
+        try {
+            const res = await fetch(`/api/pikabeo/scores/${id}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('🗑️ Đã xóa kỷ lục thành công!', 'success');
+                this.loadLeaderboard();
+            } else {
+                showToast('⚠️ Lỗi: ' + data.message, 'error');
+            }
+        } catch (e) {
+            console.error('Lỗi khi xóa kỷ lục:', e);
+            showToast('⚠️ Lỗi kết nối máy chủ!', 'error');
         }
     }
 

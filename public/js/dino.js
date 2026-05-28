@@ -270,6 +270,15 @@ class DinoGame {
                     return;
                 }
 
+                // If admin, adjust headers
+                const headerRow = this.leaderboardList.closest('table').querySelector('thead tr');
+                if (window.isAdmin && headerRow && !headerRow.querySelector('.admin-col')) {
+                    const th = document.createElement('th');
+                    th.className = 'py-5 px-6 text-center admin-col w-24';
+                    th.innerText = 'Xóa';
+                    headerRow.appendChild(th);
+                }
+
                 data.leaderboard.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     let rankIcon = `#${index + 1}`;
@@ -281,12 +290,32 @@ class DinoGame {
                         <td class="py-4 px-4 text-center ${index < 3 ? 'text-amber-400 text-xl font-black' : 'text-gray-400 text-base'}">${rankIcon}</td>
                         <td class="py-4 px-4 ${index === 0 ? 'text-amber-400 font-black text-lg' : 'text-gray-200 text-base font-bold'}">${item.playerName}</td>
                         <td class="py-4 px-6 text-right text-emerald-400 font-mono text-lg font-black">${item.score}</td>
+                        ${window.isAdmin ? `<td class="py-4 px-6 text-center"><button onclick="window.beoDinoGame.deleteScore(${item.id})" class="text-red-500 hover:text-red-400 px-2 py-1 rounded transition text-xl">❌</button></td>` : ''}
                     `;
                     this.leaderboardList.appendChild(tr);
                 });
             }
         } catch (e) {
             this.leaderboardList.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-red-500">Lỗi tải bảng xếp hạng</td></tr>';
+        }
+    }
+
+    async deleteScore(id) {
+        if (!confirm('⚠️ Bạn có chắc chắn muốn xóa kỷ lục này khỏi bảng xếp hạng không?')) return;
+        try {
+            const res = await fetch(`/api/dino/scores/${id}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (window.showToast) window.showToast('🗑️ Đã xóa kỷ lục thành công!', 'success');
+                this.loadLeaderboard();
+            } else {
+                if (window.showToast) window.showToast('⚠️ Lỗi: ' + data.message, 'error');
+            }
+        } catch (e) {
+            console.error('Lỗi khi xóa kỷ lục:', e);
+            if (window.showToast) window.showToast('⚠️ Lỗi kết nối máy chủ!', 'error');
         }
     }
 

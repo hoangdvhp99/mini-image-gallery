@@ -347,6 +347,20 @@ app.post('/api/pikabeo/scores', (req, res) => {
     }
 });
 
+// Admin xóa điểm Pikabeo
+app.delete('/api/pikabeo/scores/:id', (req, res) => {
+    if (!req.session || !req.session.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const id = req.params.id;
+    try {
+        db.prepare('DELETE FROM pikabeo_scores WHERE id = ?').run(id);
+        res.json({ success: true, message: 'Đã xóa kỷ lục!' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // ================= dino run leaderboard apis =================
 
 app.get('/api/dino/characters/count', (req, res) => {
@@ -426,6 +440,20 @@ app.post('/api/dino/scores', (req, res) => {
         const rankResult = rankStmt.get(bestEntry.score, bestEntry.score, bestEntry.timestamp);
 
         res.json({ success: true, rank: rankResult.rank, entry: bestEntry });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Admin xóa điểm Dino
+app.delete('/api/dino/scores/:id', (req, res) => {
+    if (!req.session || !req.session.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const id = req.params.id;
+    try {
+        db.prepare('DELETE FROM dino_scores WHERE id = ?').run(id);
+        res.json({ success: true, message: 'Đã xóa kỷ lục!' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }

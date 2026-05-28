@@ -415,23 +415,26 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const adminSecretsContainer = document.getElementById('adminSecretsContainer');
             
-            if (adminSecretsContainer) {
-                try {
-                    const res = await fetch('/api/auth/me');
-                    const data = await res.json();
-                    
-                    if (data.success && data.isAdmin) {
+            try {
+                const res = await fetch('/api/auth/me');
+                const data = await res.json();
+                
+                if (data.success && data.isAdmin) {
+                    window.isAdmin = true;
+                    if (adminSecretsContainer) {
                         adminSecretsContainer.classList.remove('hidden');
                         if (window.pikaGame) {
                             window.pikaGame.loadAdminSecretsList();
                         }
-                    } else {
-                        adminSecretsContainer.classList.add('hidden');
                     }
-                } catch (e) {
-                    console.error('Lỗi kiểm tra quyền Admin:', e);
-                    adminSecretsContainer.classList.add('hidden');
+                } else {
+                    window.isAdmin = false;
+                    if (adminSecretsContainer) adminSecretsContainer.classList.add('hidden');
                 }
+            } catch (e) {
+                console.error('Lỗi kiểm tra quyền Admin:', e);
+                window.isAdmin = false;
+                if (adminSecretsContainer) adminSecretsContainer.classList.add('hidden');
             }
 
             // Tải bảng xếp hạng lúc khởi động trang
