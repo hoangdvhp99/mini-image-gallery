@@ -320,6 +320,18 @@ app.get('/api/pikabeo/secrets/random', (req, res) => {
     }
 });
 
+// Khởi tạo phiên chơi game chống hack
+app.post('/api/game/start', (req, res) => {
+    if (!req.session) {
+        return res.status(500).json({ success: false, message: 'Session is not configured!' });
+    }
+    req.session.activeGame = {
+        type: req.body.gameType,
+        startTime: Date.now()
+    };
+    res.json({ success: true, message: 'Phiên chơi game đã được khởi tạo!' });
+});
+
 // ================= pikabeo leaderboard ranking apis =================
 
 // Lấy danh sách bảng xếp hạng cao thủ Pikabeo (Top 50)
@@ -341,6 +353,11 @@ app.post('/api/pikabeo/scores', (req, res) => {
         return res.status(400).json({ success: false, message: 'Tên người chơi không được để trống!' });
     }
 
+    // Chống hack: Kiểm tra phiên chơi game hoạt động
+    if (!req.session || !req.session.activeGame || req.session.activeGame.type !== 'pikabeo') {
+        return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Lượt chơi không hợp lệ hoặc chưa được khởi tạo!' });
+    }
+
     try {
         const id = Date.now();
         const cleanName = String(playerName).trim().substring(0, 15);
@@ -349,6 +366,21 @@ app.post('/api/pikabeo/scores', (req, res) => {
         const safeTimePlayed = Math.max(0, parseInt(timePlayed) || 0);
         const safeHintsUsed = Math.max(0, parseInt(hintsUsed) || 0);
         const safeShufflesUsed = Math.max(0, parseInt(shufflesUsed) || 0);
+
+        // Chống hack: Kiểm tra thời gian chơi thực tế so với thời gian trôi qua trên session (cho sai số tối đa 15 giây)
+        const elapsedSeconds = (Date.now() - req.session.activeGame.startTime) / 1000;
+        if (Math.abs(safeTimePlayed - elapsedSeconds) > 15 && safeTimePlayed > elapsedSeconds + 5) {
+            return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Thời gian chơi thực tế không khớp với thời gian phiên!' });
+        }
+
+        // Chống hack: Điểm số tối đa vật lý cho mỗi cấp độ (ví dụ: cấp độ 1 tối đa 3500 điểm)
+        const maxScoreForLevel = safeLevel * 3500;
+        if (safeScore > maxScoreForLevel) {
+            return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Điểm số vượt quá giới hạn vật lý của cấp độ!' });
+        }
+
+        // Xóa phiên chơi sau khi đã dùng để tránh gửi lại điểm số cũ
+        delete req.session.activeGame;
 
         const existing = db.prepare('SELECT * FROM pikabeo_scores WHERE playerName = ?').get(cleanName);
         if (existing) {
@@ -449,10 +481,25 @@ app.post('/api/dino/scores', (req, res) => {
         return res.status(400).json({ success: false, message: 'Tên người chơi không được để trống!' });
     }
 
+    // Chống hack: Kiểm tra phiên chơi game hoạt động
+    if (!req.session || !req.session.activeGame || req.session.activeGame.type !== 'dino') {
+        return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Lượt chơi không hợp lệ hoặc chưa được khởi tạo!' });
+    }
+
     try {
         const id = Date.now();
         const cleanName = String(playerName).trim().substring(0, 15);
         const safeScore = Math.max(0, parseInt(score) || 0);
+
+        // Chống hack: Kiểm tra tốc độ tăng điểm tối đa so với thời gian thực tế trôi qua (Dino tăng tối đa ~15 điểm/giây)
+        const elapsedSeconds = (Date.now() - req.session.activeGame.startTime) / 1000;
+        const maxPossibleScore = Math.ceil(elapsedSeconds * 15) + 100; // Thêm 100 điểm đệm
+        if (safeScore > maxPossibleScore) {
+            return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Điểm số tăng nhanh bất thường so với thời gian chơi!' });
+        }
+
+        // Xóa phiên chơi sau khi đã dùng
+        delete req.session.activeGame;
 
         const existing = db.prepare('SELECT * FROM dino_scores WHERE playerName = ?').get(cleanName);
         if (existing) {

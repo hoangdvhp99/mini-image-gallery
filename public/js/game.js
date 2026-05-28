@@ -334,6 +334,17 @@ class PikabeoGame {
         this.gameActive = true;
         this.setupNewLevel();
         this.startTimer(true);
+
+        // Start server anti-cheat session
+        try {
+            fetch('/api/game/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gameType: 'pikabeo' })
+            });
+        } catch (e) {
+            console.error('Lỗi khởi tạo phiên chống hack:', e);
+        }
     }
 
     // Load random secret reward image
@@ -1490,6 +1501,17 @@ class PikabeoGame {
             this.gameActive = true;
             this.setupNewLevel();
             this.startTimer(true);
+
+            // Start server anti-cheat session
+            try {
+                fetch('/api/game/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameType: 'pikabeo' })
+                });
+            } catch (e) {
+                console.error('Lỗi khởi tạo phiên chống hack:', e);
+            }
         });
     }
 

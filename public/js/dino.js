@@ -545,6 +545,17 @@ class DinoGame {
             charSelectPanel.classList.add('hidden');
         }
 
+        // Start server anti-cheat session
+        try {
+            fetch('/api/game/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gameType: 'dino' })
+            });
+        } catch (e) {
+            console.error('Lỗi khởi tạo phiên chống hack:', e);
+        }
+
         this.loop();
     }
 
