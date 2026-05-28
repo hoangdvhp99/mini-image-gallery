@@ -7,15 +7,7 @@ const session = require('express-session');
 // Cấu hình đường dẫn cho Ảnh Bí Mật Pikabeo
 const { db } = require('./src/config/db');
 
-// Cấu hình đường dẫn cho Điểm số Pikabeo và Dino
-const pikabeoScoresPath = path.join(__dirname, 'data', 'pikabeo_scores.json');
-if (!fs.existsSync(pikabeoScoresPath)) {
-    fs.writeFileSync(pikabeoScoresPath, JSON.stringify([]));
-}
-const dinoScoresPath = path.join(__dirname, 'data', 'dino_scores.json');
-if (!fs.existsSync(dinoScoresPath)) {
-    fs.writeFileSync(dinoScoresPath, JSON.stringify([]));
-}
+// (Phần JSON Score Path đã được gỡ bỏ vì dùng SQLite)
 
 const secretsDir = path.join(__dirname, 'public', 'uploads', 'secrets');
 if (!fs.existsSync(secretsDir)) {
@@ -297,20 +289,9 @@ app.get('/api/pikabeo/secrets/random', (req, res) => {
 // Lấy danh sách bảng xếp hạng cao thủ Pikabeo (Top 50)
 app.get('/api/pikabeo/scores/leaderboard', (req, res) => {
     try {
-        let scores = [];
-        if (fs.existsSync(pikabeoScoresPath)) {
-            scores = JSON.parse(fs.readFileSync(pikabeoScoresPath, 'utf8'));
-        }
-        
-        // Sắp xếp: score giảm dần, level giảm dần, timePlayed tăng dần (chơi ít thời gian hơn thì giỏi hơn), timestamp tăng dần
-        const sorted = scores.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            if (b.level !== a.level) return b.level - a.level;
-            if (a.timePlayed !== b.timePlayed) return a.timePlayed - b.timePlayed;
-            return a.timestamp - b.timestamp;
-        });
-
-        res.json({ success: true, leaderboard: sorted.slice(0, 50) });
+        const stmt = db.prepare('SELECT * FROM pikabeo_scores ORDER BY score DESC, level DESC, timePlayed ASC, timestamp ASC LIMIT 50');
+        const leaderboard = stmt.all();
+        res.json({ success: true, leaderboard });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -325,43 +306,39 @@ app.post('/api/pikabeo/scores', (req, res) => {
     }
 
     try {
-        let scores = [];
-        if (fs.existsSync(pikabeoScoresPath)) {
-            scores = JSON.parse(fs.readFileSync(pikabeoScoresPath, 'utf8'));
-        }
+        const id = Date.now();
+        const cleanName = String(playerName).trim().substring(0, 15);
+        const safeScore = Math.max(0, parseInt(score) || 0);
+        const safeLevel = Math.max(1, parseInt(level) || 1);
+        const safeTimePlayed = Math.max(0, parseInt(timePlayed) || 0);
+        const safeHintsUsed = Math.max(0, parseInt(hintsUsed) || 0);
+        const safeShufflesUsed = Math.max(0, parseInt(shufflesUsed) || 0);
+
+        const stmt = db.prepare('INSERT INTO pikabeo_scores (id, playerName, score, level, timePlayed, hintsUsed, shufflesUsed, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        stmt.run(id, cleanName, safeScore, safeLevel, safeTimePlayed, safeHintsUsed, safeShufflesUsed, id);
         
+        // Lấy thứ hạng (Rank)
+        const rankStmt = db.prepare(`
+            SELECT COUNT(*) + 1 AS rank FROM pikabeo_scores 
+            WHERE score > ? 
+            OR (score = ? AND level > ?) 
+            OR (score = ? AND level = ? AND timePlayed < ?)
+            OR (score = ? AND level = ? AND timePlayed = ? AND timestamp < ?)
+        `);
+        const rankResult = rankStmt.get(safeScore, safeScore, safeLevel, safeScore, safeLevel, safeTimePlayed, safeScore, safeLevel, safeTimePlayed, id);
+
         const newEntry = {
-            id: Date.now(),
-            playerName: String(playerName).trim().substring(0, 15),
-            score: Math.max(0, parseInt(score) || 0),
-            level: Math.max(1, parseInt(level) || 1),
-            timePlayed: Math.max(0, parseInt(timePlayed) || 0),
-            hintsUsed: Math.max(0, parseInt(hintsUsed) || 0),
-            shufflesUsed: Math.max(0, parseInt(shufflesUsed) || 0),
-            timestamp: Date.now()
+            id,
+            playerName: cleanName,
+            score: safeScore,
+            level: safeLevel,
+            timePlayed: safeTimePlayed,
+            hintsUsed: safeHintsUsed,
+            shufflesUsed: safeShufflesUsed,
+            timestamp: id
         };
 
-        scores.push(newEntry);
-        
-        // Sắp xếp danh sách
-        scores.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            if (b.level !== a.level) return b.level - a.level;
-            if (a.timePlayed !== b.timePlayed) return a.timePlayed - b.timePlayed;
-            return a.timestamp - b.timestamp;
-        });
-
-        // Giới hạn 100 dòng ghi nhận
-        if (scores.length > 100) {
-            scores = scores.slice(0, 100);
-        }
-
-        fs.writeFileSync(pikabeoScoresPath, JSON.stringify(scores, null, 2));
-
-        // Tìm thứ hạng của lượt chơi hiện tại (1-indexed)
-        const rankIndex = scores.findIndex(item => item.id === newEntry.id) + 1;
-
-        res.json({ success: true, rank: rankIndex, entry: newEntry });
+        res.json({ success: true, rank: rankResult.rank, entry: newEntry });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -405,18 +382,9 @@ app.get('/api/dino/items/count', (req, res) => {
 
 app.get('/api/dino/scores/leaderboard', (req, res) => {
     try {
-        let scores = [];
-        if (fs.existsSync(dinoScoresPath)) {
-            scores = JSON.parse(fs.readFileSync(dinoScoresPath, 'utf8'));
-        }
-        
-        // Sắp xếp: score giảm dần, timestamp tăng dần
-        const sorted = scores.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return a.timestamp - b.timestamp;
-        });
-
-        res.json({ success: true, leaderboard: sorted.slice(0, 50) });
+        const stmt = db.prepare('SELECT * FROM dino_scores ORDER BY score DESC, timestamp ASC LIMIT 50');
+        const leaderboard = stmt.all();
+        res.json({ success: true, leaderboard });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -430,34 +398,29 @@ app.post('/api/dino/scores', (req, res) => {
     }
 
     try {
-        let scores = [];
-        if (fs.existsSync(dinoScoresPath)) {
-            scores = JSON.parse(fs.readFileSync(dinoScoresPath, 'utf8'));
-        }
+        const id = Date.now();
+        const cleanName = String(playerName).trim().substring(0, 15);
+        const safeScore = Math.max(0, parseInt(score) || 0);
+
+        const stmt = db.prepare('INSERT INTO dino_scores (id, playerName, score, timestamp) VALUES (?, ?, ?, ?)');
+        stmt.run(id, cleanName, safeScore, id);
         
+        // Lấy thứ hạng
+        const rankStmt = db.prepare(`
+            SELECT COUNT(*) + 1 AS rank FROM dino_scores 
+            WHERE score > ? 
+            OR (score = ? AND timestamp < ?)
+        `);
+        const rankResult = rankStmt.get(safeScore, safeScore, id);
+
         const newEntry = {
-            id: Date.now(),
-            playerName: String(playerName).trim().substring(0, 15),
-            score: Math.max(0, parseInt(score) || 0),
-            timestamp: Date.now()
+            id,
+            playerName: cleanName,
+            score: safeScore,
+            timestamp: id
         };
 
-        scores.push(newEntry);
-        
-        scores.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return a.timestamp - b.timestamp;
-        });
-
-        if (scores.length > 100) {
-            scores = scores.slice(0, 100);
-        }
-
-        fs.writeFileSync(dinoScoresPath, JSON.stringify(scores, null, 2));
-
-        const rankIndex = scores.findIndex(item => item.id === newEntry.id) + 1;
-
-        res.json({ success: true, rank: rankIndex, entry: newEntry });
+        res.json({ success: true, rank: rankResult.rank, entry: newEntry });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }

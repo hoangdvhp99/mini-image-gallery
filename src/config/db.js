@@ -63,6 +63,22 @@ db.exec(`
         image_url TEXT,
         created_at INTEGER
     );
+    CREATE TABLE IF NOT EXISTS dino_scores (
+        id TEXT PRIMARY KEY,
+        playerName TEXT,
+        score INTEGER,
+        timestamp INTEGER
+    );
+    CREATE TABLE IF NOT EXISTS pikabeo_scores (
+        id INTEGER PRIMARY KEY,
+        playerName TEXT,
+        score INTEGER,
+        level INTEGER,
+        timePlayed INTEGER,
+        hintsUsed INTEGER,
+        shufflesUsed INTEGER,
+        timestamp INTEGER
+    );
 `);
 
 // Insert default admin if not exists

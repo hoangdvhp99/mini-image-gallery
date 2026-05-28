@@ -1,11 +1,12 @@
-const fs = require('fs');
+const Database = require('better-sqlite3');
 const path = require('path');
 
-const filePath = path.join(__dirname, '../data/dino_scores.json');
+const dbPath = path.join(__dirname, '../data/database.sqlite');
+const db = new Database(dbPath);
 
 try {
-    fs.writeFileSync(filePath, '[]', 'utf8');
-    console.log('✅ Đã reset thành công bảng xếp hạng Beo Dino!');
+    db.prepare('DELETE FROM dino_scores').run();
+    console.log('✅ Đã reset thành công bảng xếp hạng Beo Dino (SQLite)!');
 } catch (error) {
     console.error('❌ Lỗi khi reset bảng xếp hạng Dino:', error);
 }

@@ -46,6 +46,8 @@ class DinoGame {
             birds: [],
             plants: []
         };
+        this.sunImg = new Image();
+        this.sunImg.src = '/img/beo-dino/items/sun.png';
 
         // Player (Cậu bé)
         this.player = {
@@ -589,13 +591,17 @@ class DinoGame {
                 continue;
             }
 
-            // AABB hitbox
-            let hitboxMargin = 10;
+            // AABB hitbox (Thu hẹp vùng va chạm để tránh chết oan khi hình ảnh có viền rỗng)
+            let pMarginX = 25; // Margin thu hẹp chiều ngang cho player
+            let pMarginY = 20; // Margin thu hẹp chiều dọc cho player
+            let oMarginX = 15; // Margin thu hẹp chiều ngang cho chướng ngại vật
+            let oMarginY = 15; // Margin thu hẹp chiều dọc cho chướng ngại vật
+
             if (
-                this.player.x + hitboxMargin < obs.x + obs.width &&
-                this.player.x + this.player.width - hitboxMargin > obs.x &&
-                this.player.y + hitboxMargin < obs.y + obs.height &&
-                this.player.y + this.player.height - hitboxMargin > obs.y
+                this.player.x + pMarginX < obs.x + obs.width - oMarginX &&
+                this.player.x + this.player.width - pMarginX > obs.x + oMarginX &&
+                this.player.y + pMarginY < obs.y + obs.height - oMarginY &&
+                this.player.y + this.player.height - pMarginY > obs.y + oMarginY
             ) {
                 if (obs.type === 'BEER') {
                     this.playSound('item');
@@ -636,10 +642,16 @@ class DinoGame {
             b = 235 + (165 - 235) * progress;
 
             // Vẽ Mặt Trời
-            this.ctx.fillStyle = `rgba(253, 224, 71, ${1 - progress})`;
-            this.ctx.beginPath();
-            this.ctx.arc(this.canvas.width * 0.8, this.canvas.height * 0.3, 30, 0, Math.PI * 2);
-            this.ctx.fill();
+            if (this.sunImg.complete && this.sunImg.naturalWidth !== 0) {
+                this.ctx.globalAlpha = 1 - progress;
+                this.ctx.drawImage(this.sunImg, this.canvas.width * 0.8 - 40, this.canvas.height * 0.3 - 40, 80, 80);
+                this.ctx.globalAlpha = 1.0;
+            } else {
+                this.ctx.fillStyle = `rgba(253, 224, 71, ${1 - progress})`;
+                this.ctx.beginPath();
+                this.ctx.arc(this.canvas.width * 0.8, this.canvas.height * 0.3, 30, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
         } else if (phase === 1) {
             // Hoàng Hôn (252, 165, 165) sang Đêm (15, 23, 42)
             r = 252 + (15 - 252) * progress;
