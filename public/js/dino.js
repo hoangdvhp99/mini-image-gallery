@@ -49,6 +49,8 @@ class DinoGame {
         };
         this.sunImg = new Image();
         this.sunImg.src = '/img/beo-dino/items/sun.png';
+        this.moonImg = new Image();
+        this.moonImg.src = '/img/beo-dino/items/moon.png';
 
         // Player (Cậu bé)
         this.player = {
@@ -671,10 +673,14 @@ class DinoGame {
             this.drawStars(1);
 
             // Vẽ Mặt Trăng
-            this.ctx.fillStyle = '#f8fafc';
-            this.ctx.beginPath();
-            this.ctx.arc(this.canvas.width * 0.2, this.canvas.height * 0.3, 20, 0, Math.PI * 2);
-            this.ctx.fill();
+            if (this.moonImg.complete && this.moonImg.naturalWidth !== 0) {
+                this.ctx.drawImage(this.moonImg, this.canvas.width * 0.2 - 30, this.canvas.height * 0.3 - 30, 60, 60);
+            } else {
+                this.ctx.fillStyle = '#f8fafc';
+                this.ctx.beginPath();
+                this.ctx.arc(this.canvas.width * 0.2, this.canvas.height * 0.3, 20, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
         }
 
         // Đổ màu nền
