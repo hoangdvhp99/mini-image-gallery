@@ -1,0 +1,31 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main # Action will run when code is pushed to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # CD to TARGET_DIR
+            cd ${{ secrets.TARGET_DIR }}
+            
+            # Get the latest code from main branch
+            git pull origin main
+            
+            # Install new npm packages (if any updates in package.json)
+            npm install --production
+            
+            # Restart app via pm2 using ecosystem.config.js
+            pm2 start ecosystem.config.js || pm2 restart beohub
