@@ -371,7 +371,7 @@ app.post('/api/pikabeo/scores', (req, res) => {
 
 app.get('/api/dino/characters/count', (req, res) => {
     try {
-        const spritesDir = path.join(__dirname, 'public', 'img', 'beo-sprit');
+        const spritesDir = path.join(__dirname, 'public', 'img', 'beo-dino', 'characters');
         if (!fs.existsSync(spritesDir)) {
             return res.json({ success: true, count: 9 });
         }
@@ -379,7 +379,27 @@ app.get('/api/dino/characters/count', (req, res) => {
         const count = files.filter(f => f.endsWith('.png')).length;
         res.json({ success: true, count: count > 0 ? count : 9 });
     } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
+        res.json({ success: true, count: 9 });
+    }
+});
+
+app.get('/api/dino/items/count', (req, res) => {
+    try {
+        const birdsDir = path.join(__dirname, 'public', 'img', 'beo-dino', 'items', 'birds');
+        const plantsDir = path.join(__dirname, 'public', 'img', 'beo-dino', 'items', 'plants');
+        
+        const countFiles = (dir) => {
+            if (!fs.existsSync(dir)) return 0;
+            return fs.readdirSync(dir).filter(f => f.endsWith('.png')).length;
+        };
+
+        res.json({
+            success: true,
+            birds: countFiles(birdsDir),
+            plants: countFiles(plantsDir)
+        });
+    } catch (e) {
+        res.json({ success: false, birds: 0, plants: 0 });
     }
 });
 

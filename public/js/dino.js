@@ -36,6 +36,16 @@ class DinoGame {
         this.totalCharacters = 0;
         this.sprites = [];
         this.spritesLoaded = 0;
+        
+        // Item sprites
+        this.totalBirds = 0;
+        this.totalPlants = 0;
+        this.itemsLoaded = 0;
+        this.totalItemsToLoad = 0;
+        this.itemSprites = {
+            birds: [],
+            plants: []
+        };
 
         // Player (Cậu bé)
         this.player = {
@@ -76,37 +86,74 @@ class DinoGame {
 
     async initCharacters() {
         try {
-            const res = await fetch('/api/dino/characters/count');
-            const data = await res.json();
-            if (data.success && data.count > 0) {
-                this.totalCharacters = data.count;
+            const [charRes, itemsRes] = await Promise.all([
+                fetch('/api/dino/characters/count'),
+                fetch('/api/dino/items/count')
+            ]);
+            const charData = await charRes.json();
+            const itemsData = await itemsRes.json();
+            
+            if (charData.success && charData.count > 0) {
+                this.totalCharacters = charData.count;
             } else {
                 this.totalCharacters = 9;
             }
+
+            if (itemsData.success) {
+                this.totalBirds = itemsData.birds;
+                this.totalPlants = itemsData.plants;
+            } else {
+                this.totalBirds = 1;
+                this.totalPlants = 1;
+            }
         } catch (e) {
             this.totalCharacters = 9;
+            this.totalBirds = 1;
+            this.totalPlants = 1;
         }
 
-        // Tải ảnh sau khi có số lượng
+        this.totalItemsToLoad = this.totalBirds + this.totalPlants;
+
+        const checkAllLoaded = () => {
+            if (this.spritesLoaded === this.totalCharacters && this.itemsLoaded === this.totalItemsToLoad) {
+                this.initCharSelector();
+                if (this.player.characterIndex >= this.totalCharacters) {
+                    this.player.characterIndex = 0;
+                }
+                this.draw();
+            }
+        };
+
+        // Tải ảnh nhân vật
         for (let i = 1; i <= this.totalCharacters; i++) {
             let img = new Image();
-            img.src = `/img/beo-sprit/${i}.png`;
+            img.src = `/img/beo-dino/characters/${i}.png`;
 
             const onLoadOrError = () => {
                 this.spritesLoaded++;
-                if (this.spritesLoaded === this.totalCharacters) {
-                    this.initCharSelector();
-                    // Nếu index cũ lớn hơn số ảnh hiện có thì reset về 0
-                    if (this.player.characterIndex >= this.totalCharacters) {
-                        this.player.characterIndex = 0;
-                    }
-                    this.draw();
-                }
+                checkAllLoaded();
             };
 
             img.onload = onLoadOrError;
             img.onerror = onLoadOrError;
             this.sprites.push(img);
+        }
+
+        // Tải ảnh items
+        for (let i = 1; i <= this.totalBirds; i++) {
+            let img = new Image();
+            img.src = `/img/beo-dino/items/birds/${i}.png`;
+            img.onload = () => { this.itemsLoaded++; checkAllLoaded(); };
+            img.onerror = () => { this.itemsLoaded++; checkAllLoaded(); };
+            this.itemSprites.birds.push(img);
+        }
+        
+        for (let i = 1; i <= this.totalPlants; i++) {
+            let img = new Image();
+            img.src = `/img/beo-dino/items/plants/${i}.png`;
+            img.onload = () => { this.itemsLoaded++; checkAllLoaded(); };
+            img.onerror = () => { this.itemsLoaded++; checkAllLoaded(); };
+            this.itemSprites.plants.push(img);
         }
     }
 
@@ -382,7 +429,7 @@ class DinoGame {
 
             const imgDiv = document.createElement('div');
             imgDiv.className = 'absolute inset-0 w-full h-full transition-transform duration-300 group-hover:scale-105';
-            imgDiv.style.backgroundImage = `url('/img/beo-sprit/${i + 1}.png')`;
+            imgDiv.style.backgroundImage = `url('/img/beo-dino/characters/${i + 1}.png')`;
             imgDiv.style.backgroundSize = 'contain';
             imgDiv.style.backgroundPosition = 'center';
             imgDiv.style.backgroundRepeat = 'no-repeat';
@@ -495,9 +542,10 @@ class DinoGame {
                 this.obstacles.push({
                     type: 'CACTUS',
                     x: this.canvas.width,
-                    y: this.groundY - 40,
-                    width: 30,
-                    height: 40 + Math.random() * 20
+                    y: this.groundY - 50,
+                    width: 40,
+                    height: 50,
+                    plantIndex: Math.floor(Math.random() * this.itemSprites.plants.length)
                 });
             } else if (rand < 0.9) {
                 // BIRD (Bay ngang tầm đầu)
@@ -505,16 +553,17 @@ class DinoGame {
                     type: 'BIRD',
                     x: this.canvas.width,
                     y: this.groundY - 75,
-                    width: 40,
-                    height: 20
+                    width: 45,
+                    height: 35,
+                    birdIndex: Math.floor(Math.random() * Math.max(1, this.itemSprites.birds.length))
                 });
             } else {
-                // MILKTEA (Vật phẩm)
+                // BEER (Vật phẩm Bia)
                 this.obstacles.push({
-                    type: 'MILKTEA',
+                    type: 'BEER',
                     x: this.canvas.width,
                     y: this.groundY - 60 - Math.random() * 40,
-                    width: 25,
+                    width: 30,
                     height: 35
                 });
             }
@@ -539,7 +588,7 @@ class DinoGame {
                 this.player.y + hitboxMargin < obs.y + obs.height &&
                 this.player.y + this.player.height - hitboxMargin > obs.y
             ) {
-                if (obs.type === 'MILKTEA') {
+                if (obs.type === 'BEER') {
                     this.playSound('item');
                     this.score += 100; // Thưởng điểm
                     this.obstacles.splice(i, 1);
@@ -656,44 +705,44 @@ class DinoGame {
         // Vẽ chướng ngại vật & Vật phẩm
         for (let obs of this.obstacles) {
             if (obs.type === 'CACTUS') {
-                this.ctx.fillStyle = '#10b981'; // Xanh lá
-                this.ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                this.ctx.fillRect(obs.x - 10, obs.y + 10, 10, Math.min(20, obs.height - 10));
-                this.ctx.fillRect(obs.x + obs.width, obs.y + 5, 10, Math.min(15, obs.height - 5));
+                const plantImg = this.itemSprites.plants[obs.plantIndex || 0];
+                if (plantImg.complete && plantImg.naturalWidth > 0) {
+                    this.ctx.drawImage(plantImg, obs.x, obs.y, obs.width, obs.height);
+                } else {
+                    // Fallback
+                    this.ctx.fillStyle = '#10b981';
+                    this.ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                }
             } else if (obs.type === 'BIRD') {
-                this.ctx.fillStyle = '#9ca3af'; // Xám
-                // Thân chim
+                const birdImg = this.itemSprites.birds[obs.birdIndex || 0];
+                if (birdImg && birdImg.complete && birdImg.naturalWidth > 0) {
+                    let wingY = Math.sin(this.frameCount * 0.2) * 5;
+                    this.ctx.drawImage(birdImg, obs.x, obs.y + wingY, obs.width, obs.height);
+                } else {
+                    this.ctx.fillStyle = '#9ca3af';
+                    this.ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                }
+            } else if (obs.type === 'BEER') {
+                // Ly bia
+                this.ctx.fillStyle = '#fcd34d'; // Nước bia vàng
+                this.ctx.fillRect(obs.x + 4, obs.y + 10, obs.width - 8, obs.height - 10);
+                
+                // Viền ly thủy tinh
+                this.ctx.strokeStyle = '#e5e7eb';
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(obs.x + 4, obs.y + 10, obs.width - 8, obs.height - 10);
+                
+                // Quai ly
                 this.ctx.beginPath();
-                this.ctx.ellipse(obs.x + 20, obs.y + 10, 20, 10, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-                // Mỏ chim
-                this.ctx.fillStyle = '#fbbf24';
+                this.ctx.arc(obs.x + obs.width - 4, obs.y + 22, 6, -Math.PI/2, Math.PI/2);
+                this.ctx.stroke();
+
+                // Bọt bia
+                this.ctx.fillStyle = '#ffffff'; // Bọt trắng
                 this.ctx.beginPath();
-                this.ctx.moveTo(obs.x, obs.y + 10);
-                this.ctx.lineTo(obs.x - 10, obs.y + 5);
-                this.ctx.lineTo(obs.x, obs.y + 15);
-                this.ctx.fill();
-                // Cánh chim đập
-                this.ctx.fillStyle = '#6b7280';
-                this.ctx.beginPath();
-                let wingY = (Math.floor(this.frameCount / 5) % 2 === 0) ? obs.y - 10 : obs.y + 20;
-                this.ctx.moveTo(obs.x + 20, obs.y + 10);
-                this.ctx.lineTo(obs.x + 10, wingY);
-                this.ctx.lineTo(obs.x + 30, wingY);
-                this.ctx.fill();
-            } else if (obs.type === 'MILKTEA') {
-                // Ly trà sữa
-                this.ctx.fillStyle = '#fef3c7'; // Nền ly
-                this.ctx.fillRect(obs.x, obs.y + 10, obs.width, obs.height - 10);
-                // Ống hút
-                this.ctx.fillStyle = '#f97316'; // Ống hút cam
-                this.ctx.fillRect(obs.x + obs.width / 2 - 2, obs.y, 4, 15);
-                // Trân châu
-                this.ctx.fillStyle = '#451a03';
-                this.ctx.beginPath();
-                this.ctx.arc(obs.x + 8, obs.y + 30, 3, 0, Math.PI * 2);
-                this.ctx.arc(obs.x + 18, obs.y + 32, 3, 0, Math.PI * 2);
-                this.ctx.arc(obs.x + 13, obs.y + 25, 3, 0, Math.PI * 2);
+                this.ctx.arc(obs.x + 8, obs.y + 10, 6, 0, Math.PI * 2);
+                this.ctx.arc(obs.x + 15, obs.y + 8, 7, 0, Math.PI * 2);
+                this.ctx.arc(obs.x + 22, obs.y + 10, 6, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         }
