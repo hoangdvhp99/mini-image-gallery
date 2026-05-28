@@ -355,15 +355,22 @@ class PikabeoGame {
             if (data.success) {
                 this.secretBgUrl = data.url;
 
-                // Set the secret background
-                const secretBg = document.getElementById('pikabeoSecretBg');
-                secretBg.style.backgroundImage = `url('${this.secretBgUrl}')`;
-                secretBg.style.opacity = '0'; // keep hidden initially
+                // Load image in memory to draw on canvas secretly
+                this.secretImg = new Image();
+                this.secretImg.src = this.secretBgUrl;
+                this.secretImg.onload = () => {
+                    this.drawSecretReveal();
+                };
             }
         } catch (e) {
             console.error('Lỗi khi tải ảnh bí mật:', e);
             // Default fallback
             this.secretBgUrl = '/img/default_secrets/secret_1.svg';
+            this.secretImg = new Image();
+            this.secretImg.src = this.secretBgUrl;
+            this.secretImg.onload = () => {
+                this.drawSecretReveal();
+            };
         }
     }
 
@@ -528,9 +535,74 @@ class PikabeoGame {
         const progress = matchedCount / totalCells;
         // Map progress from a clear base (0.18) up to full brightness (0.95)
         const opacity = 0.18 + progress * 0.77;
-        const secretBg = document.getElementById('pikabeoSecretBg');
-        if (secretBg) {
-            secretBg.style.opacity = opacity.toFixed(2);
+        const secretCanvas = document.getElementById('pikabeoSecretCanvas');
+        if (secretCanvas) {
+            secretCanvas.style.opacity = opacity.toFixed(2);
+        }
+    }
+
+    // Draw the matched parts of the secret image on the background canvas
+    drawSecretReveal() {
+        const canvas = document.getElementById('pikabeoSecretCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!this.secretImg || !this.secretImg.complete) return;
+
+        // Calculate background-size: cover destination coordinates
+        const imgWidth = this.secretImg.naturalWidth;
+        const imgHeight = this.secretImg.naturalHeight;
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+
+        if (canvasWidth === 0 || canvasHeight === 0) return;
+
+        const imgRatio = imgWidth / imgHeight;
+        const canvasRatio = canvasWidth / canvasHeight;
+
+        let sX, sY, sWidth, sHeight;
+
+        if (imgRatio > canvasRatio) {
+            // Image is wider than canvas
+            sHeight = imgHeight;
+            sWidth = imgHeight * canvasRatio;
+            sX = (imgWidth - sWidth) / 2;
+            sY = 0;
+        } else {
+            // Image is taller than canvas
+            sWidth = imgWidth;
+            sHeight = imgWidth / canvasRatio;
+            sX = 0;
+            sY = (imgHeight - sHeight) / 2;
+        }
+
+        const cellWidth = canvasWidth / this.cols;
+        const cellHeight = canvasHeight / this.rows;
+
+        const sCellWidth = sWidth / this.cols;
+        const sCellHeight = sHeight / this.rows;
+
+        for (let r = 1; r <= this.rows; r++) {
+            for (let c = 1; c <= this.cols; c++) {
+                if (this.grid[r] && this.grid[r][c] === 0) {
+                    // Cell is cleared! Draw its piece from the secret image
+                    const sx = sX + (c - 1) * sCellWidth;
+                    const sy = sY + (r - 1) * sCellHeight;
+                    
+                    const dx = (c - 1) * cellWidth;
+                    const dy = (r - 1) * cellHeight;
+
+                    ctx.drawImage(
+                        this.secretImg,
+                        sx, sy, sCellWidth, sCellHeight,
+                        dx, dy, cellWidth, cellHeight
+                    );
+                }
+            }
         }
     }
 
@@ -662,6 +734,7 @@ class PikabeoGame {
 
         // Re-render board with updated matrix positions
         this.renderBoard();
+        this.drawSecretReveal();
     }
 
     // Click handler
@@ -717,7 +790,8 @@ class PikabeoGame {
                     this.grid[first.r][first.c] = 0;
                     this.grid[r][c] = 0;
 
-                    // Dynamically reveal background secret image brighter!
+                    // Draw the matched pieces on the secret canvas and update opacity!
+                    this.drawSecretReveal();
                     this.updateSecretBgOpacity();
 
                     // Match animations
@@ -999,6 +1073,7 @@ class PikabeoGame {
         }
 
         this.renderBoard();
+        this.drawSecretReveal();
     }
 
     // Manual shuffle clicked by user
@@ -1027,6 +1102,7 @@ class PikabeoGame {
         }
 
         this.renderBoard();
+        this.drawSecretReveal();
     }
 
     // ================= Neon Canvas drawing of paths =================
@@ -1037,6 +1113,12 @@ class PikabeoGame {
         if (board && canvas) {
             canvas.width = board.clientWidth;
             canvas.height = board.clientHeight;
+        }
+        const secretCanvas = document.getElementById('pikabeoSecretCanvas');
+        if (board && secretCanvas) {
+            secretCanvas.width = board.clientWidth;
+            secretCanvas.height = board.clientHeight;
+            this.drawSecretReveal();
         }
     }
 
@@ -1221,8 +1303,10 @@ class PikabeoGame {
         this.playSound('win');
 
         // Fade in the secret reward background image 100%!
-        const secretBg = document.getElementById('pikabeoSecretBg');
-        secretBg.style.opacity = '1';
+        const secretCanvas = document.getElementById('pikabeoSecretCanvas');
+        if (secretCanvas) {
+            secretCanvas.style.opacity = '1';
+        }
 
         // Render gorgeous success panel
         setTimeout(() => {
@@ -1284,7 +1368,10 @@ class PikabeoGame {
         this.playSound('gameover');
 
         // Reveal background partially
-        document.getElementById('pikabeoSecretBg').style.opacity = '0.3';
+        const secretCanvas = document.getElementById('pikabeoSecretCanvas');
+        if (secretCanvas) {
+            secretCanvas.style.opacity = '0.3';
+        }
 
         // Tự động lưu điểm khi thua nếu điểm lớn hơn 0
         const finalScoreData = this.calculateFinalScore();
