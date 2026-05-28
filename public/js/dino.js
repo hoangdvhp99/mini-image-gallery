@@ -26,12 +26,20 @@ class DinoGame {
         this.highScoreElement.innerText = this.highScore.toString().padStart(5, '0');
 
         // Cấu hình
-        this.gravity = 0.6;
-        this.gameSpeed = 6;
+        this.gravity = 0.64;
+        this.baseGameSpeed = 9;
+        this.speedIncreasePer300Score = 1;
+        this.maxGameSpeed = 20;
+        this.gameSpeed = this.baseGameSpeed;
         this.obstacles = [];
         this.clouds = [];
         this.frameCount = 0;
         this.nextSpawnFrame = 120;
+        this.lastSpawnPattern = null;
+        this.playerJumpPowerFactor = 0.12;
+        this.downHeld = false;
+        this.fastFallBoost = 0.9;
+        this.fastFallMaxVelocity = 20;
 
         // Danh sách nhân vật (Lấy số lượng từ API)
         this.totalCharacters = 0;
@@ -56,12 +64,12 @@ class DinoGame {
         this.player = {
             x: 50,
             y: 0,
-            width: 100,
-            height: 100,
-            originalHeight: 100,
-            duckHeight: 55,
+            width: 120,
+            height: 120,
+            originalHeight: 120,
+            duckHeight: 70,
             velocityY: 0,
-            jumpPower: -14.5,
+            jumpPower: -(120 * this.playerJumpPowerFactor),
             isJumping: false,
             isDucking: false,
             characterIndex: 5 // Mặc định ảnh số 6 (index 5)
@@ -378,8 +386,16 @@ class DinoGame {
             handleJump(e);
             if (e.code === 'ArrowDown' || e.code === 'KeyS') {
                 e.preventDefault();
-                if (this.isPlaying && !this.player.isJumping) {
-                    this.doDuck(true);
+                this.downHeld = true;
+                if (this.isPlaying) {
+                    if (this.player.isJumping) {
+                        this.player.velocityY = Math.min(
+                            this.player.velocityY + this.fastFallBoost,
+                            this.fastFallMaxVelocity
+                        );
+                    } else {
+                        this.doDuck(true);
+                    }
                 }
             }
         };
@@ -387,6 +403,7 @@ class DinoGame {
         const handleKeyUp = (e) => {
             if (e.code === 'ArrowDown' || e.code === 'KeyS') {
                 e.preventDefault();
+                this.downHeld = false;
                 this.doDuck(false);
             }
         };
@@ -480,10 +497,13 @@ class DinoGame {
         this.isPlaying = true;
         this.isGameOver = false;
         this.score = 0;
-        this.gameSpeed = 6;
+        this.gameSpeed = this.baseGameSpeed;
         this.obstacles = [];
         this.frameCount = 0;
-        this.nextSpawnFrame = 120;
+        this.nextSpawnFrame = 90;
+        this.lastSpawnPattern = null;
+        this.downHeld = false;
+        this.player.jumpPower = -(this.player.originalHeight * this.playerJumpPowerFactor);
         this.doDuck(false); // Reset vị trí
         this.player.velocityY = 0;
 
@@ -519,6 +539,185 @@ class DinoGame {
         }
     }
 
+    updateGameSpeed() {
+        const speedTier = Math.floor(this.score / 300);
+        let targetSpeed = this.baseGameSpeed + (speedTier * this.speedIncreasePer300Score);
+
+        if (this.score >= 900) {
+            const hardTier = Math.floor((this.score - 900) / 120);
+            targetSpeed += hardTier * 0.6;
+        }
+
+        this.gameSpeed = Math.min(targetSpeed, this.maxGameSpeed);
+    }
+
+    getSpawnPattern() {
+        const patterns = ['CACTUS', 'BIRD', 'BEER', 'CACTUS', 'BIRD'];
+
+        if (this.score >= 150) {
+            patterns.push('CACTUS_BIRD', 'BIRD_CACTUS', 'CACTUS_BEER', 'BEER_BIRD');
+        }
+
+        if (this.score >= 300) {
+            patterns.push('CACTUS_SIDE_CACTUS', 'BIRD_SIDE_BIRD', 'CACTUS_SIDE_BIRD', 'BIRD_SIDE_CACTUS');
+        }
+
+        if (this.score >= 600) {
+            patterns.push('CACTUS_BIRD', 'BEER_BIRD', 'BIRD_BEER', 'CACTUS_BEER');
+        }
+
+        if (this.score >= 900) {
+            patterns.push('CACTUS_CACTUS', 'BIRD_BIRD', 'BIRD_BEER', 'BEER_CACTUS', 'TRIPLE', 'TRIPLE', 'BEER_SIDE_CACTUS');
+        }
+
+        const pool = this.lastSpawnPattern && Math.random() < 0.25
+            ? patterns
+            : patterns.filter(pattern => pattern !== this.lastSpawnPattern);
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    spawnObstacleSituation() {
+        const spawnX = this.canvas.width + Math.floor(30 + Math.random() * 90);
+        const safeGap = Math.max(300, Math.ceil(this.gameSpeed * (46 + Math.random() * 16)));
+        const pairGap = Math.max(95, Math.floor(this.player.width * 0.9));
+        const birdY = this.groundY - (110 + Math.floor(Math.random() * 30));
+        const cactusY = this.groundY - (84 + Math.floor(Math.random() * 18));
+        const birdIndex = Math.floor(Math.random() * Math.max(1, this.itemSprites.birds.length));
+        const plantIndex = Math.floor(Math.random() * Math.max(1, this.itemSprites.plants.length));
+        const spawned = [];
+
+        const addCactus = (x) => {
+            spawned.push({
+                type: 'CACTUS',
+                x,
+                y: cactusY,
+                width: 84,
+                height: 95,
+                plantIndex
+            });
+        };
+
+        const addBird = (x) => {
+            spawned.push({
+                type: 'BIRD',
+                x,
+                y: birdY + Math.floor(Math.random() * 18) - 9,
+                width: 90,
+                height: 65,
+                birdIndex
+            });
+        };
+
+        const addBeer = (x) => {
+            spawned.push({
+                type: 'BEER',
+                x,
+                y: this.groundY - 92 - Math.random() * 52,
+                width: 54,
+                height: 60
+            });
+        };
+
+        const addPair = (firstType, secondType, gap, firstX = spawnX) => {
+            const secondX = firstX + gap;
+            if (firstType === 'CACTUS') addCactus(firstX);
+            else if (firstType === 'BIRD') addBird(firstX);
+            else addBeer(firstX);
+
+            if (secondType === 'CACTUS') addCactus(secondX);
+            else if (secondType === 'BIRD') addBird(secondX);
+            else addBeer(secondX);
+        };
+
+        const pattern = this.getSpawnPattern();
+
+        switch (pattern) {
+            case 'CACTUS':
+                addCactus(spawnX);
+                break;
+            case 'BIRD':
+                addBird(spawnX);
+                break;
+            case 'BEER':
+                addBeer(spawnX);
+                break;
+            case 'CACTUS_BEER':
+                addCactus(spawnX);
+                addBeer(spawnX + Math.floor(safeGap * 0.65));
+                break;
+            case 'BEER_BIRD':
+                addBeer(spawnX);
+                addBird(spawnX + safeGap);
+                break;
+            case 'CACTUS_BIRD':
+                addCactus(spawnX);
+                addBird(spawnX + safeGap);
+                break;
+            case 'BIRD_CACTUS':
+                addBird(spawnX);
+                addCactus(spawnX + safeGap);
+                break;
+            case 'TRIPLE':
+                addCactus(spawnX);
+                addBeer(spawnX + Math.floor(safeGap * 0.65));
+                addBird(spawnX + Math.floor(safeGap * 1.35));
+                break;
+            case 'CACTUS_CACTUS':
+                addCactus(spawnX);
+                addCactus(spawnX + safeGap);
+                break;
+            case 'BIRD_BIRD':
+                addBird(spawnX);
+                addBird(spawnX + safeGap);
+                break;
+            case 'BIRD_BEER':
+                addBird(spawnX);
+                addBeer(spawnX + Math.floor(safeGap * 0.8));
+                break;
+            case 'BEER_CACTUS':
+                addBeer(spawnX);
+                addCactus(spawnX + safeGap);
+                break;
+            case 'CACTUS_SIDE_CACTUS':
+                addPair('CACTUS', 'CACTUS', pairGap, spawnX);
+                break;
+            case 'BIRD_SIDE_BIRD':
+                addPair('BIRD', 'BIRD', pairGap, spawnX);
+                break;
+            case 'CACTUS_SIDE_BIRD':
+                addPair('CACTUS', 'BIRD', pairGap, spawnX);
+                break;
+            case 'BIRD_SIDE_CACTUS':
+                addPair('BIRD', 'CACTUS', pairGap, spawnX);
+                break;
+            case 'BEER_SIDE_CACTUS':
+                addPair('BEER', 'CACTUS', pairGap, spawnX);
+                break;
+        }
+
+        if (this.score >= 450 && Math.random() < 0.4 && spawned.length < 3) {
+            const last = spawned[spawned.length - 1];
+            const extraGap = Math.floor(safeGap * (0.9 + Math.random() * 0.7));
+            const extraX = last ? last.x + last.width + extraGap : spawnX + extraGap;
+            const extraTypePool = ['CACTUS', 'BIRD', 'BEER'];
+            const extraType = extraTypePool[Math.floor(Math.random() * extraTypePool.length)];
+
+            if (extraType === 'CACTUS') addCactus(extraX);
+            else if (extraType === 'BIRD') addBird(extraX);
+            else addBeer(extraX);
+        }
+
+        this.lastSpawnPattern = pattern;
+        this.obstacles.push(...spawned);
+
+        const lastObstacle = spawned[spawned.length - 1];
+        const patternWidth = lastObstacle ? (lastObstacle.x + lastObstacle.width - spawnX) : 0;
+        const minCooldown = this.score >= 900 ? 12 : (this.score >= 300 ? 22 : 34);
+        const maxCooldown = this.score >= 900 ? 30 : (this.score >= 300 ? 46 : 62);
+        const cooldownFrames = Math.ceil((patternWidth + 200) / this.gameSpeed) + Math.floor(Math.random() * (maxCooldown - minCooldown + 1)) + minCooldown;
+        this.nextSpawnFrame = this.frameCount + cooldownFrames;
+    }
+
     update() {
         // Player Physics
         this.player.velocityY += this.gravity;
@@ -529,6 +728,16 @@ class DinoGame {
             this.player.y = this.groundY - this.player.height;
             this.player.velocityY = 0;
             this.player.isJumping = false;
+            if (this.downHeld) {
+                this.doDuck(true);
+            }
+        }
+
+        if (this.player.isJumping && this.downHeld) {
+            this.player.velocityY = Math.min(
+                this.player.velocityY + this.fastFallBoost,
+                this.fastFallMaxVelocity
+            );
         }
 
         // Cập nhật mây
@@ -542,47 +751,7 @@ class DinoGame {
 
         // Tạo chướng ngại vật & Vật phẩm
         if (this.frameCount >= this.nextSpawnFrame) {
-            this.nextSpawnFrame = this.frameCount + Math.floor(Math.random() * 50 + 70);
-            let rand = Math.random();
-            
-            // Chống lặp xương rồng liên tiếp
-            if (rand < 0.6 && this.lastObstacleType === 'CACTUS') {
-                rand = 0.6 + Math.random() * 0.4;
-            }
-
-            if (rand < 0.6) {
-                // CACTUS (Dưới đất)
-                this.obstacles.push({
-                    type: 'CACTUS',
-                    x: this.canvas.width,
-                    y: this.groundY - 80,
-                    width: 70,
-                    height: 80,
-                    plantIndex: Math.floor(Math.random() * this.itemSprites.plants.length)
-                });
-                this.lastObstacleType = 'CACTUS';
-            } else if (rand < 0.9) {
-                // BIRD (Bay ngang tầm đầu)
-                this.obstacles.push({
-                    type: 'BIRD',
-                    x: this.canvas.width,
-                    y: this.groundY - 110,
-                    width: 75,
-                    height: 55,
-                    birdIndex: Math.floor(Math.random() * Math.max(1, this.itemSprites.birds.length))
-                });
-                this.lastObstacleType = 'BIRD';
-            } else {
-                // BEER (Vật phẩm Bia)
-                this.obstacles.push({
-                    type: 'BEER',
-                    x: this.canvas.width,
-                    y: this.groundY - 90 - Math.random() * 40,
-                    width: 46,
-                    height: 50
-                });
-                this.lastObstacleType = 'BEER';
-            }
+            this.spawnObstacleSituation();
         }
 
         // Cập nhật chướng ngại vật & Va chạm
@@ -611,6 +780,7 @@ class DinoGame {
                 if (obs.type === 'BEER') {
                     this.playSound('item');
                     this.score += 100; // Thưởng điểm
+                    this.scoreElement.innerText = this.score.toString().padStart(5, '0');
                     this.obstacles.splice(i, 1);
                     i--;
                     continue;
@@ -625,11 +795,9 @@ class DinoGame {
         if (this.frameCount % 10 === 0) {
             this.score++;
             this.scoreElement.innerText = this.score.toString().padStart(5, '0');
-
-            if (this.score > 0 && this.score % 100 === 0) {
-                this.gameSpeed += 0.4;
-            }
         }
+
+        this.updateGameSpeed();
     }
 
     drawSky() {
