@@ -398,6 +398,7 @@ class PikabeoGame {
 
     // Configure grid arrays, fill pairs and shuffle
     setupNewLevel() {
+        this.selectedTile = null; // Reset selection state on new level!
         document.getElementById('pikaLevel').innerText = this.level;
         document.getElementById('pikaShuffles').innerText = this.shuffles;
         document.getElementById('pikaScore').innerText = this.score;
@@ -598,6 +599,7 @@ class PikabeoGame {
     }
 
     applyGravity() {
+        this.selectedTile = null; // Reset selection state on gravity shift!
         if (this.level === 1) return; // Level 1 is standard static
 
         const gravityType = (this.level - 2) % 4;
@@ -682,6 +684,13 @@ class PikabeoGame {
             // Second select
             const first = this.selectedTile;
             const firstEl = this.getTileDOM(first.r, first.c);
+
+            if (!firstEl) {
+                // If the previously selected tile element is no longer valid in the DOM, select this one instead
+                this.selectedTile = { r, c };
+                tileEl.classList.add('selected');
+                return;
+            }
 
             // Clicked same cell - deselect
             if (first.r === r && first.c === c) {
@@ -970,6 +979,7 @@ class PikabeoGame {
     // Auto shuffle board when no moves left
     autoShuffle() {
         if (!this.gameActive) return;
+        this.selectedTile = null; // Reset selection state on shuffle!
 
         if (this.shuffles <= 0) {
             // No shuffles left, lose condition
@@ -995,6 +1005,7 @@ class PikabeoGame {
     manualShuffle() {
         this.playSound('select');
         if (!this.gameActive) return;
+        this.selectedTile = null; // Reset selection state on shuffle!
 
         if (this.shuffles <= 0) {
             showToast('⚠️ Bạn đã hết lượt đổi vị trí bài!', 'error');
