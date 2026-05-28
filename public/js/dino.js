@@ -291,7 +291,7 @@ class DinoGame {
                         <td class="py-4 px-4 text-center ${index < 3 ? 'text-amber-400 text-xl font-black' : 'text-gray-400 text-base'}">${rankIcon}</td>
                         <td class="py-4 px-4 ${index === 0 ? 'text-amber-400 font-black text-lg' : 'text-gray-200 text-base font-bold'}">${item.playerName}</td>
                         <td class="py-4 px-6 text-right text-emerald-400 font-mono text-lg font-black">${item.score}</td>
-                        ${window.isAdmin ? `<td class="py-4 px-6 text-center"><button onclick="window.beoDinoGame.deleteScore(${item.id})" class="text-red-500 hover:text-red-400 px-2 py-1 rounded transition text-xl">❌</button></td>` : ''}
+                        ${window.isAdmin ? `<td class="py-4 px-6 text-center"><button onclick="window.beoDinoGame.deleteScore('${item.id}')" class="text-red-500 hover:text-red-400 px-2 py-1 rounded transition text-xl">❌</button></td>` : ''}
                     `;
                     this.leaderboardList.appendChild(tr);
                 });

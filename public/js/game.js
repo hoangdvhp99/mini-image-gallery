@@ -1425,7 +1425,7 @@ class PikabeoGame {
                         <td class="py-3.5 px-4 text-center font-mono text-cyan-400 font-bold">${timeStr}</td>
                         <td class="py-3.5 px-4 text-center text-gray-400 font-semibold">${helpersStr}</td>
                         <td class="py-3.5 px-4 text-right pr-6 font-mono text-emerald-400 font-black text-sm">${(item.score || 0).toLocaleString('vi-VN')}</td>
-                        ${window.isAdmin ? `<td class="py-3.5 px-4 text-center"><button onclick="window.pikaGame.deleteScore(${item.id})" class="text-red-500 hover:text-red-400 px-1 py-0.5 rounded transition">❌</button></td>` : ''}
+                        ${window.isAdmin ? `<td class="py-3.5 px-4 text-center"><button onclick="window.pikaGame.deleteScore('${item.id}')" class="text-red-500 hover:text-red-400 px-1 py-0.5 rounded transition">❌</button></td>` : ''}
                     `;
                     listEl.appendChild(tr);
                 });
