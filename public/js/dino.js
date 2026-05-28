@@ -31,6 +31,7 @@ class DinoGame {
         this.obstacles = [];
         this.clouds = [];
         this.frameCount = 0;
+        this.nextSpawnFrame = 120;
 
         // Danh sách nhân vật (Lấy số lượng từ API)
         this.totalCharacters = 0;
@@ -480,6 +481,7 @@ class DinoGame {
         this.gameSpeed = 6;
         this.obstacles = [];
         this.frameCount = 0;
+        this.nextSpawnFrame = 120;
         this.doDuck(false); // Reset vị trí
         this.player.velocityY = 0;
 
@@ -537,7 +539,8 @@ class DinoGame {
         }
 
         // Tạo chướng ngại vật & Vật phẩm
-        if (this.frameCount > 120 && this.frameCount % Math.floor(Math.random() * 50 + 70) === 0) {
+        if (this.frameCount >= this.nextSpawnFrame) {
+            this.nextSpawnFrame = this.frameCount + Math.floor(Math.random() * 50 + 70);
             let rand = Math.random();
             
             // Chống lặp xương rồng liên tiếp
