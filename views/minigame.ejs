@@ -273,43 +273,7 @@
                             <span class="text-5xl mb-2">🦖</span>
                             <h3 id="dinoStatusText" class="text-emerald-400 font-black text-xl tracking-widest uppercase mb-4">NHẤN SPACE ĐỂ CHƠI</h3>
                         </div>
-
-                        <!-- Lớp phủ Bảng Xếp Hạng Glassmorphism cho Dino -->
-                        <div id="dinoLeaderboardOverlay" class="absolute inset-0 bg-neutral-950/85 backdrop-blur-md z-45 hidden flex flex-col items-center justify-center p-4">
-                            <div class="w-full max-w-2xl bg-neutral-900/95 border border-neutral-700/80 rounded-3xl p-6 shadow-2xl space-y-5 max-h-[95%] overflow-hidden flex flex-col justify-between transform scale-95 transition-all duration-300">
-                                <div class="space-y-2 text-center select-none">
-                                    <h4 class="text-xl md:text-2xl font-black text-amber-500 uppercase tracking-widest flex items-center justify-center gap-2">
-                                        <span class="text-3xl animate-bounce">🏆</span> BẢNG XẾP HẠNG
-                                    </h4>
-                                    <p class="text-sm text-gray-400">Những quái xế lạng lách đỉnh cao nhất!</p>
-                                </div>
-
-                                <div class="bg-neutral-950/80 rounded-2xl border border-neutral-800 overflow-hidden shadow-xl w-full min-h-[300px] max-h-[350px] overflow-y-auto custom-scrollbar my-2">
-                                    <table class="w-full text-left border-collapse text-sm md:text-base">
-                                        <thead>
-                                            <tr class="border-b border-neutral-800 bg-neutral-900 text-xs md:text-sm uppercase font-black text-indigo-400 select-none">
-                                                <th class="py-4 px-4 text-center w-16">Hạng</th>
-                                                <th class="py-4 px-4">Quái Xế</th>
-                                                <th class="py-4 px-6 text-right">Điểm Kỷ Lục</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="dinoLeaderboardList" class="divide-y divide-neutral-800 font-bold text-gray-200">
-                                            <tr>
-                                                <td colspan="3" class="py-10 text-center text-neutral-500 font-medium select-none text-base">
-                                                    Đang tải bảng xếp hạng...
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="flex justify-center pt-2">
-                                    <button id="btnDinoCloseLeaderboard" class="bg-red-950/40 hover:bg-red-900/60 text-red-400 font-black text-sm md:text-base px-8 py-3 rounded-xl border border-red-900/50 transition-all tracking-wider flex items-center gap-2 shadow-md hover:shadow-red-900/20">
-                                        Đóng ❌
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Lớp phủ Bảng Xếp Hạng đã được dời ra ngoài để Full màn hình -->
                     </div>
                     
                     <div class="text-center">
@@ -358,6 +322,43 @@
                         BẮT ĐẦU CHƠI 🚀
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lớp phủ Bảng Xếp Hạng Glassmorphism cho Dino (Full Screen) -->
+    <div id="dinoLeaderboardOverlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-4xl bg-neutral-900/95 border border-neutral-700/80 rounded-3xl p-6 shadow-2xl space-y-5 flex flex-col justify-between transform scale-95 transition-all duration-300">
+            <div class="space-y-2 text-center select-none">
+                <h4 class="text-2xl md:text-3xl font-black text-amber-500 uppercase tracking-widest flex items-center justify-center gap-2">
+                    <span class="text-4xl animate-bounce">🏆</span> BẢNG XẾP HẠNG
+                </h4>
+                <p class="text-sm md:text-base text-gray-400">Những quái xế lạng lách đỉnh cao nhất!</p>
+            </div>
+
+            <div class="bg-neutral-950/80 rounded-2xl border border-neutral-800 overflow-hidden shadow-xl w-full min-h-[400px] max-h-[65vh] overflow-y-auto custom-scrollbar my-4">
+                <table class="w-full text-left border-collapse text-base md:text-lg">
+                    <thead>
+                        <tr class="border-b border-neutral-800 bg-neutral-900 text-sm md:text-base uppercase font-black text-indigo-400 select-none">
+                            <th class="py-5 px-6 text-center w-20">Hạng</th>
+                            <th class="py-5 px-6">Quái Xế</th>
+                            <th class="py-5 px-8 text-right">Điểm Kỷ Lục</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dinoLeaderboardList" class="divide-y divide-neutral-800 font-bold text-gray-200">
+                        <tr>
+                            <td colspan="3" class="py-12 text-center text-neutral-500 font-medium select-none text-lg">
+                                Đang tải bảng xếp hạng...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-center pt-2">
+                <button id="btnDinoCloseLeaderboard" class="bg-red-950/40 hover:bg-red-900/60 text-red-400 font-black text-base md:text-lg px-12 py-4 rounded-xl border border-red-900/50 transition-all tracking-wider flex items-center gap-2 shadow-md hover:shadow-red-900/20">
+                    Đóng Xếp Hạng ❌
+                </button>
             </div>
         </div>
     </div>

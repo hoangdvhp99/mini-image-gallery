@@ -369,6 +369,20 @@ app.post('/api/pikabeo/scores', (req, res) => {
 
 // ================= dino run leaderboard apis =================
 
+app.get('/api/dino/characters/count', (req, res) => {
+    try {
+        const spritesDir = path.join(__dirname, 'public', 'img', 'beo-sprit');
+        if (!fs.existsSync(spritesDir)) {
+            return res.json({ success: true, count: 9 });
+        }
+        const files = fs.readdirSync(spritesDir);
+        const count = files.filter(f => f.endsWith('.png')).length;
+        res.json({ success: true, count: count > 0 ? count : 9 });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 app.get('/api/dino/scores/leaderboard', (req, res) => {
     try {
         let scores = [];
