@@ -801,52 +801,61 @@ class DinoGame {
     }
 
     drawSky() {
-        // Chu kỳ Ngày - Đêm dựa vào điểm
-        // 0-300: Sáng xanh, 300-600: Hoàng hôn đỏ, >600: Đêm đen
-        let phase = Math.floor(this.score / 300);
-        let progress = (this.score % 300) / 300;
+        const cycleFrames = 3600;
+        const phaseDuration = cycleFrames / 3;
+        const cycleProgress = this.frameCount % cycleFrames;
+        const phase = Math.floor(cycleProgress / phaseDuration);
+        const progress = (cycleProgress % phaseDuration) / phaseDuration;
+
+        const mix = (from, to, t) => Math.round(from + (to - from) * t);
+        const smooth = (t) => t * t * (3 - 2 * t);
+        const easedProgress = smooth(progress);
+
+        const dawnStart = { r: 87, g: 193, b: 235 };
+        const dawnEnd = { r: 252, g: 165, b: 165 };
+        const nightStart = { r: 15, g: 23, b: 42 };
+        const nightEnd = { r: 15, g: 23, b: 42 };
 
         let r, g, b;
 
         if (phase === 0) {
-            // Sáng (87, 193, 235) sang Hoàng Hôn (252, 165, 165)
-            r = 87 + (252 - 87) * progress;
-            g = 193 + (165 - 193) * progress;
-            b = 235 + (165 - 235) * progress;
+            // Dawn
+            r = mix(dawnStart.r, dawnEnd.r, easedProgress);
+            g = mix(dawnStart.g, dawnEnd.g, easedProgress);
+            b = mix(dawnStart.b, dawnEnd.b, easedProgress);
 
-            // Vẽ Mặt Trời
+            const sunAlpha = Math.max(0.35, 1 - (easedProgress * 0.75));
             if (this.sunImg.complete && this.sunImg.naturalWidth !== 0) {
-                this.ctx.globalAlpha = 1 - progress;
+                this.ctx.globalAlpha = sunAlpha;
                 this.ctx.drawImage(this.sunImg, this.canvas.width * 0.8 - 40, this.canvas.height * 0.3 - 40, 80, 80);
                 this.ctx.globalAlpha = 1.0;
             } else {
-                this.ctx.fillStyle = `rgba(253, 224, 71, ${1 - progress})`;
+                this.ctx.fillStyle = `rgba(253, 224, 71, ${sunAlpha})`;
                 this.ctx.beginPath();
                 this.ctx.arc(this.canvas.width * 0.8, this.canvas.height * 0.3, 30, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         } else if (phase === 1) {
-            // Hoàng Hôn (252, 165, 165) sang Đêm (15, 23, 42)
-            r = 252 + (15 - 252) * progress;
-            g = 165 + (23 - 165) * progress;
-            b = 165 + (42 - 165) * progress;
-
-            // Vẽ Sao mờ
-            this.drawStars(progress);
+            // Sunset
+            r = mix(dawnEnd.r, nightStart.r, easedProgress);
+            g = mix(dawnEnd.g, nightStart.g, easedProgress);
+            b = mix(dawnEnd.b, nightStart.b, easedProgress);
+            this.drawStars(Math.max(0, (easedProgress - 0.2) / 0.8) * 0.7);
         } else {
-            // Đêm
-            r = 15; g = 23; b = 42;
-
-            // Vẽ Sao rõ
+            // Night
+            r = mix(nightStart.r, nightEnd.r, easedProgress);
+            g = mix(nightStart.g, nightEnd.g, easedProgress);
+            b = mix(nightStart.b, nightEnd.b, easedProgress);
             this.drawStars(1);
 
-            // Vẽ Mặt Trăng
+            const moonX = this.canvas.width * 0.2;
+            const moonY = this.canvas.height * 0.3;
             if (this.moonImg.complete && this.moonImg.naturalWidth !== 0) {
-                this.ctx.drawImage(this.moonImg, this.canvas.width * 0.2 - 30, this.canvas.height * 0.3 - 30, 60, 60);
+                this.ctx.drawImage(this.moonImg, moonX - 30, moonY - 30, 60, 60);
             } else {
                 this.ctx.fillStyle = '#f8fafc';
                 this.ctx.beginPath();
-                this.ctx.arc(this.canvas.width * 0.2, this.canvas.height * 0.3, 20, 0, Math.PI * 2);
+                this.ctx.arc(moonX, moonY, 20, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         }
@@ -854,8 +863,8 @@ class DinoGame {
         // Đổ màu nền
         this.canvas.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 
-        // Vẽ Mây Trắng (Mờ dần khi đêm)
-        let cloudAlpha = phase === 0 ? 0.8 : (phase === 1 ? 0.8 * (1 - progress) : 0);
+        // Vẽ Mây Trắng (giữ mây ở đêm nhưng giảm độ sáng)
+        let cloudAlpha = phase === 0 ? 0.8 : (phase === 1 ? 0.8 * (1 - easedProgress * 0.7) : 0.18);
         if (cloudAlpha > 0) {
             this.ctx.fillStyle = `rgba(255, 255, 255, ${cloudAlpha})`;
             for (let c of this.clouds) {
