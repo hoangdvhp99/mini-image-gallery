@@ -93,12 +93,19 @@ db.exec(`
         game_id TEXT PRIMARY KEY,
         is_active INTEGER DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS flappy_scores (
+        id INTEGER PRIMARY KEY,
+        playerName TEXT,
+        score INTEGER,
+        timestamp INTEGER
+    );
 `);
 
 // Insert default game settings
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('pikabeo', 1);
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('dino', 1);
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('dobeo', 1);
+db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('flappy', 1);
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('caro', 0);
 
 // Insert default admin if not exists
@@ -113,6 +120,7 @@ if (adminCount === 0) {
 try {
     db.prepare('DELETE FROM dino_scores WHERE score > 50000').run();
     db.prepare('DELETE FROM pikabeo_scores WHERE score > 100000').run();
+    db.prepare('DELETE FROM flappy_scores WHERE score > 5000').run();
 } catch (e) {
     console.error('Lỗi khi dọn dẹp kỷ lục cũ:', e);
 }

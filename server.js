@@ -599,6 +599,93 @@ app.delete('/api/dino/scores/:id', (req, res) => {
     }
 });
 
+// ================= flappy leaderboard ranking apis =================
+
+// Lấy danh sách bảng xếp hạng Flappy Beo (Top 50)
+app.get('/api/flappy/scores/leaderboard', (req, res) => {
+    try {
+        const stmt = db.prepare('SELECT * FROM flappy_scores ORDER BY score DESC, timestamp ASC LIMIT 50');
+        const leaderboard = stmt.all();
+        res.json({ success: true, leaderboard });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Lưu điểm Flappy Beo mới
+app.post('/api/flappy/scores', (req, res) => {
+    const { playerName, score } = req.body;
+    
+    if (!playerName || String(playerName).trim() === '') {
+        return res.status(400).json({ success: false, message: 'Tên người chơi không được để trống!' });
+    }
+
+    // Chống hack: Kiểm tra phiên chơi game hoạt động
+    if (!req.session || !req.session.activeGame || req.session.activeGame.type !== 'flappy') {
+        return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Lượt chơi không hợp lệ hoặc chưa được khởi tạo!' });
+    }
+
+    try {
+        const id = Date.now();
+        const cleanName = String(playerName).trim().substring(0, 15);
+        const safeScore = Math.max(0, parseInt(score) || 0);
+
+        // Chống hack: Kiểm tra tốc độ tăng điểm tối đa so với thời gian chơi thực tế (Flappy Bird qua ống nước mất ~1.5 - 2s/ống)
+        const elapsedSeconds = (Date.now() - req.session.activeGame.startTime) / 1000;
+
+        // Giới hạn thời gian chơi tối đa cho một phiên (không quá 30 phút = 1800 giây)
+        if (elapsedSeconds > 1800) {
+            return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Phiên chơi game đã hết hạn!' });
+        }
+
+        const maxPossibleScore = Math.ceil(elapsedSeconds * 2.5) + 10; // Ống nước + vật phẩm bia tối đa
+        if (safeScore > maxPossibleScore) {
+            return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Điểm số tăng nhanh bất thường so với thời gian chơi!' });
+        }
+
+        // Xóa phiên chơi sau khi đã dùng
+        delete req.session.activeGame;
+
+        const existing = db.prepare('SELECT * FROM flappy_scores WHERE playerName = ?').get(cleanName);
+        if (existing) {
+            if (safeScore > existing.score) {
+                db.prepare('UPDATE flappy_scores SET score = ?, timestamp = ? WHERE playerName = ?').run(safeScore, id, cleanName);
+            }
+        } else {
+            db.prepare('INSERT INTO flappy_scores (id, playerName, score, timestamp) VALUES (?, ?, ?, ?)').run(id, cleanName, safeScore, id);
+        }
+        
+        // Find their best score to calculate rank
+        const bestEntry = db.prepare('SELECT * FROM flappy_scores WHERE playerName = ?').get(cleanName);
+
+        // Lấy thứ hạng
+        const rankStmt = db.prepare(`
+            SELECT COUNT(*) + 1 AS rank FROM flappy_scores 
+            WHERE score > ? 
+            OR (score = ? AND timestamp < ?)
+        `);
+        const rankResult = rankStmt.get(bestEntry.score, bestEntry.score, bestEntry.timestamp);
+
+        res.json({ success: true, rank: rankResult.rank, entry: bestEntry });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Admin xóa điểm Flappy
+app.delete('/api/flappy/scores/:id', (req, res) => {
+    if (!req.session || !req.session.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const id = req.params.id;
+    try {
+        db.prepare('DELETE FROM flappy_scores WHERE id = ?').run(id);
+        res.json({ success: true, message: 'Đã xóa kỷ lục!' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // ================= Q&A APIs =================
 
 // Lấy danh sách câu hỏi Q&A
