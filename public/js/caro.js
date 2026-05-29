@@ -371,7 +371,7 @@ class CaroGame {
                         titleEl.innerText = 'CHIẾN THẮNG QUÁ ĐỈNH!';
                         titleEl.className = 'text-cyan-400 font-black text-xl md:text-2xl tracking-widest';
                         msgEl.innerText = `Chúc mừng bạn! Bạn đã hủy diệt đối thủ bằng nước cờ Caro chuẩn sách giáo khoa.`;
-                        memeEl.src = `/img/beo-dino/characters/${Math.floor(Math.random() * 5) + 5}.png`; // Mấy sprite Lbeo cười ngầu
+                        memeEl.src = '/img/caro/victory.png';
                         glowEl.className = 'absolute -top-16 -left-16 w-32 h-32 bg-cyan-500/20 rounded-full filter blur-2xl pointer-events-none';
                         this.playSound('win');
                         this.startCelebrationParticles('#06b6d4');
@@ -390,7 +390,7 @@ class CaroGame {
                         titleEl.innerText = 'THẮNG CUỘC DO ĐỐI THỦ HẾT GIỜ!';
                         titleEl.className = 'text-emerald-400 font-black text-xl md:text-2xl tracking-widest';
                         msgEl.innerText = `Đối thủ ${loser.name} đã rơi vào thế cờ quá hiểm hóc và cạn kiệt thời gian suy nghĩ.`;
-                        memeEl.src = `/img/beo-dino/characters/8.png`;
+                        memeEl.src = '/img/caro/victory.png';
                         this.playSound('win');
                     } else {
                         emojiEl.innerText = '⏰💥';
@@ -405,7 +405,7 @@ class CaroGame {
                     titleEl.innerText = 'ĐỐI THỦ ĐÃ BỎ CHẠY (RAGE QUIT)!';
                     titleEl.className = 'text-amber-500 font-black text-xl md:text-2xl tracking-widest';
                     msgEl.innerText = `Nhận thấy nước cờ quá bế tắc, đối thủ đã lẳng lặng đứt kết nối hoặc Rage Quit. Bạn thắng cuộc!`;
-                    memeEl.src = `/img/beo-dino/characters/16.png`; // Sprite chạy trốn
+                    memeEl.src = '/img/caro/victory.png';
                     this.playSound('win');
                     this.startCelebrationParticles('#f59e0b');
                 } else if (result === 'draw') {
