@@ -1,13 +1,13 @@
 <%- include('partials/head', { title: 'BeoHub - Share Tốc Độ Cao Mạng LAN' }) %><body class="min-h-screen font-sans text-gray-300">
-    <div class="container mx-auto p-4 max-w-6xl">
+    <div class="w-full px-4 md:px-8 py-4">
 
         <%- include('partials/nav', { isHome: true }) %>
 
         <!-- HOME / MAIN SECTION -->
         <section id="homeSection" class="transition-all duration-300">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
                 <!-- Khu Vực Upload (Bên trái) -->
-                <div id="uploadContainer" class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit md:col-span-1 shadow-2xl">
+                <div id="uploadContainer" class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit lg:col-span-1 shadow-2xl">
                     <h2
                         class="text-base font-bold mb-4 text-white uppercase tracking-wide border-b border-neutral-800 pb-2 flex items-center gap-1">
                         <span>📤</span> Tải nội dung lên
@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Khu Vực Thư Viện Media (Bên phải) -->
-                <div id="galleryContainer" class="md:col-span-3 space-y-4">
+                <div id="galleryContainer" class="lg:col-span-3 xl:col-span-4 2xl:col-span-5 space-y-4">
                     <div id="lbeoBanner" class="hidden bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex items-center gap-4 shadow-xl">
                         <div class="text-3xl">🖤</div>
                         <div>
@@ -75,14 +75,14 @@
                             placeholder="🔍 Nhập tên file, định dạng hoặc hashtag cần tìm..."
                             class="w-full p-3.5 bg-ph-dark rounded-xl border border-neutral-800 text-white focus:outline-none focus:border-ph-orange transition text-sm shadow-xl pl-5 placeholder-gray-600">
                     </div>
-                    <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                    <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5"></div>
                 </div>
             </div>
         </section>
 
         <!-- NEWS SECTION -->
         <section id="newsSection" class="hidden transition-all duration-300">
-            <div class="max-w-4xl mx-auto space-y-6">
+            <div class="w-full space-y-6">
                 <div class="text-center space-y-2 mb-6">
                     <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center justify-center gap-2">
                         <span>📰</span> Tin Tức Mới Nhất
@@ -101,7 +101,7 @@
 
         <!-- IDEAS CONTRIBUTION SECTION -->
         <section id="ideasSection" class="hidden transition-all duration-300">
-            <div class="max-w-2xl mx-auto bg-ph-dark p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl space-y-6">
+            <div class="w-full bg-ph-dark p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl space-y-6">
                 <div class="text-center space-y-2">
                     <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center justify-center gap-2">
                         <span>🎭</span> Ghép mặt Lbeo AI

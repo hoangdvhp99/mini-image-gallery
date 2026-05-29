@@ -510,7 +510,7 @@ async function switchTab(tabName) {
 
     // Reset layout defaults
     elements.uploadContainer.classList.remove('hidden');
-    elements.galleryContainer.className = 'md:col-span-3 space-y-4';
+    elements.galleryContainer.className = 'lg:col-span-3 xl:col-span-4 2xl:col-span-5 space-y-4';
     elements.lbeoBanner.classList.add('hidden');
     elements.homeSection.classList.add('hidden');
     elements.newsSection.classList.add('hidden');
@@ -530,7 +530,7 @@ async function switchTab(tabName) {
         elements.tabLbeo.classList.add('active');
         elements.homeSection.classList.remove('hidden');
         elements.uploadContainer.classList.add('hidden');
-        elements.galleryContainer.className = 'md:col-span-4 space-y-4';
+        elements.galleryContainer.className = 'col-span-full space-y-4';
         elements.lbeoBanner.classList.remove('hidden');
         fetchImages('');
     } else if (tabName === 'news') {
