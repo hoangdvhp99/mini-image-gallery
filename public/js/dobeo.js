@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 wakeUpAudio.play().catch(e => console.log('Chưa tìm thấy file audio wake-up.mp3'));
             } catch(e) {}
 
-            overlayIcon.innerHTML = '<img src="/img/do-beo/lbeo.png" class="w-24 h-24 object-cover mx-auto rounded-full border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]">';
+            overlayIcon.innerHTML = '<img src="/img/do-beo/boom.png" class="w-[14rem] h-[14rem] object-cover mx-auto">';
             overlayTitle.textContent = 'BẠN ĐÃ ĐÁNH THỨC LBEO!';
             overlayTitle.className = 'text-red-500 font-black text-3xl tracking-wider';
             overlayMessage.textContent = 'Thua rồi! Lbeo đang rất quạu!';
