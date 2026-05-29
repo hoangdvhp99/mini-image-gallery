@@ -99,6 +99,7 @@ db.exec(`
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('pikabeo', 1);
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('dino', 1);
 db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('dobeo', 1);
+db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('caro', 0);
 
 // Insert default admin if not exists
 const bcrypt = require('bcryptjs');

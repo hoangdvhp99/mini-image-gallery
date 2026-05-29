@@ -85,9 +85,13 @@
                         </div>
                         <% } %>
 
+                        <% if (isAdmin || (gameSettings && gameSettings.caro)) { %>
                         <!-- Thẻ game Caro -->
-                        <div class="bg-neutral-900/60 p-5 rounded-2xl border border-neutral-800/80 hover:border-cyan-500/30 transition duration-300 flex flex-col justify-between space-y-4 shadow-lg group">
-                            <div class="space-y-2">
+                        <div class="bg-neutral-900/60 p-5 rounded-2xl border border-neutral-800/80 hover:border-cyan-500/30 transition duration-300 flex flex-col justify-between space-y-4 shadow-lg group relative overflow-hidden">
+                            <% if (gameSettings && !gameSettings.caro) { %>
+                                <span class="bg-red-500 px-3 py-1 text-[10px] font-black text-white absolute top-0 right-0 rounded-bl-lg shadow-md z-10">TEST MODE</span>
+                            <% } %>
+                            <div class="space-y-2 mt-1">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-bold text-cyan-500 bg-cyan-500/10 px-2.5 py-0.5 rounded-full">Caro LAN</span>
                                     <span class="text-xs text-gray-500 font-medium">Phiên bản 1.0</span>
@@ -101,6 +105,7 @@
                                 CHƠI NGAY ⚔️
                             </button>
                         </div>
+                        <% } %>
                     </div>
 
                     <!-- Khu vực Admin Quản Lý Ảnh Bí Mật -->
@@ -117,7 +122,7 @@
                         <!-- Cài đặt Trạng thái Game -->
                         <div class="bg-neutral-950 p-4 rounded-xl border border-neutral-850/80">
                             <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Quản Lý Trạng Thái Game:</h5>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 <!-- Pikabeo -->
                                 <div class="flex items-center justify-between bg-neutral-900 px-3 py-2 rounded-lg border border-neutral-800">
                                     <span class="text-xs font-bold text-amber-500">⚡ Pikabeo</span>
@@ -139,6 +144,14 @@
                                     <span class="text-xs font-bold text-blue-500">💣 Dò Beo</span>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" class="sr-only peer" onchange="toggleGameSettings('dobeo', this.checked)" <%= (gameSettings && gameSettings.dobeo) ? 'checked' : '' %>>
+                                        <div class="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                                    </label>
+                                </div>
+                                <!-- Caro -->
+                                <div class="flex items-center justify-between bg-neutral-900 px-3 py-2 rounded-lg border border-neutral-800">
+                                    <span class="text-xs font-bold text-cyan-500">⭕ Caro</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" onchange="toggleGameSettings('caro', this.checked)" <%= (gameSettings && gameSettings.caro) ? 'checked' : '' %>>
                                         <div class="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
                                     </label>
                                 </div>
