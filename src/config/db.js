@@ -89,7 +89,16 @@ db.exec(`
         createdAt INTEGER,
         repliedAt INTEGER
     );
+    CREATE TABLE IF NOT EXISTS game_settings (
+        game_id TEXT PRIMARY KEY,
+        is_active INTEGER DEFAULT 0
+    );
 `);
+
+// Insert default game settings
+db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('pikabeo', 1);
+db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('dino', 1);
+db.prepare('INSERT OR IGNORE INTO game_settings (game_id, is_active) VALUES (?, ?)').run('dobeo', 1);
 
 // Insert default admin if not exists
 const bcrypt = require('bcryptjs');

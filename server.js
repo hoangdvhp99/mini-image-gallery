@@ -165,7 +165,15 @@ app.get('/', (req, res) => {
 });
 
 app.get('/minigame', (req, res) => {
-    res.render('minigame');
+    try {
+        const isAdmin = req.session && req.session.isAdmin ? true : false;
+        const settings = db.prepare('SELECT * FROM game_settings').all();
+        const gameSettings = {};
+        settings.forEach(s => gameSettings[s.game_id] = s.is_active);
+        res.render('minigame', { isAdmin, gameSettings });
+    } catch (e) {
+        res.render('minigame', { isAdmin: false, gameSettings: {} });
+    }
 });
 
 app.get('/login', (req, res) => {
@@ -344,6 +352,20 @@ app.post('/api/game/start', (req, res) => {
         startTime: Date.now()
     };
     res.json({ success: true, message: 'Phiên chơi game đã được khởi tạo!' });
+});
+
+// Admin cập nhật trạng thái (show/hide) của game
+app.post('/api/game/settings', (req, res) => {
+    if (!req.session || !req.session.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Từ chối!' });
+    }
+    const { game_id, is_active } = req.body;
+    try {
+        db.prepare('UPDATE game_settings SET is_active = ? WHERE game_id = ?').run(is_active ? 1 : 0, game_id);
+        res.json({ success: true, message: 'Đã cập nhật trạng thái game!' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
 });
 
 // ================= pikabeo leaderboard ranking apis =================
