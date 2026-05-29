@@ -185,6 +185,54 @@ app.get('/minigame', (req, res) => {
     }
 });
 
+app.get('/minigame/pikabeo', (req, res) => {
+    try {
+        const isAdmin = req.session && req.session.isAdmin ? true : false;
+        const setting = db.prepare('SELECT is_active FROM game_settings WHERE game_id = ?').get('pikabeo');
+        const isActive = setting ? setting.is_active === 1 : false;
+        if (!isActive && !isAdmin) return res.redirect('/minigame');
+        res.render('minigame-pikabeo', { isAdmin });
+    } catch (e) {
+        res.redirect('/minigame');
+    }
+});
+
+app.get('/minigame/beorun', (req, res) => {
+    try {
+        const isAdmin = req.session && req.session.isAdmin ? true : false;
+        const setting = db.prepare('SELECT is_active FROM game_settings WHERE game_id = ?').get('dino');
+        const isActive = setting ? setting.is_active === 1 : false;
+        if (!isActive && !isAdmin) return res.redirect('/minigame');
+        res.render('minigame-beorun', { isAdmin });
+    } catch (e) {
+        res.redirect('/minigame');
+    }
+});
+
+app.get('/minigame/dobeo', (req, res) => {
+    try {
+        const isAdmin = req.session && req.session.isAdmin ? true : false;
+        const setting = db.prepare('SELECT is_active FROM game_settings WHERE game_id = ?').get('dobeo');
+        const isActive = setting ? setting.is_active === 1 : false;
+        if (!isActive && !isAdmin) return res.redirect('/minigame');
+        res.render('minigame-dobeo', { isAdmin });
+    } catch (e) {
+        res.redirect('/minigame');
+    }
+});
+
+app.get('/minigame/caro', (req, res) => {
+    try {
+        const isAdmin = req.session && req.session.isAdmin ? true : false;
+        const setting = db.prepare('SELECT is_active FROM game_settings WHERE game_id = ?').get('caro');
+        const isActive = setting ? setting.is_active === 1 : false;
+        if (!isActive && !isAdmin) return res.redirect('/minigame');
+        res.render('minigame-caro', { isAdmin });
+    } catch (e) {
+        res.redirect('/minigame');
+    }
+});
+
 app.get('/login', (req, res) => {
     res.render('login');
 });

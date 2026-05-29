@@ -1,0 +1,81 @@
+<%- include('partials/head', { title: 'Dò Beo (Minesweeper) - BeoHub Minigame' }) %>
+<body class="min-h-screen font-outfit text-gray-300">
+    <div class="w-full px-4 md:px-8 py-4">
+        <%- include('partials/nav', { isMinigame: true }) %>
+
+        <!-- MINIGAME CONTENT -->
+        <section id="minigameSection" class="transition-all duration-300 max-w-[1440px] mx-auto pt-4">
+            <div id="minigameContainer" class="w-full space-y-6 transition-all duration-500">
+                
+                <!-- Khu Vực Bàn Chơi Dò Beo -->
+                <div id="dobeoPlayground" class="bg-neutral-900 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col gap-6 relative overflow-hidden select-none w-full">
+                    <!-- Bảng điều khiển / Header -->
+                    <div class="flex justify-between items-center bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 shadow-inner overflow-x-auto custom-scrollbar">
+                        <div class="flex gap-4 sm:gap-6 items-center shrink-0">
+                            <div class="space-y-1">
+                                <span class="text-gray-500 text-[10px] uppercase font-bold">MỨC ĐỘ</span>
+                                <select id="dobeoDifficulty" class="bg-neutral-900 text-amber-500 font-bold border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none cursor-pointer w-full max-w-[150px]">
+                                    <option value="easy">Làm Tí (9x9)</option>
+                                    <option value="medium">Đô Nửa Thùng (16x16)</option>
+                                    <option value="hard">Quắc Cần Câu (30x16)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-gray-500 text-[10px] uppercase font-bold">THỜI GIAN NHẬU</span>
+                                <div id="dobeoTimer" class="text-emerald-500 font-mono font-black text-xl">000</div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-gray-500 text-[10px] uppercase font-bold">LY BIA CÒN LẠI</span>
+                                <div id="dobeoFlagsCount" class="text-blue-400 font-mono font-black text-xl">010</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-4">
+                            <button id="btnDobeoRestart" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-3 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                🔄 Chơi Lại
+                            </button>
+                            <button id="btnDobeoQuit" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-3 py-2 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                🚪 Thoát
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Màn hình chơi (Grid) -->
+                    <div class="w-full min-h-[520px] bg-neutral-950 rounded-2xl border border-neutral-850 p-2 md:p-4 flex items-center justify-center shadow-inner overflow-auto custom-scrollbar relative">
+                        <div id="dobeoGrid" class="dobeo-grid">
+                            <!-- Các ô (cells) sẽ được generate vào đây -->
+                        </div>
+                        
+                        <!-- Lớp phủ Tạm Dừng / Kết thúc -->
+                        <div id="dobeoOverlay" class="absolute inset-0 bg-neutral-950/80 backdrop-blur-sm z-40 hidden flex-col items-center justify-center gap-4 transition-all duration-300 rounded-xl">
+                            <div class="text-center space-y-2">
+                                <span id="dobeoOverlayIcon" class="text-6xl block mb-4">🍺</span>
+                                <h3 id="dobeoOverlayTitle" class="text-yellow-400 font-black text-3xl tracking-wider">CHÚC MỪNG</h3>
+                                <p id="dobeoOverlayMessage" class="text-sm text-neutral-400 font-bold">Bạn đã an toàn qua cơn say!</p>
+                            </div>
+                            <button id="btnDobeoOverlayClose" class="bg-blue-500 hover:bg-blue-400 text-black font-black text-xs px-8 py-3 mt-2 rounded-2xl transition shadow-lg shadow-blue-500/20 tracking-wider">
+                                LÀM TÍ NỮA KHÔNG?
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Container Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Hidden element just to satisfy static references if any -->
+    <div id="btnStartDobeo" class="hidden"></div>
+
+    <!-- Core Game Scripts -->
+    <link rel="stylesheet" href="/css/dobeo.css?v=<%= version %>">
+    <script type="module" src="/js/ui.js?v=<%= version %>"></script>
+    <script type="module" src="/js/dobeo.js?v=<%= version %>"></script>
+    <script type="module">
+        import { showToast } from '/js/ui.js';
+        window.showToast = showToast;
+    </script>
+</body>
+</html>

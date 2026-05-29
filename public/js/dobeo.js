@@ -370,18 +370,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners Điều Hướng ---
     btnStartDobeo?.addEventListener('click', () => {
-        minigameHome.classList.add('hidden');
+        if (minigameHome) minigameHome.classList.add('hidden');
         dobeoPlayground.classList.remove('hidden');
         initGame();
     });
 
     btnQuit.addEventListener('click', () => {
-        dobeoPlayground.classList.add('hidden');
-        minigameHome.classList.remove('hidden');
         clearInterval(timerInterval);
+        if (minigameHome) {
+            dobeoPlayground.classList.add('hidden');
+            minigameHome.classList.remove('hidden');
+        } else {
+            window.location.href = '/minigame';
+        }
     });
 
     btnRestart.addEventListener('click', initGame);
     btnOverlayClose.addEventListener('click', initGame);
     difficultySelect.addEventListener('change', initGame);
+
+    // Auto-init on dedicated page
+    if (!minigameHome) {
+        dobeoPlayground.classList.remove('hidden');
+        initGame();
+    }
 });

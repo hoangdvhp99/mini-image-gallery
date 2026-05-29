@@ -80,11 +80,24 @@ class CaroGame {
         const minigameHome = document.getElementById('minigameHome');
         const caroPlayground = document.getElementById('caroPlayground');
         
+        // Auto-start socket connection and lobby controls on dedicated page
+        if (!minigameHome) {
+            // Điền tên đã lưu nếu có
+            const savedName = localStorage.getItem('pikabeoPlayerName') || localStorage.getItem('beoDinoPlayerName') || '';
+            const nameInput = document.getElementById('caroPlayerNameInput');
+            if (nameInput) {
+                nameInput.value = savedName;
+            }
+            
+            this.connectSocket();
+            this.resetToLobbyView();
+        }
+        
         // Trình kích hoạt mở game
         if (btnStartCaro) {
             btnStartCaro.addEventListener('click', () => {
-                minigameHome.classList.add('hidden');
-                caroPlayground.classList.remove('hidden');
+                if (minigameHome) minigameHome.classList.add('hidden');
+                if (caroPlayground) caroPlayground.classList.remove('hidden');
                 this.playSound('click');
                 
                 // Điền tên đã lưu nếu có

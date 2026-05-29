@@ -1,4 +1,4 @@
-<%- include('partials/head', { title: 'Pikabeo Onet Connect - Kho Minigame BeoHub' }) %>
+<%- include('partials/head', { title: 'Kho Minigame BeoHub' }) %>
 <body class="min-h-screen font-outfit text-gray-300">
     <div class="w-full px-4 md:px-8 py-4">
         <%- include('partials/nav', { isMinigame: true }) %>
@@ -35,7 +35,7 @@
                                     Trò chơi Pikachu 2003 cổ điển cực kỳ quen thuộc! Kết nối các cặp thẻ Lbeo giống nhau để hé lộ dần bức **Ảnh Bí Mật** do Admin giấu kín ở phía dưới. Giải mã toàn bộ màn chơi trước khi hết giờ để chiến thắng!
                                 </p>
                             </div>
-                            <button id="btnStartPikabeo" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-amber-500/10">
+                            <button id="btnStartPikabeo" onclick="location.href='/minigame/pikabeo'" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-amber-500/10">
                                 CHƠI NGAY 🎮
                             </button>
                         </div>
@@ -57,7 +57,7 @@
                                     Trò chơi khủng long mất mạng huyền thoại, nhưng nay đã được thay thế bằng cậu bé áo vàng Lbeo! Nhảy qua các chướng ngại vật và chạy xa nhất có thể.
                                 </p>
                             </div>
-                            <button id="btnStartDino" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-emerald-500/10">
+                            <button id="btnStartDino" onclick="location.href='/minigame/beorun'" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-emerald-500/10">
                                 CHƠI NGAY 🏃
                             </button>
                         </div>
@@ -79,7 +79,7 @@
                                     Một phiên bản siêu bựa của Minesweeper. Đừng đánh thức Lbeo nếu không muốn phải uống phạt! Cắm ly bia để đánh dấu và mở hết đĩa lạc.
                                 </p>
                             </div>
-                            <button id="btnStartDobeo" class="w-full bg-blue-500 hover:bg-blue-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-blue-500/10">
+                            <button id="btnStartDobeo" onclick="location.href='/minigame/dobeo'" class="w-full bg-blue-500 hover:bg-blue-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-blue-500/10">
                                 CHƠI NGAY 🍺
                             </button>
                         </div>
@@ -101,7 +101,7 @@
                                     Trò chơi cờ Caro (Gomoku) 15x15 hấp dẫn thời gian thực qua mạng nội bộ LAN! Trận đấu kịch tính với đồng hồ đếm ngược tùy chỉnh và luật chặn hai đầu đầy tính chiến thuật. Chat trực tuyến giao lưu cùng bạn chơi!
                                 </p>
                             </div>
-                            <button id="btnStartCaro" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-cyan-500/10">
+                            <button id="btnStartCaro" onclick="location.href='/minigame/caro'" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black py-2.5 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-cyan-500/10">
                                 CHƠI NGAY ⚔️
                             </button>
                         </div>
@@ -175,500 +175,8 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Khu Vực Bàn Chơi Pikabeo (Ẩn mặc định) -->
-                <div id="pikabeoPlayground" class="hidden bg-neutral-900 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col md:flex-row gap-6 relative overflow-hidden select-none">
-                    
-                    <!-- Bảng chỉ số (Cột trái trên desktop, hàng đầu trên mobile) -->
-                    <div class="w-full md:w-48 bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 flex flex-row md:flex-col justify-between md:justify-start gap-4 text-xs font-bold shrink-0 shadow-inner">
-                        <div class="space-y-3 flex-1 md:flex-initial">
-                            <h3 class="text-amber-500 text-[10px] tracking-wider uppercase font-black border-b border-neutral-850 pb-1.5 hidden md:block">📊 CHỈ SỐ BÀN CHƠI</h3>
-                            
-                            <div class="flex md:flex-col justify-between gap-1.5">
-                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
-                                    <span class="text-gray-500">Mức Chơi:</span>
-                                    <span id="pikaLevel" class="text-white font-black text-sm">1</span>
-                                </div>
-                            </div>
-                            <div class="flex md:flex-col justify-between gap-1.5">
-                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
-                                    <span class="text-gray-500">Lượt đổi vị trí:</span>
-                                    <span id="pikaShuffles" class="text-amber-400 font-mono font-black text-sm">10</span>
-                                </div>
-                            </div>
-                            <div class="flex md:flex-col justify-between gap-1.5">
-                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
-                                    <span class="text-gray-500">Điểm số:</span>
-                                    <span id="pikaScore" class="text-emerald-500 font-mono font-black text-sm">0</span>
-                                </div>
-                            </div>
-                            <div class="flex md:flex-col justify-between gap-1.5">
-                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
-                                    <span class="text-gray-500">Lượt gợi ý:</span>
-                                    <span id="pikaSidebarHints" class="text-cyan-400 font-mono font-black text-sm">5</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Thanh thời gian dạng đứng trên desktop, nằm ngang trên mobile -->
-                        <div class="w-full md:w-auto flex flex-col gap-1.5 flex-1 md:flex-initial md:pt-4">
-                            <div class="flex justify-between text-[9px] text-gray-500 font-black uppercase">
-                                <span>⏳ Thời gian còn lại</span>
-                            </div>
-                            <div class="h-4 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800 p-0.5 w-full shadow-inner">
-                                <div id="pikaTimerBar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full transition-all duration-100" style="width: 100%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Khung chơi game trung tâm -->
-                    <div class="flex-grow flex flex-col items-stretch justify-center relative min-h-[400px] md:min-h-[680px] w-full">
-                        <!-- Canvas vẽ đường nối -->
-                        <canvas id="pikabeoCanvas" class="absolute inset-0 pointer-events-none z-20"></canvas>
-                        
-                        <!-- Lưới chứa thẻ bài Pikachu -->
-                        <div id="pikabeoBoard" class="relative w-full flex-grow bg-neutral-950 rounded-2xl border border-neutral-850 p-2 overflow-hidden shadow-inner flex items-center justify-center">
-                            <!-- Ảnh bí ẩn làm hình nền của bàn cờ -->
-                            <canvas id="pikabeoSecretCanvas" class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700 pointer-events-none z-0"></canvas>
-                            
-                             <!-- Các ô thẻ bài sẽ được chèn động bằng JS vào đây -->
-                             <div id="pikabeoGrid" class="absolute inset-2 grid z-10 w-[calc(100%-16px)] h-[calc(100%-16px)] gap-1 md:gap-1.5"></div>
-                             
-                             <!-- Lớp phủ Tạm dừng Glassmorphism cao cấp -->
-                             <div id="pikabeoPauseOverlay" class="absolute inset-0 bg-neutral-950/80 backdrop-blur-md z-40 hidden flex flex-col items-center justify-center gap-4">
-                                 <div class="text-center space-y-2 animate-pulse">
-                                     <span class="text-4xl block">⏸️</span>
-                                     <h3 class="text-yellow-400 font-black text-lg tracking-wider">GAME ĐANG TẠM DỪNG</h3>
-                                     <p class="text-xs text-neutral-400 font-bold">Thời gian chơi và lưới cờ đã được đóng băng</p>
-                                 </div>
-                                 <button id="btnPikaResumeOverlay" class="bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xs px-6 py-3 rounded-2xl transition shadow-lg shadow-yellow-500/20 tracking-wider flex items-center gap-2">
-                                     ▶️ Tiếp Tục Chơi
-                                 </button>
-                             </div>
-
-                             <!-- Lớp phủ Bảng Xếp Hạng Glassmorphism trong Game -->
-                             <div id="pikabeoLeaderboardOverlay" class="absolute inset-0 bg-neutral-950/85 backdrop-blur-md z-45 hidden flex flex-col items-center justify-center p-4">
-                                 <div class="w-full max-w-xl bg-neutral-900/90 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl space-y-4 max-h-[95%] overflow-hidden flex flex-col justify-between transform scale-95 transition-all duration-300">
-                                     <div class="space-y-1 text-center select-none">
-                                         <h4 class="text-sm font-black text-amber-500 uppercase tracking-widest flex items-center justify-center gap-1.5">
-                                             <span>🏆</span> BẢNG XẾP HẠNG PIKABEO CONNECT (TOP 10)
-                                         </h4>
-                                         <p class="text-[9px] text-gray-500">Những cao thủ có tốc độ giải mã thần sầu và dùng ít quyền hỗ trợ nhất!</p>
-                                     </div>
-
-                                     <!-- Bảng Glassmorphism -->
-                                     <div class="bg-neutral-950/60 rounded-2xl border border-neutral-850 overflow-hidden shadow-xl flex-grow overflow-y-auto custom-scrollbar my-2 max-h-[280px]">
-                                         <table class="w-full text-left border-collapse text-[11px]">
-                                             <thead>
-                                                 <tr class="border-b border-neutral-850 bg-neutral-900/50 text-[9px] uppercase font-black text-gray-400 select-none">
-                                                     <th class="py-2 px-3 text-center w-10">Hạng</th>
-                                                     <th class="py-2 px-3">Cao Thủ</th>
-                                                     <th class="py-2 px-3 text-center">Cấp Độ</th>
-                                                     <th class="py-2 px-3 text-center">Thời Gian Chơi</th>
-                                                     <th class="py-2 px-3 text-center">Hỗ Trợ</th>
-                                                     <th class="py-2 px-3 text-right pr-4">Tổng Điểm</th>
-                                                 </tr>
-                                             </thead>
-                                             <tbody id="pikabeoLeaderboardList" class="divide-y divide-neutral-900/60 font-bold text-gray-300">
-                                                 <!-- Render động qua API -->
-                                                 <tr>
-                                                     <td colspan="6" class="py-8 text-center text-neutral-600 font-medium select-none">
-                                                         <div class="flex items-center justify-center gap-2">
-                                                             <span class="animate-spin text-amber-500">🔄</span> Đang tải bảng xếp hạng...
-                                                         </div>
-                                                     </td>
-                                                 </tr>
-                                             </tbody>
-                                         </table>
-                                     </div>
-
-                                     <div class="flex justify-center">
-                                         <button id="btnPikaCloseLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-white font-black text-[10px] px-6 py-2.5 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                             ❌ Đóng Bảng Xếp Hạng
-                                         </button>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
- 
-                         <!-- Bộ nút điều khiển phía dưới -->
-                         <div class="flex flex-wrap justify-center gap-3 mt-4 w-full">
-                             <button id="btnPikaSound" class="bg-neutral-850 hover:bg-neutral-800 text-white font-bold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                 <span id="pikaSoundIcon">🔊</span> Âm Thanh: Bật
-                             </button>
-                             <button id="btnPikaShuffle" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                 🔄 Đổi Vị Trí
-                             </button>
-                             <button id="btnPikaHint" class="bg-neutral-850 hover:bg-neutral-800 text-cyan-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                 💡 Gợi Ý (<span id="pikaHints">5</span>)
-                             </button>
-                             <button id="btnPikaPause" class="bg-neutral-850 hover:bg-neutral-800 text-yellow-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                 <span id="pikaPauseIcon">⏸️</span> Tạm Dừng
-                             </button>
-                             <button id="btnPikaShowLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-amber-500 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                 🏆 Xếp Hạng
-                             </button>
-                             <button id="btnPikaRestart" class="bg-neutral-850 hover:bg-neutral-800 text-emerald-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                 🎮 Chơi Lại
-                            </button>
-                            <button id="btnPikaQuit" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🚪 Thoát Game
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Khu Vực Bàn Chơi Beo Dino Run (Ẩn mặc định) -->
-                <div id="dinoPlayground" class="hidden bg-neutral-900 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col gap-6 relative overflow-hidden select-none w-full">
-                    <!-- Bảng chỉ số -->
-                    <div class="flex justify-between items-center bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 shadow-inner">
-                        <div class="flex gap-6">
-                            <div class="space-y-1">
-                                <span class="text-gray-500 text-[10px] uppercase font-bold">ĐIỂM HIỆN TẠI</span>
-                                <div id="dinoScore" class="text-emerald-500 font-mono font-black text-xl">00000</div>
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-gray-500 text-[10px] uppercase font-bold">KỶ LỤC</span>
-                                <div id="dinoHighScore" class="text-amber-500 font-mono font-black text-xl">00000</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button id="btnDinoShowLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-amber-500 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🏆 Xếp Hạng
-                            </button>
-                            <button id="btnDinoCharSelect" class="bg-indigo-600/40 hover:bg-indigo-600/80 text-indigo-300 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-indigo-500/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                👕 Chọn Nhân Vật
-                            </button>
-                            <button id="btnDinoQuit" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🚪 Thoát Game
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Khu vực chọn nhân vật (Mở sẵn mặc định) -->
-                    <div id="dinoCharSelectPanel" class="bg-neutral-950 p-4 rounded-2xl border border-indigo-500/30 shadow-inner space-y-4 transition-all duration-300">
-                        <div class="flex justify-between items-center border-b border-neutral-850 pb-2">
-                            <h4 class="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
-                                <span>👗</span> CHỌN TRANG PHỤC & TƯ THẾ
-                            </h4>
-                            <button id="btnDinoCharClose" class="text-gray-500 hover:text-white transition text-xs font-bold">Đóng ❌</button>
-                        </div>
-                        <div id="dinoCharGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
-                            <!-- JS sẽ render các ô nhân vật vào đây -->
-                        </div>
-                    </div>
-
-                    <!-- Màn hình Canvas -->
-                    <div class="w-full h-[400px] md:h-[600px] bg-neutral-950 rounded-2xl border border-neutral-850 relative overflow-hidden flex items-center justify-center shadow-inner group">
-                        <canvas id="dinoCanvas" class="absolute inset-0 w-full h-full block cursor-pointer"></canvas>
-                        
-                        <!-- Lớp phủ Bắt đầu/Chơi lại -->
-                        <div id="dinoOverlay" class="absolute inset-0 bg-neutral-950/60 flex flex-col items-center justify-center backdrop-blur-sm transition-opacity pointer-events-none">
-                            <span class="text-5xl mb-2">🦖</span>
-                            <h3 id="dinoStatusText" class="text-emerald-400 font-black text-xl tracking-widest uppercase mb-4">NHẤN SPACE ĐỂ CHƠI</h3>
-                        </div>
-                        <!-- Lớp phủ Bảng Xếp Hạng đã được dời ra ngoài để Full màn hình -->
-                    </div>
-                    
-                    <div class="text-center">
-                        <p class="text-xs text-neutral-500 font-bold">Phím <kbd class="bg-neutral-800 px-2 py-0.5 rounded text-gray-300">Space</kbd> hoặc <kbd class="bg-neutral-800 px-2 py-0.5 rounded text-gray-300">Click</kbd> để nhảy!</p>
-                    </div>
-                </div>
-
-                <!-- Khu Vực Bàn Chơi Dò Beo (Ẩn mặc định) -->
-                <div id="dobeoPlayground" class="hidden bg-neutral-900 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col gap-6 relative overflow-hidden select-none w-full">
-                    <!-- Bảng điều khiển / Header -->
-                    <div class="flex justify-between items-center bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 shadow-inner overflow-x-auto custom-scrollbar">
-                        <div class="flex gap-4 sm:gap-6 items-center shrink-0">
-                            <div class="space-y-1">
-                                <span class="text-gray-500 text-[10px] uppercase font-bold">MỨC ĐỘ</span>
-                                <select id="dobeoDifficulty" class="bg-neutral-900 text-amber-500 font-bold border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none cursor-pointer w-full max-w-[150px]">
-                                    <option value="easy">Làm Tí (9x9)</option>
-                                    <option value="medium">Đô Nửa Thùng (16x16)</option>
-                                    <option value="hard">Quắc Cần Câu (30x16)</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-gray-500 text-[10px] uppercase font-bold">THỜI GIAN NHẬU</span>
-                                <div id="dobeoTimer" class="text-emerald-500 font-mono font-black text-xl">000</div>
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-gray-500 text-[10px] uppercase font-bold">LY BIA CÒN LẠI</span>
-                                <div id="dobeoFlagsCount" class="text-blue-400 font-mono font-black text-xl">010</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0 ml-4">
-                            <button id="btnDobeoRestart" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-3 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🔄 Chơi Lại
-                            </button>
-                            <button id="btnDobeoQuit" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-3 py-2 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🚪 Thoát
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Màn hình chơi (Grid) -->
-                    <div class="w-full min-h-[520px] bg-neutral-950 rounded-2xl border border-neutral-850 p-2 md:p-4 flex items-center justify-center shadow-inner overflow-auto custom-scrollbar relative">
-                        <div id="dobeoGrid" class="dobeo-grid">
-                            <!-- Các ô (cells) sẽ được generate vào đây -->
-                        </div>
-                        
-                        <!-- Lớp phủ Tạm Dừng / Kết thúc -->
-                        <div id="dobeoOverlay" class="absolute inset-0 bg-neutral-950/80 backdrop-blur-sm z-40 hidden flex-col items-center justify-center gap-4 transition-all duration-300 rounded-xl">
-                            <div class="text-center space-y-2">
-                                <span id="dobeoOverlayIcon" class="text-6xl block mb-4">🍺</span>
-                                <h3 id="dobeoOverlayTitle" class="text-yellow-400 font-black text-3xl tracking-wider">CHÚC MỪNG</h3>
-                                <p id="dobeoOverlayMessage" class="text-sm text-neutral-400 font-bold">Bạn đã an toàn qua cơn say!</p>
-                            </div>
-                            <button id="btnDobeoOverlayClose" class="bg-blue-500 hover:bg-blue-400 text-black font-black text-xs px-8 py-3 mt-2 rounded-2xl transition shadow-lg shadow-blue-500/20 tracking-wider">
-                                LÀM TÍ NỮA KHÔNG?
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Khu Vực Bàn Chơi Beo Caro LAN Online (Ẩn mặc định) -->
-                <div id="caroPlayground" class="hidden bg-neutral-900 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col gap-6 relative overflow-hidden select-none w-full">
-                    
-                    <!-- 1. MÀN HÌNH SẢNH CHỜ (LOBBY SCREEN) -->
-                    <div id="caroLobbyPanel" class="space-y-6">
-                        <div class="text-center space-y-2">
-                            <span class="text-5xl block animate-bounce">⚔️👑</span>
-                            <h3 class="text-xl font-black text-cyan-400 uppercase tracking-widest">SẢNH CHỜ CARO LAN ONLINE</h3>
-                            <p class="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
-                                Tạo phòng mới hoặc nhập mã PIN của bạn chơi để bắt đầu màn so tài cân não!
-                            </p>
-                        </div>
-
-                        <!-- Nhập tên chung -->
-                        <div class="max-w-md mx-auto bg-neutral-950 p-4 rounded-2xl border border-neutral-850">
-                            <label for="caroPlayerNameInput" class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 pl-1">
-                                TÊN KỲ THỦ (Tối đa 15 ký tự)
-                            </label>
-                            <input type="text" id="caroPlayerNameInput" maxlength="15" autocomplete="off" placeholder="Ví dụ: KỳThủCaro..." 
-                                   class="w-full bg-neutral-900 border border-neutral-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-sm text-white font-bold outline-none transition shadow-inner">
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <!-- Cột Trái: Tạo Phòng -->
-                            <div class="bg-neutral-950 p-6 rounded-2xl border border-neutral-850 space-y-4 flex flex-col justify-between shadow-inner">
-                                <div class="space-y-3">
-                                    <h4 class="text-sm font-black text-emerald-400 uppercase tracking-wider border-b border-neutral-850 pb-2 flex items-center gap-1.5">
-                                        <span>🔑</span> TẠO PHÒNG MỚI
-                                    </h4>
-                                    <p class="text-[11px] text-gray-500 leading-relaxed">
-                                        Trở thành chủ phòng và mời bạn chơi tham gia thông qua mã PIN 4 chữ số ngẫu nhiên.
-                                    </p>
-                                    
-                                    <!-- Cấu hình thời gian suy nghĩ -->
-                                    <div class="space-y-2 pt-2">
-                                        <label for="caroCreateTimerSelect" class="block text-[10px] font-black text-gray-500 uppercase tracking-widest pl-1">
-                                            Thời gian mỗi lượt đi
-                                        </label>
-                                        <select id="caroCreateTimerSelect" class="w-full bg-neutral-900 text-cyan-400 font-bold border border-neutral-800 rounded-xl px-3 py-2 text-xs outline-none cursor-pointer">
-                                            <option value="10">⚡ Chớp Nhoáng (10 giây)</option>
-                                            <option value="30" selected>⏱️ Mặc Định (30 giây)</option>
-                                            <option value="60">🧠 Suy Ngẫm (60 giây)</option>
-                                            <option value="120">🐢 Kỳ Thủ (120 giây)</option>
-                                            <option value="custom">⚙️ Tự Điền Giây...</option>
-                                        </select>
-                                        
-                                        <!-- Custom seconds input (hidden by default) -->
-                                        <div id="caroCreateTimerCustomBox" class="hidden animate-slide-in mt-2">
-                                            <input type="number" id="caroCreateTimerCustomInput" min="5" max="300" placeholder="Nhập số giây (5s - 300s)..." 
-                                                   class="w-full bg-neutral-900 border border-neutral-800 focus:border-cyan-500/50 rounded-xl px-3 py-2.5 text-xs text-white font-bold outline-none transition">
-                                        </div>
-                                    </div>
-                                </div>
-                                <button id="btnCaroCreateRoom" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-3 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-emerald-500/10 mt-4">
-                                    TẠO PHÒNG CHƠI 🚀
-                                </button>
-                            </div>
-
-                            <!-- Cột Phải: Vào Phòng -->
-                            <div class="bg-neutral-950 p-6 rounded-2xl border border-neutral-850 space-y-4 flex flex-col justify-between shadow-inner">
-                                <div class="space-y-3">
-                                    <h4 class="text-sm font-black text-cyan-400 uppercase tracking-wider border-b border-neutral-850 pb-2 flex items-center gap-1.5">
-                                        <span>⚔️</span> VÀO PHÒNG SẴN CÓ
-                                    </h4>
-                                    <p class="text-[11px] text-gray-500 leading-relaxed">
-                                        Nhập mã PIN 4 chữ số được chia sẻ bởi bạn chơi của bạn để bắt đầu trận đấu trực tiếp.
-                                    </p>
-                                    <div class="space-y-2 pt-2">
-                                        <label for="caroJoinCodeInput" class="block text-[10px] font-black text-gray-500 uppercase tracking-widest pl-1">
-                                            MÃ PIN PHÒNG CHƠI
-                                        </label>
-                                        <input type="text" id="caroJoinCodeInput" maxlength="4" autocomplete="off" placeholder="Ví dụ: 4812" 
-                                               class="w-full bg-neutral-900 border border-neutral-800 focus:border-cyan-500/50 rounded-xl px-3 py-2.5 text-xs text-white font-bold outline-none transition uppercase text-center tracking-widest">
-                                    </div>
-                                </div>
-                                <button id="btnCaroJoinRoom" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black py-3 rounded-xl font-black text-xs tracking-wider transition duration-150 shadow-lg shadow-cyan-500/10 mt-4">
-                                    THAM GIA PHÒNG ⚔️
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. MÀN HÌNH ĐỢI BẠN CHƠI (WAITING PANEL) -->
-                    <div id="caroWaitingPanel" class="hidden space-y-6 py-6">
-                        <div class="text-center space-y-3">
-                            <span class="text-5xl block animate-pulse">📡</span>
-                            <h3 class="text-lg font-black text-amber-500 uppercase tracking-widest">ĐANG ĐỢI ĐỐI THỦ THAM GIA...</h3>
-                            <p class="text-xs text-neutral-400">Hãy gửi mã PIN phòng dưới đây cho bạn bè trên cùng mạng LAN:</p>
-                            
-                            <div class="inline-block bg-neutral-950 px-8 py-4 rounded-3xl border border-neutral-800 shadow-inner">
-                                <span class="text-neutral-500 text-[10px] uppercase font-black tracking-widest block mb-1">MÃ PHÒNG</span>
-                                <span id="caroWaitingCode" class="text-4xl font-mono font-black text-cyan-400 tracking-wider animate-pulse">----</span>
-                            </div>
-                        </div>
-
-                        <!-- Cặp đấu hiển thị -->
-                        <div class="flex items-center justify-center gap-6 max-w-md mx-auto pt-4 select-none">
-                            <div class="flex-1 bg-neutral-950 p-4 rounded-2xl border border-cyan-500/30 text-center space-y-2">
-                                <img src="/img/caro/blue.png" class="w-16 h-16 mx-auto object-contain">
-                                <span id="caroWaitingP1Name" class="block font-bold text-xs text-white truncate">Bạn</span>
-                                <span class="text-[9px] font-black text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded-full border border-cyan-900">QUÂN XANH (X)</span>
-                            </div>
-                            <span class="text-neutral-600 font-black text-sm">VS</span>
-                            <div class="flex-1 bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-center space-y-2 opacity-60">
-                                <div class="w-16 h-16 mx-auto flex items-center justify-center border-4 border-dashed border-neutral-800 rounded-full animate-spin">
-                                    <span class="text-xs text-neutral-600 animate-none">⏳</span>
-                                </div>
-                                <span class="block font-bold text-xs text-neutral-500 italic">Đang chờ...</span>
-                                <span class="text-[9px] font-black text-neutral-600 bg-neutral-900 px-2 py-0.5 rounded-full border border-neutral-850">QUÂN ĐỎ (O)</span>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-center pt-4">
-                            <button id="btnCaroCancelWaiting" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-8 py-3 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
-                                🚪 HỦY PHÒNG / THOÁT
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 3. MÀN HÌNH BÀN CHƠI (MATCH PLAY PANEL) -->
-                    <div id="caroMatchPanel" class="hidden flex flex-col lg:flex-row gap-6 relative">
-                        
-                        <!-- Cột Trái: Chỉ số & Đếm ngược -->
-                        <div class="w-full lg:w-60 bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 flex flex-row lg:flex-col justify-between lg:justify-start gap-4 text-xs font-bold shrink-0 shadow-inner">
-                            <div class="space-y-4 w-full flex-grow flex flex-col">
-                                <div class="flex items-center justify-between border-b border-neutral-850 pb-2">
-                                    <h3 class="text-cyan-500 text-[10px] tracking-wider uppercase font-black">📊 TRẬN ĐẤU LAN</h3>
-                                    <span class="text-[10px] text-gray-500 font-mono" id="caroMatchCodeDisplay">Phòng #----</span>
-                                </div>
-
-                                <!-- Cặp kỳ thủ đấu -->
-                                <div class="space-y-3 pt-1">
-                                    <!-- Người chơi 1 -->
-                                    <div id="caroPlayer1Card" class="flex items-center gap-2 p-2 rounded-xl border border-neutral-900 transition-all duration-300">
-                                        <img src="/img/caro/blue.png" class="w-10 h-10 object-contain">
-                                        <div class="flex-grow min-w-0">
-                                            <span id="caroP1Name" class="block text-white truncate text-xs font-black">---</span>
-                                            <span class="text-[9px] text-cyan-400 font-black">QUÂN XANH (X)</span>
-                                        </div>
-                                    </div>
-                                    <div class="text-center text-[10px] text-neutral-600 font-black tracking-widest my-0">VS</div>
-                                    <!-- Người chơi 2 -->
-                                    <div id="caroPlayer2Card" class="flex items-center gap-2 p-2 rounded-xl border border-neutral-900 transition-all duration-300">
-                                        <img src="/img/caro/red.png" class="w-10 h-10 object-contain">
-                                        <div class="flex-grow min-w-0">
-                                            <span id="caroP2Name" class="block text-white truncate text-xs font-black">---</span>
-                                            <span class="text-[9px] text-rose-500 font-black">QUÂN ĐỎ (O)</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Lượt đi hiện tại -->
-                                <div class="bg-neutral-900/60 p-2.5 rounded-xl border border-neutral-850 text-center space-y-1">
-                                    <span class="text-gray-500 text-[9px] uppercase font-black">LƯỢT ĐI HIỆN TẠI:</span>
-                                    <div id="caroTurnIndicator" class="text-xs font-black text-white uppercase tracking-wider animate-pulse">ĐANG CẬP NHẬT...</div>
-                                </div>
-
-                                <!-- Đếm ngược lượt -->
-                                <div class="space-y-1.5 pt-2">
-                                    <div class="flex justify-between text-[9px] text-gray-500 font-black uppercase">
-                                        <span>⏳ Đếm ngược suy nghĩ</span>
-                                        <span id="caroTimerText" class="text-cyan-400 font-mono">30s</span>
-                                    </div>
-                                    <div class="h-3.5 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800 p-0.5 w-full shadow-inner">
-                                        <div id="caroTimerBar" class="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-all duration-100 shadow-[0_0_10px_rgba(6,182,212,0.4)]" style="width: 100%;"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button id="btnCaroLeaveMatch" class="w-full bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] py-3 rounded-xl border border-red-900/30 transition tracking-wider flex items-center justify-center gap-1.5 shadow-md mt-auto">
-                                🚪 XIN HÒA / THOÁT
-                            </button>
-                        </div>
-
-                        <!-- Khung Chơi Game Trung Tâm (Canvas) -->
-                        <div class="flex-grow flex items-center justify-center relative min-h-[350px] md:min-h-[500px] lg:min-h-[580px]">
-                            <canvas id="caroCanvas" class="bg-neutral-950 rounded-2xl border border-neutral-850 shadow-inner w-full max-w-[580px] aspect-square block"></canvas>
-                        </div>
-
-                        <!-- Cột Phải: LAN Chat Box -->
-                        <div class="w-full lg:w-72 bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 flex flex-col justify-between gap-4 text-xs shrink-0 shadow-inner">
-                            <div class="flex flex-col h-full space-y-3">
-                                <h3 class="text-cyan-500 text-[10px] tracking-wider uppercase font-black border-b border-neutral-850 pb-2">💬 LAN CHAT BOX</h3>
-                                
-                                <!-- Hộp tin nhắn chat -->
-                                <div id="caroChatHistory" class="flex-grow h-48 lg:h-80 bg-neutral-900/40 border border-neutral-850 rounded-xl p-3 overflow-y-auto space-y-2.5 custom-scrollbar text-[11px] font-bold">
-                                    <div class="text-center text-neutral-600 font-medium italic select-none py-12">Phòng chat đã được kết nối an toàn qua LAN!</div>
-                                </div>
-
-                                <!-- Chat Input & Send Button -->
-                                <div class="flex gap-2">
-                                    <input type="text" id="caroChatInput" maxlength="100" placeholder="Nhập tin nhắn..." autocomplete="off"
-                                           class="flex-grow bg-neutral-900 border border-neutral-850 focus:border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white font-bold outline-none transition">
-                                    <button id="btnCaroSendChat" class="bg-cyan-500 hover:bg-cyan-400 text-black px-3.5 rounded-xl font-black transition-all shadow-md shadow-cyan-500/10">
-                                        GỬI
-                                    </button>
-                                </div>
-
-                                <!-- Khay Phím tắt gáy nhanh -->
-                                <div class="space-y-1.5 pt-2">
-                                    <span class="text-[9px] text-gray-500 font-black uppercase tracking-wider block">🗣️ GÁY NHANH:</span>
-                                    <div class="grid grid-cols-2 gap-1.5">
-                                        <button class="btn-caro-quick-chat bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-[10px] font-bold text-gray-300 py-1.5 rounded-lg transition" data-msg="Gà quá! 🐔">Gà quá! 🐔</button>
-                                        <button class="btn-caro-quick-chat bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-[10px] font-bold text-gray-300 py-1.5 rounded-lg transition" data-msg="Đi nhanh lên bạn ơi! ⏳">Đi nhanh! ⏳</button>
-                                        <button class="btn-caro-quick-chat bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-[10px] font-bold text-gray-300 py-1.5 rounded-lg transition" data-msg="Lbeo phù hộ tôi! 👼">Lbeo độ! 👼</button>
-                                        <button class="btn-caro-quick-chat bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-[10px] font-bold text-gray-300 py-1.5 rounded-lg transition" data-msg="Ăn hành rồi con trai! 🧅">Ăn hành! 🧅</button>
-                                        <button class="btn-caro-quick-chat bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-[10px] font-bold text-gray-300 py-1.5 rounded-lg transition" data-msg="Hên thôi nhé! 😏">Hên thôi! 😏</button>
-                                        <button class="btn-caro-quick-chat bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-[10px] font-bold text-gray-300 py-1.5 rounded-lg transition" data-msg="Đầu hàng đi! 🏳️">Đầu hàng! 🏳️</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lớp Phủ Kết Quả Trận Đấu (Meme Overlay) -->
-                        <div id="caroResultOverlay" class="absolute inset-0 bg-neutral-950/85 backdrop-blur-md z-40 hidden flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-300">
-                            <div class="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl p-6 shadow-2xl space-y-6 text-center transform scale-95 transition-all duration-300 relative overflow-hidden">
-                                
-                                <!-- Background Glow -->
-                                <div id="caroResultGlow" class="absolute -top-16 -left-16 w-32 h-32 bg-cyan-500/10 rounded-full filter blur-2xl pointer-events-none"></div>
-                                
-                                <div class="space-y-2 relative">
-                                    <span id="caroResultEmoji" class="text-6xl block animate-bounce">🏆</span>
-                                    <h3 id="caroResultTitle" class="text-xl font-black text-cyan-400 uppercase tracking-widest">CHIẾN THẮNG QUÁ THUYẾT PHỤC!</h3>
-                                    <p id="caroResultMsg" class="text-xs text-neutral-400 font-bold leading-relaxed px-4">Bạn đã đánh bại đối thủ bằng nước cờ chặn hai đầu hiểm độc.</p>
-                                </div>
-
-                                <!-- Meme hiển thị -->
-                                <div class="relative w-44 h-44 mx-auto bg-neutral-950 rounded-2xl border border-neutral-850 flex items-center justify-center overflow-hidden shadow-inner p-2 group">
-                                    <img id="caroResultMeme" src="/img/beo-dino/characters/6.png" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
-                                </div>
-
-                                <div class="flex justify-center relative">
-                                    <button id="btnCaroCloseResult" class="bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xs px-10 py-3.5 rounded-2xl transition shadow-lg shadow-cyan-500/20 tracking-wider flex items-center gap-2">
-                                        🎮 TRỞ VỀ SẢNH CHỜ
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </div>
@@ -676,121 +184,8 @@
     <!-- Container Toast -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
-    <!-- Core Game Scripts -->
-    <script src="/js/game.js?v=<%= version %>"></script>
+    <!-- Core Lobby Scripts -->
     <script type="module" src="/js/ui.js?v=<%= version %>"></script>
-    <script type="module" src="/js/dino.js?v=<%= version %>"></script>
-    <script type="module" src="/js/dobeo.js?v=<%= version %>"></script>
-    <link rel="stylesheet" href="/css/dobeo.css?v=<%= version %>">
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="/js/caro.js?v=<%= version %>"></script>
-    <link rel="stylesheet" href="/css/caro.css?v=<%= version %>">
-
-    <!-- Modal nhập tên trước khi bắt đầu chơi Pikabeo -->
-    <div id="pikaNameModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden transition-all duration-300">
-        <div class="bg-neutral-900 border border-neutral-800 p-6 md:p-8 rounded-3xl max-w-sm w-full mx-4 shadow-2xl space-y-6 relative overflow-hidden transform scale-95 transition-all duration-300">
-            <!-- Background glow effect -->
-            <div class="absolute -top-12 -left-12 w-24 h-24 bg-amber-500/10 rounded-full filter blur-xl pointer-events-none"></div>
-            <div class="absolute -bottom-12 -right-12 w-24 h-24 bg-orange-500/10 rounded-full filter blur-xl pointer-events-none"></div>
-            
-            <div class="text-center space-y-2 relative">
-                <span class="text-4xl block animate-bounce">👑🎮</span>
-                <h3 class="text-lg font-black text-white uppercase tracking-wider">ĐĂNG KÝ DANH TÁNH</h3>
-                <p class="text-xs text-neutral-400 leading-relaxed">
-                    Nhập tên của bạn để bắt đầu cuộc đua giành vị trí trên Bảng Xếp Hạng BeoHub!
-                </p>
-            </div>
-
-            <div class="space-y-4 relative">
-                <div>
-                    <label for="pikaInputName" class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 pl-1">TÊN CAO THỦ (Tối đa 15 ký tự)</label>
-                    <input type="text" id="pikaInputName" maxlength="15" autocomplete="off" placeholder="Ví dụ: LbeoDepTrai..." 
-                           class="w-full bg-neutral-950 border border-neutral-850 focus:border-amber-500/50 rounded-xl px-4 py-3 text-sm text-white font-bold outline-none transition shadow-inner">
-                </div>
-
-                <div class="flex gap-3 pt-2">
-                    <button id="btnPikaNameCancel" class="flex-1 bg-neutral-850 hover:bg-neutral-800 text-gray-400 border border-neutral-800 py-3 rounded-xl font-black text-xs tracking-wider transition">
-                        HỦY BỎ
-                    </button>
-                    <button id="btnPikaNameSubmit" class="flex-1 bg-amber-500 hover:bg-amber-400 text-black py-3 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-amber-500/20">
-                        BẮT ĐẦU CHƠI 🚀
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lớp phủ Bảng Xếp Hạng Glassmorphism cho Dino (Full Screen) -->
-    <div id="dinoLeaderboardOverlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-4xl bg-neutral-900/95 border border-neutral-700/80 rounded-3xl p-6 shadow-2xl space-y-5 flex flex-col justify-between transform scale-95 transition-all duration-300">
-            <div class="space-y-2 text-center select-none">
-                <h4 class="text-2xl md:text-3xl font-black text-amber-500 uppercase tracking-widest flex items-center justify-center gap-2">
-                    <span class="text-4xl animate-bounce">🏆</span> BẢNG XẾP HẠNG
-                </h4>
-                <p class="text-sm md:text-base text-gray-400">Những quái xế lạng lách đỉnh cao nhất!</p>
-            </div>
-
-            <div class="bg-neutral-950/80 rounded-2xl border border-neutral-800 overflow-hidden shadow-xl w-full min-h-[400px] max-h-[65vh] overflow-y-auto custom-scrollbar my-4">
-                <table class="w-full text-left border-collapse text-base md:text-lg">
-                    <thead>
-                        <tr class="border-b border-neutral-800 bg-neutral-900 text-sm md:text-base uppercase font-black text-indigo-400 select-none">
-                            <th class="py-5 px-6 text-center w-20">Hạng</th>
-                            <th class="py-5 px-6">Quái Xế</th>
-                            <th class="py-5 px-8 text-right">Điểm Kỷ Lục</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dinoLeaderboardList" class="divide-y divide-neutral-800 font-bold text-gray-200">
-                        <tr>
-                            <td colspan="3" class="py-12 text-center text-neutral-500 font-medium select-none text-lg">
-                                Đang tải bảng xếp hạng...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="flex justify-center pt-2">
-                <button id="btnDinoCloseLeaderboard" class="bg-red-950/40 hover:bg-red-900/60 text-red-400 font-black text-base md:text-lg px-12 py-4 rounded-xl border border-red-900/50 transition-all tracking-wider flex items-center gap-2 shadow-md hover:shadow-red-900/20">
-                    Đóng Xếp Hạng ❌
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal nhập tên trước khi bắt đầu chơi Dino -->
-    <div id="dinoNameModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden transition-all duration-300">
-        <div class="bg-neutral-900 border border-neutral-800 p-6 md:p-8 rounded-3xl max-w-sm w-full mx-4 shadow-2xl space-y-6 relative overflow-hidden transform scale-95 transition-all duration-300">
-            <div class="absolute -top-12 -left-12 w-24 h-24 bg-emerald-500/10 rounded-full filter blur-xl pointer-events-none"></div>
-            <div class="absolute -bottom-12 -right-12 w-24 h-24 bg-cyan-500/10 rounded-full filter blur-xl pointer-events-none"></div>
-            
-            <div class="text-center space-y-2 relative">
-                <span class="text-4xl block animate-bounce">🦖🏎️</span>
-                <h3 class="text-lg font-black text-white uppercase tracking-wider">ĐĂNG KÝ DANH TÁNH</h3>
-                <p class="text-xs text-neutral-400 leading-relaxed">
-                    Nhập tên của bạn để bắt đầu cuộc đua giành vị trí Top 1 trên Bảng Xếp Hạng!
-                </p>
-            </div>
-
-            <div class="space-y-4 relative">
-                <div>
-                    <label for="dinoInputName" class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 pl-1">TÊN QUÁI XẾ (Tối đa 15 ký tự)</label>
-                    <input type="text" id="dinoInputName" maxlength="15" autocomplete="off" placeholder="Ví dụ: BoyRacing..." 
-                           class="w-full bg-neutral-950 border border-neutral-850 focus:border-emerald-500/50 rounded-xl px-4 py-3 text-sm text-white font-bold outline-none transition shadow-inner">
-                </div>
-
-                <div class="flex gap-3 pt-2">
-                    <button id="btnDinoNameCancel" class="flex-1 bg-neutral-850 hover:bg-neutral-800 text-gray-400 border border-neutral-800 py-3 rounded-xl font-black text-xs tracking-wider transition">
-                        HỦY BỎ
-                    </button>
-                    <button id="btnDinoNameSubmit" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black py-3 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-emerald-500/20">
-                        BẮT ĐẦU ĐUA 🚀
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dedicated Page Setup -->
     <script type="module">
         import { showToast } from '/js/ui.js';
         window.showToast = showToast;
@@ -814,6 +209,59 @@
             }
         };
 
+        window.loadAdminSecretsList = async () => {
+            const container = document.getElementById('adminSecretsList');
+            if (!container) return;
+            try {
+                const res = await fetch('/api/pikabeo/secrets');
+                const data = await res.json();
+                if (data.success) {
+                    container.innerHTML = '';
+                    if (data.secrets.length === 0) {
+                        container.innerHTML = `
+                            <div class="col-span-full py-6 text-center text-xs text-neutral-600 font-medium">
+                                Kho ảnh trống! Hệ thống đang dùng 5 ảnh Lbeo mặc định có sẵn.
+                            </div>
+                        `;
+                        return;
+                    }
+                    data.secrets.forEach(sec => {
+                        const card = document.createElement('div');
+                        card.className = 'relative aspect-square rounded-lg border border-neutral-850 overflow-hidden group/sec shadow-inner';
+                        card.innerHTML = `
+                            <a href="${sec.url}" target="_blank" class="block w-full h-full cursor-zoom-in">
+                                <img src="${sec.url}" class="w-full h-full object-cover hover:scale-105 transition duration-300" alt="Secret Image">
+                            </a>
+                            <button onclick="deleteSecretImage('${sec.name}')" class="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-500 text-white w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold transition shadow-md opacity-0 group-hover/sec:opacity-100 z-10">
+                                &times;
+                            </button>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (e) {
+                console.error('Lỗi khi tải kho ảnh bí mật:', e);
+            }
+        };
+
+        window.deleteSecretImage = async (name) => {
+            if (!confirm('Bạn có chắc chắn muốn xóa ảnh bí mật này khỏi kho lưu trữ?')) return;
+            try {
+                showToast('🗑️ Đang xóa ảnh bí mật...', 'info');
+                const res = await fetch(`/api/pikabeo/secrets/${name}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('✅ Đã xóa ảnh bí mật thành công!', 'success');
+                    loadAdminSecretsList();
+                } else {
+                    showToast('❌ Không thể xóa ảnh bí ẩn!', 'error');
+                }
+            } catch (e) {
+                console.error('Lỗi khi xóa ảnh bí ẩn:', e);
+                showToast('❌ Gặp lỗi kết nối khi xóa ảnh!', 'error');
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
             const adminSecretsContainer = document.getElementById('adminSecretsContainer');
             
@@ -825,9 +273,7 @@
                     window.isAdmin = true;
                     if (adminSecretsContainer) {
                         adminSecretsContainer.classList.remove('hidden');
-                        if (window.pikaGame) {
-                            window.pikaGame.loadAdminSecretsList();
-                        }
+                        loadAdminSecretsList();
                     }
                 } else {
                     window.isAdmin = false;
@@ -839,12 +285,36 @@
                 if (adminSecretsContainer) adminSecretsContainer.classList.add('hidden');
             }
 
-            // Tải bảng xếp hạng lúc khởi động trang
-            if (window.pikaGame) {
-                window.pikaGame.loadLeaderboard();
+            // Handle Secret Uploads
+            const fileInput = document.getElementById('secretImageFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const formData = new FormData();
+                    formData.append('secretImage', file);
+                    try {
+                        showToast('📤 Đang tải ảnh bí mật lên...', 'info');
+                        const res = await fetch('/api/pikabeo/secrets', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showToast('✅ Đã thêm ảnh bí mật thành công vào kho lưu trữ!', 'success');
+                            loadAdminSecretsList();
+                        } else {
+                            showToast(`❌ Lỗi: ${data.message}`, 'error');
+                        }
+                    } catch (err) {
+                        console.error('Lỗi upload ảnh bí ẩn:', err);
+                        showToast('❌ Gặp lỗi khi gửi ảnh lên máy chủ!', 'error');
+                    } finally {
+                        e.target.value = '';
+                    }
+                });
             }
         });
     </script>
 </body>
-
 </html>

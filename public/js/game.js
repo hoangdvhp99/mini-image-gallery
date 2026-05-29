@@ -1639,8 +1639,12 @@ class PikabeoGame {
         }
 
         // Switch sections
-        document.getElementById('pikabeoPlayground').classList.add('hidden');
-        document.getElementById('minigameHome').classList.remove('hidden');
+        if (document.getElementById('minigameHome')) {
+            document.getElementById('pikabeoPlayground').classList.add('hidden');
+            document.getElementById('minigameHome').classList.remove('hidden');
+        } else {
+            window.location.href = '/minigame';
+        }
 
         // Tải lại bảng xếp hạng
         this.loadLeaderboard();

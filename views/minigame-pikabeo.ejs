@@ -1,0 +1,216 @@
+<%- include('partials/head', { title: 'Pikabeo Onet Connect - BeoHub Minigame' }) %>
+<body class="min-h-screen font-outfit text-gray-300">
+    <div class="w-full px-4 md:px-8 py-4">
+        <%- include('partials/nav', { isMinigame: true }) %>
+
+        <!-- MINIGAME CONTENT -->
+        <section id="minigameSection" class="transition-all duration-300 max-w-[1440px] mx-auto pt-4">
+            <div id="minigameContainer" class="w-full space-y-6 transition-all duration-500">
+                
+                <!-- Khu Vực Bàn Chơi Pikabeo -->
+                <div id="pikabeoPlayground" class="bg-neutral-900 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col md:flex-row gap-6 relative overflow-hidden select-none">
+                    <!-- Bảng chỉ số (Cột trái trên desktop, hàng đầu trên mobile) -->
+                    <div class="w-full md:w-48 bg-neutral-950 p-4 rounded-2xl border border-neutral-850/60 flex flex-row md:flex-col justify-between md:justify-start gap-4 text-xs font-bold shrink-0 shadow-inner">
+                        <div class="space-y-3 flex-1 md:flex-initial">
+                            <h3 class="text-amber-500 text-[10px] tracking-wider uppercase font-black border-b border-neutral-850 pb-1.5 hidden md:block">📊 CHỈ SỐ BÀN CHƠI</h3>
+                            
+                            <div class="flex md:flex-col justify-between gap-1.5">
+                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
+                                    <span class="text-gray-500">Mức Chơi:</span>
+                                    <span id="pikaLevel" class="text-white font-black text-sm">1</span>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col justify-between gap-1.5">
+                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
+                                    <span class="text-gray-500">Lượt đổi vị trí:</span>
+                                    <span id="pikaShuffles" class="text-amber-400 font-mono font-black text-sm">10</span>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col justify-between gap-1.5">
+                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
+                                    <span class="text-gray-500">Điểm số:</span>
+                                    <span id="pikaScore" class="text-emerald-500 font-mono font-black text-sm">0</span>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col justify-between gap-1.5">
+                                <div class="flex items-center justify-between border-b border-neutral-900 pb-1 w-full">
+                                    <span class="text-gray-500">Lượt gợi ý:</span>
+                                    <span id="pikaSidebarHints" class="text-cyan-400 font-mono font-black text-sm">5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thanh thời gian dạng đứng trên desktop, nằm ngang trên mobile -->
+                        <div class="w-full md:w-auto flex flex-col gap-1.5 flex-1 md:flex-initial md:pt-4">
+                            <div class="flex justify-between text-[9px] text-gray-500 font-black uppercase">
+                                <span>⏳ Thời gian còn lại</span>
+                            </div>
+                            <div class="h-4 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800 p-0.5 w-full shadow-inner">
+                                <div id="pikaTimerBar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full transition-all duration-100" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Khung chơi game trung tâm -->
+                    <div class="flex-grow flex flex-col items-stretch justify-center relative min-h-[400px] md:min-h-[680px] w-full">
+                        <!-- Canvas vẽ đường nối -->
+                        <canvas id="pikabeoCanvas" class="absolute inset-0 pointer-events-none z-20"></canvas>
+                        
+                        <!-- Lưới chứa thẻ bài Pikachu -->
+                        <div id="pikabeoBoard" class="relative w-full flex-grow bg-neutral-950 rounded-2xl border border-neutral-850 p-2 overflow-hidden shadow-inner flex items-center justify-center">
+                            <!-- Ảnh bí ẩn làm hình nền của bàn cờ -->
+                            <canvas id="pikabeoSecretCanvas" class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700 pointer-events-none z-0"></canvas>
+                            
+                             <!-- Các ô thẻ bài sẽ được chèn động bằng JS vào đây -->
+                             <div id="pikabeoGrid" class="absolute inset-2 grid z-10 w-[calc(100%-16px)] h-[calc(100%-16px)] gap-1 md:gap-1.5"></div>
+                             
+                             <!-- Lớp phủ Tạm dừng Glassmorphism cao cấp -->
+                             <div id="pikabeoPauseOverlay" class="absolute inset-0 bg-neutral-950/80 backdrop-blur-md z-40 hidden flex flex-col items-center justify-center gap-4">
+                                 <div class="text-center space-y-2 animate-pulse">
+                                     <span class="text-4xl block">⏸️</span>
+                                     <h3 class="text-yellow-400 font-black text-lg tracking-wider">GAME ĐANG TẠM DỪNG</h3>
+                                     <p class="text-xs text-neutral-400 font-bold">Thời gian chơi và lưới cờ đã được đóng băng</p>
+                                 </div>
+                                 <button id="btnPikaResumeOverlay" class="bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xs px-6 py-3 rounded-2xl transition shadow-lg shadow-yellow-500/20 tracking-wider flex items-center gap-2">
+                                     ▶️ Tiếp Tục Chơi
+                                 </button>
+                             </div>
+
+                             <!-- Lớp phủ Bảng Xếp Hạng Glassmorphism trong Game -->
+                             <div id="pikabeoLeaderboardOverlay" class="absolute inset-0 bg-neutral-950/85 backdrop-blur-md z-45 hidden flex flex-col items-center justify-center p-4">
+                                 <div class="w-full max-w-xl bg-neutral-900/90 border border-neutral-800 rounded-3xl p-4 md:p-6 shadow-2xl space-y-4 max-h-[95%] overflow-hidden flex flex-col justify-between transform scale-95 transition-all duration-300">
+                                     <div class="space-y-1 text-center select-none">
+                                         <h4 class="text-sm font-black text-amber-500 uppercase tracking-widest flex items-center justify-center gap-1.5">
+                                             <span>🏆</span> BẢNG XẾP HẠNG PIKABEO CONNECT (TOP 10)
+                                         </h4>
+                                         <p class="text-[9px] text-gray-500">Những cao thủ có tốc độ giải mã thần sầu và dùng ít quyền hỗ trợ nhất!</p>
+                                     </div>
+
+                                     <!-- Bảng Glassmorphism -->
+                                     <div class="bg-neutral-950/60 rounded-2xl border border-neutral-850 overflow-hidden shadow-xl flex-grow overflow-y-auto custom-scrollbar my-2 max-h-[280px]">
+                                         <table class="w-full text-left border-collapse text-[11px]">
+                                             <thead>
+                                                 <tr class="border-b border-neutral-850 bg-neutral-900/50 text-[9px] uppercase font-black text-gray-400 select-none">
+                                                     <th class="py-2 px-3 text-center w-10">Hạng</th>
+                                                     <th class="py-2 px-3">Cao Thủ</th>
+                                                     <th class="py-2 px-3 text-center">Cấp Độ</th>
+                                                     <th class="py-2 px-3 text-center">Thời Gian Chơi</th>
+                                                     <th class="py-2 px-3 text-center">Hỗ Trợ</th>
+                                                     <th class="py-2 px-3 text-right pr-4">Tổng Điểm</th>
+                                                 </tr>
+                                             </thead>
+                                             <tbody id="pikabeoLeaderboardList" class="divide-y divide-neutral-900/60 font-bold text-gray-300">
+                                                 <!-- Render động qua API -->
+                                                 <tr>
+                                                     <td colspan="6" class="py-8 text-center text-neutral-600 font-medium select-none">
+                                                         <div class="flex items-center justify-center gap-2">
+                                                             <span class="animate-spin text-amber-500">🔄</span> Đang tải bảng xếp hạng...
+                                                         </div>
+                                                     </td>
+                                                 </tr>
+                                             </tbody>
+                                         </table>
+                                     </div>
+
+                                     <div class="flex justify-center">
+                                         <button id="btnPikaCloseLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-white font-black text-[10px] px-6 py-2.5 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                             ❌ Đóng Bảng Xếp Hạng
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+ 
+                         <!-- Bộ nút điều khiển phía dưới -->
+                         <div class="flex flex-wrap justify-center gap-3 mt-4 w-full">
+                             <button id="btnPikaSound" class="bg-neutral-850 hover:bg-neutral-800 text-white font-bold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 <span id="pikaSoundIcon">🔊</span> Âm Thanh: Bật
+                             </button>
+                             <button id="btnPikaShuffle" class="bg-neutral-850 hover:bg-neutral-800 text-amber-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 🔄 Đổi Vị Trí
+                             </button>
+                             <button id="btnPikaHint" class="bg-neutral-850 hover:bg-neutral-800 text-cyan-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 💡 Gợi Ý (<span id="pikaHints">5</span>)
+                             </button>
+                             <button id="btnPikaPause" class="bg-neutral-850 hover:bg-neutral-800 text-yellow-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 <span id="pikaPauseIcon">⏸️</span> Tạm Dừng
+                             </button>
+                             <button id="btnPikaShowLeaderboard" class="bg-neutral-850 hover:bg-neutral-800 text-amber-500 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 🏆 Xếp Hạng
+                             </button>
+                             <button id="btnPikaRestart" class="bg-neutral-850 hover:bg-neutral-800 text-emerald-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-neutral-800 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                 🎮 Chơi Lại
+                            </button>
+                            <button id="btnPikaQuit" class="bg-red-950/40 hover:bg-red-950/80 text-red-400 font-extrabold text-[10px] px-4 py-2 rounded-xl border border-red-900/30 transition tracking-wider flex items-center gap-1.5 shadow-md">
+                                🚪 Thoát Game
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Container Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Modal nhập tên trước khi bắt đầu chơi Pikabeo -->
+    <div id="pikaNameModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden transition-all duration-300">
+        <div class="bg-neutral-900 border border-neutral-800 p-6 md:p-8 rounded-3xl max-w-sm w-full mx-4 shadow-2xl space-y-6 relative overflow-hidden transform scale-95 transition-all duration-300">
+            <!-- Background glow effect -->
+            <div class="absolute -top-12 -left-12 w-24 h-24 bg-amber-500/10 rounded-full filter blur-xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -right-12 w-24 h-24 bg-orange-500/10 rounded-full filter blur-xl pointer-events-none"></div>
+            
+            <div class="text-center space-y-2 relative">
+                <span class="text-4xl block animate-bounce">👑🎮</span>
+                <h3 class="text-lg font-black text-white uppercase tracking-wider">ĐĂNG KÝ DANH TÁNH</h3>
+                <p class="text-xs text-neutral-400 leading-relaxed">
+                    Nhập tên của bạn để bắt đầu cuộc đua giành vị trí trên Bảng Xếp Hạng BeoHub!
+                </p>
+            </div>
+
+            <div class="space-y-4 relative">
+                <div>
+                    <label for="pikaInputName" class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 pl-1">TÊN CAO THỦ (Tối đa 15 ký tự)</label>
+                    <input type="text" id="pikaInputName" maxlength="15" autocomplete="off" placeholder="Ví dụ: LbeoDepTrai..." 
+                           class="w-full bg-neutral-950 border border-neutral-850 focus:border-amber-500/50 rounded-xl px-4 py-3 text-sm text-white font-bold outline-none transition shadow-inner">
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button id="btnPikaNameCancel" class="flex-1 bg-neutral-850 hover:bg-neutral-800 text-gray-400 border border-neutral-800 py-3 rounded-xl font-black text-xs tracking-wider transition">
+                        HỦY BỎ
+                    </button>
+                    <button id="btnPikaNameSubmit" class="flex-1 bg-amber-500 hover:bg-amber-400 text-black py-3 rounded-xl font-black text-xs tracking-wider transition shadow-lg shadow-amber-500/20">
+                        BẮT ĐẦU CHƠI 🚀
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden element just to satisfy static references if any -->
+    <div id="btnStartPikabeo" class="hidden"></div>
+
+    <!-- Core Game Scripts -->
+    <script src="/js/game.js?v=<%= version %>"></script>
+    <script type="module" src="/js/ui.js?v=<%= version %>"></script>
+    <script type="module">
+        import { showToast } from '/js/ui.js';
+        window.showToast = showToast;
+        
+        // Auto-show name modal on load if name is not set
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('pikabeoPlayerName');
+            if (window.pikaGame) {
+                if (!savedName) {
+                    window.pikaGame.showNameModal();
+                } else {
+                    window.pikaGame.playerName = savedName;
+                    window.pikaGame.startGame();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

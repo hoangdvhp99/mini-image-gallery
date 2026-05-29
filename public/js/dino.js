@@ -482,9 +482,13 @@ class DinoGame {
             btnQuit.addEventListener('click', () => {
                 this.isGameOver = true;
                 this.isPlaying = false;
-                document.getElementById('dinoPlayground').classList.add('hidden');
-                document.getElementById('minigameHome').classList.remove('hidden');
-                document.getElementById('dinoCharSelectPanel').classList.add('hidden');
+                if (document.getElementById('minigameHome')) {
+                    document.getElementById('dinoPlayground').classList.add('hidden');
+                    document.getElementById('minigameHome').classList.remove('hidden');
+                    document.getElementById('dinoCharSelectPanel').classList.add('hidden');
+                } else {
+                    window.location.href = '/minigame';
+                }
             });
         }
 
