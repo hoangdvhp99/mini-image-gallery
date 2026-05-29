@@ -190,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const cellData = board[r][c];
         const cellElement = getCellElement(r, c);
 
         if (!cellData.isFlagged) {

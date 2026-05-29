@@ -11,15 +11,15 @@
 }
 
 .dobeo-cell {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
     background-color: #2a2a2a;
     border: 2px solid #3a3a3a;
-    border-radius: 6px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
     user-select: none;
@@ -79,7 +79,7 @@
 }
 .dobeo-cell.flag::after {
     content: '🍺';
-    font-size: 20px;
+    font-size: 28px;
     animation: dropIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
@@ -108,12 +108,12 @@
 /* Responsive adjustments */
 @media (max-width: 640px) {
     .dobeo-cell {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
-        border-width: 1px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        border-width: 1.5px;
     }
     .dobeo-cell.flag::after {
-        font-size: 16px;
+        font-size: 22px;
     }
 }
