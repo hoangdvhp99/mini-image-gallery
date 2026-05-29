@@ -4,8 +4,8 @@
         <%- include('partials/nav', { isHome: true }) %>
 
         <!-- HOME / MAIN SECTION -->
-        <section id="homeSection" class="transition-all duration-300">
-            <div class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+        <section id="homeSection" class="transition-all duration-300 max-w-[1440px] mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
                 <!-- Khu Vực Upload (Bên trái) -->
                 <div id="uploadContainer" class="bg-ph-dark p-4 rounded-xl border border-neutral-800 h-fit lg:col-span-1 shadow-2xl">
                     <h2
@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Khu Vực Thư Viện Media (Bên phải) -->
-                <div id="galleryContainer" class="lg:col-span-3 xl:col-span-4 2xl:col-span-5 space-y-4">
+                <div id="galleryContainer" class="lg:col-span-3 2xl:col-span-4 space-y-4">
                     <div id="lbeoBanner" class="hidden bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex items-center gap-4 shadow-xl">
                         <div class="text-3xl">🖤</div>
                         <div>
@@ -81,7 +81,7 @@
         </section>
 
         <!-- NEWS SECTION -->
-        <section id="newsSection" class="hidden transition-all duration-300">
+        <section id="newsSection" class="hidden transition-all duration-300 max-w-[1440px] mx-auto">
             <div class="w-full space-y-6">
                 <div class="text-center space-y-2 mb-6">
                     <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center justify-center gap-2">
@@ -100,7 +100,7 @@
         </section>
 
         <!-- IDEAS CONTRIBUTION SECTION -->
-        <section id="ideasSection" class="hidden transition-all duration-300">
+        <section id="ideasSection" class="hidden transition-all duration-300 max-w-[1440px] mx-auto">
             <div class="w-full bg-ph-dark p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl space-y-6">
                 <div class="text-center space-y-2">
                     <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center justify-center gap-2">
