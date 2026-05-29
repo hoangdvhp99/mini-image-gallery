@@ -46,12 +46,6 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     transform: translateY(2px);
     cursor: default;
-    
-    /* Background đĩa lạc mặc định khi mở ô an toàn */
-    background-image: url('../img/do-beo/bean-plate.png');
-    background-size: 70%;
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 /* Các số lượng mìn xung quanh (thêm màu sắc cho sinh động) */
@@ -103,6 +97,31 @@
 
 .shake-screen {
     animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes flyOutText {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 0; }
+    15% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); opacity: 1; }
+    30% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(5) rotate(15deg); opacity: 0; }
+}
+
+.fly-out-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(2rem, 5vw, 6rem);
+    font-weight: 900;
+    color: #ef4444;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 4px 4px 0px #000, 0 0 30px #ef4444;
+    z-index: 9999;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: flyOutText 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 /* Responsive adjustments */

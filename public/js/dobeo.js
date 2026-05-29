@@ -301,16 +301,26 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.classList.add('flex');
 
         if (isWin) {
-            overlayIcon.textContent = '🍻';
-            overlayTitle.textContent = 'TUYỆT VỜI!';
-            overlayTitle.className = 'text-green-400 font-black text-3xl tracking-wider';
-            overlayMessage.textContent = `Bạn đã qua cơn say trong ${timeElapsed} giây!`;
+            overlayIcon.innerHTML = '<img src="/img/do-beo/win.png" class="w-full max-w-[280px] h-auto object-contain mx-auto border-4 border-green-500 rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.6)]">';
+            overlayTitle.textContent = 'BẠN THÌ KINH RỒI! NHẤT BẠN DỒIIII!';
+            overlayTitle.className = 'text-green-400 font-black text-2xl md:text-3xl tracking-wider px-2 text-center';
+            overlayMessage.innerHTML = `<span class="text-sm font-bold text-gray-400">Hoàn thành xuất sắc trong ${timeElapsed} giây</span>`;
             btnOverlayClose.textContent = 'Nhậu Tiếp Bàn Khác!';
             
             // Có thể thêm hiệu ứng bắn pháo hoa ở đây
         } else {
             // Rung màn hình khi đánh thức Lbeo
             dobeoPlayground.classList.add('shake-screen');
+
+            // Chữ to bay ra giữa màn hình
+            const flyText = document.createElement('div');
+            flyText.className = 'fly-out-text';
+            flyText.innerHTML = 'Ối dời ơi!<br>Dẫm phải Lbeo rồi';
+            dobeoPlayground.appendChild(flyText);
+            // Dọn dẹp sau khi bay xong
+            setTimeout(() => {
+                if(flyText.parentNode) flyText.remove();
+            }, 2500);
             
             // Phát âm thanh đánh thức Lbeo (Bỏ trong khối try-catch để tránh lỗi nếu chưa có file)
             try {
@@ -318,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 wakeUpAudio.play().catch(e => console.log('Chưa tìm thấy file audio wake-up.mp3'));
             } catch(e) {}
 
-            overlayIcon.textContent = '😵';
+            overlayIcon.innerHTML = '<img src="/img/do-beo/lbeo.png" class="w-24 h-24 object-cover mx-auto rounded-full border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]">';
             overlayTitle.textContent = 'BẠN ĐÃ ĐÁNH THỨC LBEO!';
             overlayTitle.className = 'text-red-500 font-black text-3xl tracking-wider';
             overlayMessage.textContent = 'Thua rồi! Lbeo đang rất quạu!';
