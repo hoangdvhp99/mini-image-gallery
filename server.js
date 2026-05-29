@@ -493,19 +493,26 @@ app.get('/api/dino/items/count', (req, res) => {
     try {
         const birdsDir = path.join(__dirname, 'public', 'img', 'beo-dino', 'items', 'birds');
         const plantsDir = path.join(__dirname, 'public', 'img', 'beo-dino', 'items', 'plants');
+        const foodDir = path.join(__dirname, 'public', 'img', 'beo-dino', 'food');
         
         const countFiles = (dir) => {
             if (!fs.existsSync(dir)) return 0;
             return fs.readdirSync(dir).filter(f => f.endsWith('.png')).length;
         };
 
+        const getFiles = (dir) => {
+            if (!fs.existsSync(dir)) return [];
+            return fs.readdirSync(dir).filter(f => f.endsWith('.png'));
+        }
+
         res.json({
             success: true,
             birds: countFiles(birdsDir),
-            plants: countFiles(plantsDir)
+            plants: countFiles(plantsDir),
+            food: getFiles(foodDir)
         });
     } catch (e) {
-        res.json({ success: false, birds: 0, plants: 0 });
+        res.json({ success: false, birds: 0, plants: 0, food: [] });
     }
 });
 

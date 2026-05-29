@@ -54,8 +54,10 @@ class DinoGame {
         this.totalItemsToLoad = 0;
         this.itemSprites = {
             birds: [],
-            plants: []
+            plants: [],
+            food: []
         };
+        this.foodFiles = [];
         this.sunImg = new Image();
         this.sunImg.src = '/img/beo-dino/items/sun.png';
         this.moonImg = new Image();
@@ -116,17 +118,20 @@ class DinoGame {
             if (itemsData.success) {
                 this.totalBirds = itemsData.birds;
                 this.totalPlants = itemsData.plants;
+                this.foodFiles = itemsData.food || [];
             } else {
                 this.totalBirds = 1;
                 this.totalPlants = 1;
+                this.foodFiles = [];
             }
         } catch (e) {
             this.totalCharacters = 9;
             this.totalBirds = 1;
             this.totalPlants = 1;
+            this.foodFiles = [];
         }
 
-        this.totalItemsToLoad = this.totalBirds + this.totalPlants;
+        this.totalItemsToLoad = this.totalBirds + this.totalPlants + this.foodFiles.length;
 
         const checkAllLoaded = () => {
             if (this.spritesLoaded === this.totalCharacters && this.itemsLoaded === this.totalItemsToLoad) {
@@ -168,6 +173,14 @@ class DinoGame {
             img.onload = () => { this.itemsLoaded++; checkAllLoaded(); };
             img.onerror = () => { this.itemsLoaded++; checkAllLoaded(); };
             this.itemSprites.plants.push(img);
+        }
+
+        for (let i = 0; i < this.foodFiles.length; i++) {
+            let img = new Image();
+            img.src = `/img/beo-dino/food/${this.foodFiles[i]}`;
+            img.onload = () => { this.itemsLoaded++; checkAllLoaded(); };
+            img.onerror = () => { this.itemsLoaded++; checkAllLoaded(); };
+            this.itemSprites.food.push(img);
         }
     }
 
@@ -593,10 +606,10 @@ class DinoGame {
     }
 
     getSpawnPattern() {
-        const patterns = ['CACTUS', 'BIRD', 'BEER', 'CACTUS', 'BIRD'];
+        const patterns = ['CACTUS', 'BIRD', 'FOOD', 'CACTUS', 'BIRD'];
 
         if (this.score >= 150) {
-            patterns.push('CACTUS_BIRD', 'BIRD_CACTUS', 'CACTUS_BEER', 'BEER_BIRD');
+            patterns.push('CACTUS_BIRD', 'BIRD_CACTUS', 'CACTUS_FOOD', 'FOOD_BIRD');
         }
 
         if (this.score >= 300) {
@@ -604,11 +617,11 @@ class DinoGame {
         }
 
         if (this.score >= 600) {
-            patterns.push('CACTUS_BIRD', 'BEER_BIRD', 'BIRD_BEER', 'CACTUS_BEER');
+            patterns.push('CACTUS_BIRD', 'FOOD_BIRD', 'BIRD_FOOD', 'CACTUS_FOOD');
         }
 
         if (this.score >= 900) {
-            patterns.push('CACTUS_CACTUS', 'BIRD_BIRD', 'BIRD_BEER', 'BEER_CACTUS', 'TRIPLE', 'TRIPLE', 'BEER_SIDE_CACTUS');
+            patterns.push('CACTUS_CACTUS', 'BIRD_BIRD', 'BIRD_FOOD', 'FOOD_CACTUS', 'TRIPLE', 'TRIPLE', 'FOOD_SIDE_CACTUS');
         }
 
         const pool = this.lastSpawnPattern && Math.random() < 0.25
@@ -649,13 +662,14 @@ class DinoGame {
             });
         };
 
-        const addBeer = (x) => {
+        const addFood = (x) => {
             spawned.push({
-                type: 'BEER',
+                type: 'FOOD',
                 x,
                 y: this.groundY - 92 - Math.random() * 52,
-                width: 54,
-                height: 60
+                width: 60,
+                height: 60,
+                foodIndex: Math.floor(Math.random() * Math.max(1, this.foodFiles.length))
             });
         };
 
@@ -663,11 +677,11 @@ class DinoGame {
             const secondX = firstX + gap;
             if (firstType === 'CACTUS') addCactus(firstX);
             else if (firstType === 'BIRD') addBird(firstX);
-            else addBeer(firstX);
+            else addFood(firstX);
 
             if (secondType === 'CACTUS') addCactus(secondX);
             else if (secondType === 'BIRD') addBird(secondX);
-            else addBeer(secondX);
+            else addFood(secondX);
         };
 
         const pattern = this.getSpawnPattern();
@@ -679,15 +693,15 @@ class DinoGame {
             case 'BIRD':
                 addBird(spawnX);
                 break;
-            case 'BEER':
-                addBeer(spawnX);
+            case 'FOOD':
+                addFood(spawnX);
                 break;
-            case 'CACTUS_BEER':
+            case 'CACTUS_FOOD':
                 addCactus(spawnX);
-                addBeer(spawnX + Math.floor(safeGap * 0.65));
+                addFood(spawnX + Math.floor(safeGap * 0.65));
                 break;
-            case 'BEER_BIRD':
-                addBeer(spawnX);
+            case 'FOOD_BIRD':
+                addFood(spawnX);
                 addBird(spawnX + safeGap);
                 break;
             case 'CACTUS_BIRD':
@@ -700,7 +714,7 @@ class DinoGame {
                 break;
             case 'TRIPLE':
                 addCactus(spawnX);
-                addBeer(spawnX + Math.floor(safeGap * 0.65));
+                addFood(spawnX + Math.floor(safeGap * 0.65));
                 addBird(spawnX + Math.floor(safeGap * 1.35));
                 break;
             case 'CACTUS_CACTUS':
@@ -711,12 +725,12 @@ class DinoGame {
                 addBird(spawnX);
                 addBird(spawnX + safeGap);
                 break;
-            case 'BIRD_BEER':
+            case 'BIRD_FOOD':
                 addBird(spawnX);
-                addBeer(spawnX + Math.floor(safeGap * 0.8));
+                addFood(spawnX + Math.floor(safeGap * 0.8));
                 break;
-            case 'BEER_CACTUS':
-                addBeer(spawnX);
+            case 'FOOD_CACTUS':
+                addFood(spawnX);
                 addCactus(spawnX + safeGap);
                 break;
             case 'CACTUS_SIDE_CACTUS':
@@ -731,8 +745,8 @@ class DinoGame {
             case 'BIRD_SIDE_CACTUS':
                 addPair('BIRD', 'CACTUS', pairGap, spawnX);
                 break;
-            case 'BEER_SIDE_CACTUS':
-                addPair('BEER', 'CACTUS', pairGap, spawnX);
+            case 'FOOD_SIDE_CACTUS':
+                addPair('FOOD', 'CACTUS', pairGap, spawnX);
                 break;
         }
 
@@ -740,12 +754,12 @@ class DinoGame {
             const last = spawned[spawned.length - 1];
             const extraGap = Math.floor(safeGap * (0.9 + Math.random() * 0.7));
             const extraX = last ? last.x + last.width + extraGap : spawnX + extraGap;
-            const extraTypePool = ['CACTUS', 'BIRD', 'BEER'];
+            const extraTypePool = ['CACTUS', 'BIRD', 'FOOD'];
             const extraType = extraTypePool[Math.floor(Math.random() * extraTypePool.length)];
 
             if (extraType === 'CACTUS') addCactus(extraX);
             else if (extraType === 'BIRD') addBird(extraX);
-            else addBeer(extraX);
+            else addFood(extraX);
         }
 
         this.lastSpawnPattern = pattern;
@@ -818,7 +832,7 @@ class DinoGame {
                 this.player.y + pMarginY < obs.y + obs.height - oMarginY &&
                 this.player.y + this.player.height - pMarginY > obs.y + oMarginY
             ) {
-                if (obs.type === 'BEER') {
+                if (obs.type === 'FOOD') {
                     this.playSound('item');
                     this.score += 100; // Thưởng điểm
                     this.scoreElement.innerText = this.score.toString().padStart(5, '0');
@@ -970,28 +984,17 @@ class DinoGame {
                     this.ctx.fillStyle = '#9ca3af';
                     this.ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                 }
-            } else if (obs.type === 'BEER') {
-                // Ly bia
-                this.ctx.fillStyle = '#fcd34d'; // Nước bia vàng
-                this.ctx.fillRect(obs.x + 5, obs.y + 12, obs.width - 10, obs.height - 12);
-                
-                // Viền ly thủy tinh
-                this.ctx.strokeStyle = '#e5e7eb';
-                this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(obs.x + 5, obs.y + 12, obs.width - 10, obs.height - 12);
-                
-                // Quai ly
-                this.ctx.beginPath();
-                this.ctx.arc(obs.x + obs.width - 5, obs.y + obs.height/2 + 5, 8, -Math.PI/2, Math.PI/2);
-                this.ctx.stroke();
-
-                // Bọt bia
-                this.ctx.fillStyle = '#ffffff'; // Bọt trắng
-                this.ctx.beginPath();
-                this.ctx.arc(obs.x + 10, obs.y + 12, 8, 0, Math.PI * 2);
-                this.ctx.arc(obs.x + obs.width/2, obs.y + 10, 9, 0, Math.PI * 2);
-                this.ctx.arc(obs.x + obs.width - 10, obs.y + 12, 8, 0, Math.PI * 2);
-                this.ctx.fill();
+            } else if (obs.type === 'FOOD') {
+                const foodImg = this.itemSprites.food[obs.foodIndex || 0];
+                if (foodImg && foodImg.complete && foodImg.naturalWidth > 0) {
+                    let floatY = Math.sin(this.frameCount * 0.15) * 6;
+                    this.ctx.drawImage(foodImg, obs.x, obs.y + floatY, obs.width, obs.height);
+                } else {
+                    this.ctx.fillStyle = '#fcd34d';
+                    this.ctx.beginPath();
+                    this.ctx.arc(obs.x + obs.width/2, obs.y + obs.height/2, obs.width/2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
             }
         }
 
