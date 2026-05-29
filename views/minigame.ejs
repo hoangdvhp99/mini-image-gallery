@@ -163,7 +163,7 @@
                         <!-- Lưới chứa thẻ bài Pikachu -->
                         <div id="pikabeoBoard" class="relative w-full flex-grow bg-neutral-950 rounded-2xl border border-neutral-850 p-2 overflow-hidden shadow-inner flex items-center justify-center">
                             <!-- Ảnh bí ẩn làm hình nền của bàn cờ -->
-                            <div id="pikabeoSecretBg" class="absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-700 pointer-events-none z-0"></div>
+                            <canvas id="pikabeoSecretCanvas" class="absolute inset-0 w-full h-full opacity-0 transition-opacity duration-700 pointer-events-none z-0"></canvas>
                             
                              <!-- Các ô thẻ bài sẽ được chèn động bằng JS vào đây -->
                              <div id="pikabeoGrid" class="absolute inset-2 grid z-10 w-[calc(100%-16px)] h-[calc(100%-16px)] gap-1 md:gap-1.5"></div>
