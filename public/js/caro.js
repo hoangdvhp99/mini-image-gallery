@@ -18,6 +18,7 @@ class CaroGame {
         this.turnTimeLimit = 30; // Default seconds
         this.timeLeft = 30;
         this.isMyTurn = false;
+        this.isRequesting = false; // Tránh spam click nút Tạo/Vào phòng
         
         // Sound and Graphics preloads
         this.audioCtx = null;
@@ -231,6 +232,8 @@ class CaroGame {
             this.roomCode = roomCode;
             this.myPlayer = player;
             this.players = [player];
+            this.isRequesting = false;
+            this.setLobbyButtonsDisabled(false);
             
             // Chuyển sang màn hình chờ đối thủ
             document.getElementById('caroLobbyPanel').classList.add('hidden');
@@ -246,6 +249,8 @@ class CaroGame {
         this.socket.on('joinError', ({ message }) => {
             showToast(`⚠️ ${message}`, 'error');
             this.playSound('error');
+            this.isRequesting = false;
+            this.setLobbyButtonsDisabled(false);
         });
         
         this.socket.on('gameStarted', ({ roomCode, players, turn, timeLeft }) => {
@@ -254,6 +259,8 @@ class CaroGame {
             this.currentTurn = turn;
             this.turnTimeLimit = timeLeft;
             this.timeLeft = timeLeft;
+            this.isRequesting = false;
+            this.setLobbyButtonsDisabled(false);
             
             // Tìm thông tin của mình
             this.myPlayer = players.find(p => p.socketId === this.socket.id);
@@ -364,7 +371,7 @@ class CaroGame {
                         titleEl.innerText = 'CHIẾN THẮNG QUÁ ĐỈNH!';
                         titleEl.className = 'text-cyan-400 font-black text-xl md:text-2xl tracking-widest';
                         msgEl.innerText = `Chúc mừng bạn! Bạn đã hủy diệt đối thủ bằng nước cờ Caro chuẩn sách giáo khoa.`;
-                        memeEl.src = `/img/beo-dino/characters/${Math.floor(Math.random() * 5) + 5}.png`; // Mấy sprite Lbeo cười ngầu
+                        memeEl.src = '/img/caro/victory.png';
                         glowEl.className = 'absolute -top-16 -left-16 w-32 h-32 bg-cyan-500/20 rounded-full filter blur-2xl pointer-events-none';
                         this.playSound('win');
                         this.startCelebrationParticles('#06b6d4');
@@ -372,8 +379,8 @@ class CaroGame {
                         emojiEl.innerText = '💀😭';
                         titleEl.innerText = 'BẠN ĐÃ ĂN HÀNH THƠM PHỨC!';
                         titleEl.className = 'text-rose-500 font-black text-xl md:text-2xl tracking-widest';
-                        msgEl.innerText = `Đối thủ ${winner.name} quá nguy hiểm! Hãy uống một ngụm lạc và làm ván phục thù.`;
-                        memeEl.src = `/img/beo-dino/characters/${Math.floor(Math.random() * 3) + 1}.png`; // Mấy sprite Lbeo mếu/quạu
+                        msgEl.innerText = `Đối thủ ${winner.name} quá nguy hiểm! Hãy uống một ngụm bia và làm ván phục thù.`;
+                        memeEl.src = '/img/caro/defeat.png';
                         glowEl.className = 'absolute -top-16 -left-16 w-32 h-32 bg-rose-500/20 rounded-full filter blur-2xl pointer-events-none';
                         this.playSound('error');
                     }
@@ -383,14 +390,14 @@ class CaroGame {
                         titleEl.innerText = 'THẮNG CUỘC DO ĐỐI THỦ HẾT GIỜ!';
                         titleEl.className = 'text-emerald-400 font-black text-xl md:text-2xl tracking-widest';
                         msgEl.innerText = `Đối thủ ${loser.name} đã rơi vào thế cờ quá hiểm hóc và cạn kiệt thời gian suy nghĩ.`;
-                        memeEl.src = `/img/beo-dino/characters/8.png`;
+                        memeEl.src = '/img/caro/victory.png';
                         this.playSound('win');
                     } else {
                         emojiEl.innerText = '⏰💥';
                         titleEl.innerText = 'HẾT GIỜ SUY NGHĨ!';
                         titleEl.className = 'text-rose-500 font-black text-xl md:text-2xl tracking-widest';
                         msgEl.innerText = `Thời gian suy nghĩ quá nhanh, bạn đã quá chậm chạp và bị xử thua cuộc đáng tiếc!`;
-                        memeEl.src = `/img/beo-dino/characters/2.png`;
+                        memeEl.src = '/img/caro/defeat.png';
                         this.playSound('error');
                     }
                 } else if (result === 'disconnect') {
@@ -398,7 +405,7 @@ class CaroGame {
                     titleEl.innerText = 'ĐỐI THỦ ĐÃ BỎ CHẠY (RAGE QUIT)!';
                     titleEl.className = 'text-amber-500 font-black text-xl md:text-2xl tracking-widest';
                     msgEl.innerText = `Nhận thấy nước cờ quá bế tắc, đối thủ đã lẳng lặng đứt kết nối hoặc Rage Quit. Bạn thắng cuộc!`;
-                    memeEl.src = `/img/beo-dino/characters/16.png`; // Sprite chạy trốn
+                    memeEl.src = '/img/caro/victory.png';
                     this.playSound('win');
                     this.startCelebrationParticles('#f59e0b');
                 } else if (result === 'draw') {
@@ -419,6 +426,8 @@ class CaroGame {
         this.winningPath = null;
         this.gameOverResult = null;
         this.isMyTurn = false;
+        this.isRequesting = false;
+        this.setLobbyButtonsDisabled(false);
         
         // Hủy vòng lặp đếm ngược & hạt
         if (this.timerInterval) clearInterval(this.timerInterval);
@@ -435,6 +444,8 @@ class CaroGame {
     }
     
     handleCreateRoom() {
+        if (this.isRequesting) return;
+        
         const nameInput = document.getElementById('caroPlayerNameInput');
         const playerName = nameInput ? nameInput.value.trim() : '';
         
@@ -444,9 +455,6 @@ class CaroGame {
             nameInput.focus();
             return;
         }
-        
-        localStorage.setItem('pikabeoPlayerName', playerName); // Lưu đồng bộ pikabeo
-        this.playSound('click');
         
         // Đọc cấu hình giây suy nghĩ
         const timerSelect = document.getElementById('caroCreateTimerSelect');
@@ -466,12 +474,20 @@ class CaroGame {
             turnTimeLimit = parseInt(timerSelect.value) || 30;
         }
         
+        this.isRequesting = true;
+        this.setLobbyButtonsDisabled(true, "ĐANG TẠO PHÒNG... 🚀", "VUI LÒNG ĐỢI...");
+        
+        localStorage.setItem('pikabeoPlayerName', playerName); // Lưu đồng bộ pikabeo
+        this.playSound('click');
+        
         if (this.socket) {
             this.socket.emit('createRoom', { playerName, turnTimeLimit });
         }
     }
     
     handleJoinRoom() {
+        if (this.isRequesting) return;
+        
         const nameInput = document.getElementById('caroPlayerNameInput');
         const playerName = nameInput ? nameInput.value.trim() : '';
         
@@ -492,11 +508,37 @@ class CaroGame {
             return;
         }
         
+        this.isRequesting = true;
+        this.setLobbyButtonsDisabled(true, "VUI LÒNG ĐỢI...", "ĐANG THAM GIA... ⚔️");
+        
         localStorage.setItem('pikabeoPlayerName', playerName);
         this.playSound('click');
         
         if (this.socket) {
             this.socket.emit('joinRoom', { roomCode, playerName });
+        }
+    }
+    
+    setLobbyButtonsDisabled(disabled, createText = "TẠO PHÒNG CHƠI 🚀", joinText = "THAM GIA PHÒNG ⚔️") {
+        const btnCreate = document.getElementById('btnCaroCreateRoom');
+        const btnJoin = document.getElementById('btnCaroJoinRoom');
+        if (btnCreate) {
+            btnCreate.disabled = disabled;
+            btnCreate.innerText = createText;
+            if (disabled) {
+                btnCreate.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnCreate.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        if (btnJoin) {
+            btnJoin.disabled = disabled;
+            btnJoin.innerText = joinText;
+            if (disabled) {
+                btnJoin.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnJoin.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
         }
     }
     

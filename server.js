@@ -543,7 +543,7 @@ app.post('/api/dino/scores', (req, res) => {
         const cleanName = String(playerName).trim().substring(0, 15);
         const safeScore = Math.max(0, parseInt(score) || 0);
 
-        // Chống hack: Kiểm tra tốc độ tăng điểm tối đa so với thời gian thực tế trôi qua (Dino tăng tối đa ~15 điểm/giây)
+        // Chống hack: Kiểm tra tốc độ tăng điểm tối đa so với thời gian thực tế trôi qua (Dino có thưởng bia +100đ nên tốc độ có thể đạt ~100 điểm/giây)
         const elapsedSeconds = (Date.now() - req.session.activeGame.startTime) / 1000;
 
         // Giới hạn thời gian chơi tối đa cho một phiên (Dino không quá 30 phút = 1800 giây)
@@ -551,7 +551,7 @@ app.post('/api/dino/scores', (req, res) => {
             return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Phiên chơi game đã hết hạn!' });
         }
 
-        const maxPossibleScore = Math.ceil(elapsedSeconds * 15) + 100; // Thêm 100 điểm đệm
+        const maxPossibleScore = Math.ceil(elapsedSeconds * 100) + 500; // Cho phép tối đa 100 điểm/giây + 500 điểm đệm cho beer items
         if (safeScore > maxPossibleScore) {
             return res.status(403).json({ success: false, message: 'Cảnh báo chống hack: Điểm số tăng nhanh bất thường so với thời gian chơi!' });
         }
