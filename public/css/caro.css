@@ -1,0 +1,211 @@
+/* public/css/caro.css */
+
+/* 1. Sảnh chờ & Glassmorphism Panels */
+#caroPlayground {
+    font-family: 'Outfit', sans-serif;
+    color: #cbd5e1;
+    background: radial-gradient(circle at 50% 50%, #15171e 0%, #0d0e12 100%);
+    border: 1px solid #1f2937;
+    position: relative;
+    overflow: hidden;
+}
+
+#caroPlayground::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(244, 63, 94, 0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Glassmorphism for inputs and cards */
+.bg-neutral-950 {
+    background-color: rgba(9, 9, 11, 0.7) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Cyberpunk buttons */
+#btnCaroCreateRoom {
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+#btnCaroJoinRoom {
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+#btnCaroCreateRoom:hover {
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+    transform: translateY(-1px);
+}
+
+#btnCaroJoinRoom:hover {
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Blinking animations */
+@keyframes blink-neon-cyan {
+    0%, 100% {
+        text-shadow: 0 0 4px rgba(6, 182, 212, 0.5), 0 0 10px rgba(6, 182, 212, 0.3);
+        opacity: 0.9;
+    }
+    50% {
+        text-shadow: 0 0 15px rgba(6, 182, 212, 0.9), 0 0 25px rgba(6, 182, 212, 0.6);
+        opacity: 1;
+    }
+}
+
+@keyframes blink-neon-rose {
+    0%, 100% {
+        text-shadow: 0 0 4px rgba(244, 63, 94, 0.5), 0 0 10px rgba(244, 63, 94, 0.3);
+        opacity: 0.9;
+    }
+    50% {
+        text-shadow: 0 0 15px rgba(244, 63, 94, 0.9), 0 0 25px rgba(244, 63, 94, 0.6);
+        opacity: 1;
+    }
+}
+
+@keyframes blink-general {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+#caroWaitingCode {
+    animation: blink-neon-cyan 2s infinite ease-in-out;
+}
+
+/* 2. Game Match Area */
+
+/* Player cards active glow states */
+.player-active-cyan {
+    border-color: rgba(6, 182, 212, 0.55) !important;
+    background: rgba(6, 182, 212, 0.08) !important;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.25), inset 0 0 10px rgba(6, 182, 212, 0.1);
+    transform: scale(1.02);
+}
+
+.player-active-rose {
+    border-color: rgba(244, 63, 94, 0.55) !important;
+    background: rgba(244, 63, 94, 0.08) !important;
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.25), inset 0 0 10px rgba(244, 63, 94, 0.1);
+    transform: scale(1.02);
+}
+
+/* Canvas styling */
+#caroCanvas {
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(6, 182, 212, 0.04);
+    background-color: #0b0c0f;
+    border: 1px solid #1d212b;
+    max-width: 100%;
+    cursor: pointer;
+    touch-action: none; /* Prevent scrolling when drawing on touch screens */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Chat styles */
+#caroChatHistory {
+    scrollbar-width: thin;
+    scrollbar-color: #1f2937 #0a0a0a;
+}
+
+#caroChatHistory::-webkit-scrollbar {
+    width: 5px;
+}
+
+#caroChatHistory::-webkit-scrollbar-track {
+    background: rgba(10, 10, 10, 0.6);
+    border-radius: 99px;
+}
+
+#caroChatHistory::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 99px;
+}
+
+#caroChatHistory::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46;
+}
+
+/* Chat bubble aesthetics */
+.chat-msg-row {
+    animation: slide-in-chat 0.2s ease-out;
+}
+
+@keyframes slide-in-chat {
+    from {
+        transform: translateY(6px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Predefined trash talk quick keys */
+.btn-caro-quick-chat {
+    border: 1px solid rgba(63, 63, 70, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.btn-caro-quick-chat:hover {
+    border-color: rgba(6, 182, 212, 0.4);
+    background-color: rgba(6, 182, 212, 0.08);
+    color: #22d3ee !important;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.1);
+}
+
+/* Result Screen animations */
+#caroResultOverlay {
+    background-color: rgba(6, 7, 9, 0.88);
+}
+
+#caroResultOverlay .w-full {
+    border: 1px solid rgba(31, 41, 55, 0.8);
+    animation: scale-up-result 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scale-up-result {
+    from {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Confetti particles for Victory */
+.result-particles-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 39;
+}
+
+/* Responsive stacks */
+@media (max-width: 1023px) {
+    #caroMatchPanel {
+        flex-direction: column !important;
+    }
+    
+    #caroMatchPanel > div {
+        width: 100% !important;
+    }
+    
+    #caroCanvas {
+        margin: 0 auto;
+    }
+}
