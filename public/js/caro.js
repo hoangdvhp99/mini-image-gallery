@@ -379,7 +379,7 @@ class CaroGame {
                         emojiEl.innerText = '💀😭';
                         titleEl.innerText = 'BẠN ĐÃ ĂN HÀNH THƠM PHỨC!';
                         titleEl.className = 'text-rose-500 font-black text-xl md:text-2xl tracking-widest';
-                        msgEl.innerText = `Đối thủ ${winner.name} quá nguy hiểm! Hãy uống một ngụm lạc và làm ván phục thù.`;
+                        msgEl.innerText = `Đối thủ ${winner.name} quá nguy hiểm! Hãy uống một ngụm bia và làm ván phục thù.`;
                         memeEl.src = `/img/beo-dino/characters/${Math.floor(Math.random() * 3) + 1}.png`; // Mấy sprite Lbeo mếu/quạu
                         glowEl.className = 'absolute -top-16 -left-16 w-32 h-32 bg-rose-500/20 rounded-full filter blur-2xl pointer-events-none';
                         this.playSound('error');
