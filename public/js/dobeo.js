@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!board[r][c].isMine && !isSafeZone) {
                 board[r][c].isMine = true;
+                getCellElement(r, c).style.background = 'rgba(255,0,0,0.3)';
                 minesPlaced++;
             }
         }
@@ -301,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.classList.add('flex');
 
         if (isWin) {
-            overlayIcon.innerHTML = '<img src="/img/do-beo/win.png" class="w-full max-w-[280px] h-auto object-contain mx-auto border-4 border-green-500 rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.6)]">';
+            overlayIcon.innerHTML = '<img src="/img/do-beo/win.gif" class="w-full max-w-[280px] h-auto object-contain mx-auto border-4 border-green-500 rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.6)]">';
             overlayTitle.textContent = 'BẠN THÌ KINH RỒI! NHẤT BẠN DỒIIII!';
             overlayTitle.className = 'text-green-400 font-black text-2xl md:text-3xl tracking-wider px-2 text-center';
             overlayMessage.innerHTML = `<span class="text-sm font-bold text-gray-400">Hoàn thành xuất sắc trong ${timeElapsed} giây</span>`;

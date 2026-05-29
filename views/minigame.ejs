@@ -4,7 +4,7 @@
         <%- include('partials/nav', { isMinigame: true }) %>
 
         <!-- MINIGAME CONTENT -->
-        <section id="minigameSection" class="transition-all duration-300 max-w-[1320px] mx-auto">
+        <section id="minigameSection" class="transition-all duration-300 max-w-[1440px] mx-auto">
             <div id="minigameContainer" class="w-full space-y-6 transition-all duration-500">
                 <!-- Màn hình chính Minigames -->
                 <div id="minigameHome" class="bg-ph-dark p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl space-y-6">
@@ -342,7 +342,7 @@
                     </div>
 
                     <!-- Màn hình chơi (Grid) -->
-                    <div class="w-full min-h-[300px] bg-neutral-950 rounded-2xl border border-neutral-850 p-2 md:p-4 flex items-center justify-center shadow-inner overflow-auto custom-scrollbar relative">
+                    <div class="w-full min-h-[520px] bg-neutral-950 rounded-2xl border border-neutral-850 p-2 md:p-4 flex items-center justify-center shadow-inner overflow-auto custom-scrollbar relative">
                         <div id="dobeoGrid" class="dobeo-grid">
                             <!-- Các ô (cells) sẽ được generate vào đây -->
                         </div>
@@ -350,7 +350,7 @@
                         <!-- Lớp phủ Tạm Dừng / Kết thúc -->
                         <div id="dobeoOverlay" class="absolute inset-0 bg-neutral-950/80 backdrop-blur-sm z-40 hidden flex-col items-center justify-center gap-4 transition-all duration-300 rounded-xl">
                             <div class="text-center space-y-2">
-                                <span id="dobeoOverlayIcon" class="text-6xl block animate-bounce mb-4">🍺</span>
+                                <span id="dobeoOverlayIcon" class="text-6xl block mb-4">🍺</span>
                                 <h3 id="dobeoOverlayTitle" class="text-yellow-400 font-black text-3xl tracking-wider">CHÚC MỪNG</h3>
                                 <p id="dobeoOverlayMessage" class="text-sm text-neutral-400 font-bold">Bạn đã an toàn qua cơn say!</p>
                             </div>
