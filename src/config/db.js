@@ -99,6 +99,14 @@ if (adminCount === 0) {
     db.prepare('INSERT INTO admins (username, password) VALUES (?, ?)').run('admin', defaultPasswordHash);
 }
 
+// Tự động dọn dẹp các điểm số hack từ các phiên bản cũ trước khi bảo mật được thiết lập
+try {
+    db.prepare('DELETE FROM dino_scores WHERE score > 50000').run();
+    db.prepare('DELETE FROM pikabeo_scores WHERE score > 100000').run();
+} catch (e) {
+    console.error('Lỗi khi dọn dẹp kỷ lục cũ:', e);
+}
+
 module.exports = {
     db,
     UPLOAD_DIR
