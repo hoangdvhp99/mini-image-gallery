@@ -373,7 +373,13 @@ class DinoGame {
             });
         }
 
+
+
         const handleJump = (e) => {
+            // Chỉ chạy khi Dino Playground đang mở
+            const playground = document.getElementById('dinoPlayground');
+            if (!playground || playground.classList.contains('hidden')) return;
+
             if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW' || e.type === 'touchstart' || e.type === 'mousedown') {
                 if (e.type !== 'mousedown') e.preventDefault();
 
@@ -413,6 +419,10 @@ class DinoGame {
         };
 
         const handleKeyDown = (e) => {
+            // Chỉ chạy khi Dino Playground đang mở
+            const playground = document.getElementById('dinoPlayground');
+            if (!playground || playground.classList.contains('hidden')) return;
+
             handleJump(e);
             if (e.code === 'ArrowDown' || e.code === 'KeyS') {
                 e.preventDefault();
@@ -431,6 +441,10 @@ class DinoGame {
         };
 
         const handleKeyUp = (e) => {
+            // Chỉ chạy khi Dino Playground đang mở
+            const playground = document.getElementById('dinoPlayground');
+            if (!playground || playground.classList.contains('hidden')) return;
+
             if (e.code === 'ArrowDown' || e.code === 'KeyS') {
                 e.preventDefault();
                 this.downHeld = false;
