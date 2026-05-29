@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!board[r][c].isMine && !isSafeZone) {
                 board[r][c].isMine = true;
-                getCellElement(r, c).style.background = 'rgba(255,0,0,0.3)';
                 minesPlaced++;
             }
         }
