@@ -21,6 +21,9 @@ jobs:
             # CD to TARGET_DIR
             cd ${{ secrets.TARGET_DIR }}
             
+            # Delete old process
+            pm2 delete beohub
+
             # Get the latest code from main branch
             git pull origin main
             
@@ -28,4 +31,4 @@ jobs:
             npm install --production
             
             # Restart app via pm2 using ecosystem.config.js
-            pm2 start ecosystem.config.js || pm2 restart beohub
+            pm2 start ecosystem.config.js
