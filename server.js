@@ -92,7 +92,16 @@ if (fs.existsSync(envPath)) {
     }
 }
 
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// Initialize Caro sockets
+require('./src/sockets/caroSocket')(io);
+
 const PORT = process.env.PORT || 3000;
 
 // Set up EJS view engine
@@ -735,7 +744,7 @@ setInterval(() => {
 }, 180000);
 
 // Khởi chạy server
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`=====================================================`);
     console.log(` 🖤 🔶  HỆ THỐNG TRUY CẬP MEDIA BEOHUB ĐANG HOẠT ĐỘNG 🔶 🖤`);
     console.log(`=====================================================`);
